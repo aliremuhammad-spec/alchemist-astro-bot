@@ -224,3 +224,32 @@ def sun_sign(year: int, month: int, day: int) -> int:
 
 def local_now(tz: str) -> datetime:
     return datetime.now(ZoneInfo(tz))
+
+
+_SKY_CACHE: dict = {}
+
+
+def sky_now() -> dict:
+    """Current sky (UTC, geocentric): tropical signs, retrogrades, moon phase, sidereal moon nakshatra. Cached 10 min."""
+    now = datetime.now(timezone.utc)
+    key = now.strftime("%Y%m%d%H") + str(now.minute // 10)
+    if key in _SKY_CACHE:
+        return _SKY_CACHE[key]
+    kw = dict(lng=0.0, lat=0.0, tz_str="UTC", online=False, city="-", nation="-")
+    w = AstrologicalSubjectFactory.from_birth_data("sky", now.year, now.month, now.day, now.hour, now.minute,
+                                                   active_points=_ACTIVE_WESTERN_NO_TIME, **kw)
+    v = AstrologicalSubjectFactory.from_birth_data("sky", now.year, now.month, now.day, now.hour, now.minute,
+                                                   zodiac_type="Sidereal", sidereal_mode="LAHIRI",
+                                                   active_points=["Sun", "Moon"], **kw)
+    pts = {}
+    for k in WESTERN_POINTS:
+        p = getattr(w, k, None)
+        if p is not None:
+            pts[k] = {"sign": int(p.abs_pos // 30), "deg": round(p.abs_pos % 30, 2), "retro": bool(p.retrograde)}
+    out = {"at": now.isoformat(), "points": pts,
+           "moon_phase": {"name": w.lunar_phase.moon_phase_name, "emoji": w.lunar_phase.moon_emoji},
+           "moon_nakshatra": nakshatra_of(v.moon.abs_pos),
+           "retrograde": [k for k, p in pts.items() if p["retro"] and "node" not in k]}
+    _SKY_CACHE.clear()
+    _SKY_CACHE[key] = out
+    return out

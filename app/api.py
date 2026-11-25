@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from . import db
 from .astro import geo
-from .astro.engine import BirthInput, compute, sun_sign
+from .astro.engine import BirthInput, compute, sky_now, sun_sign
 from .astro.render import indian_svg, svg_to_png, western_wheel_svg
 from .astro.report import vedic_text, western_text
 from .auth import tg_user
@@ -45,6 +45,7 @@ async def session(user: dict = Depends(current_user)):
     return {
         "user": {"id": user["id"], "first_name": user["first_name"], "lang": user["lang"], "tz": user["tz"]},
         "premium": await db.is_premium(user["id"]),
+        "is_admin": user["id"] in settings.admin_ids,
         "profiles": [_profile_out(p) for p in profiles],
         "daily": _daily_out(daily),
         "meta": meta(),
@@ -290,6 +291,11 @@ class FeedbackIn(BaseModel):
 async def feedback(body: FeedbackIn, request: Request, user: dict = Depends(current_user)):
     await save_feedback(request.app.state.bot, user["id"], user["first_name"], user["username"], body.text)
     return {"ok": True}
+
+
+@router.get("/sky")
+async def sky():
+    return await run_in_threadpool(sky_now)
 
 
 @router.get("/timezones")
