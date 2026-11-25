@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=2">
+  <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body>
   <header class="top">
@@ -18,6 +18,7 @@
         <h1 data-t="brand"></h1>
         <p class="beta" data-t="beta"></p>
       </div>
+      <button class="prem-btn" id="prem-btn" data-t="premium_btn"></button>
     </div>
   </header>
 
@@ -25,12 +26,14 @@
 
   <nav class="tabs" role="tablist">
     <button data-tab="chart" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg><span data-t="tab_chart"></span></button>
+    <button data-tab="synastry" role="tab"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg><span data-t="tab_syn"></span></button>
     <button data-tab="daily" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="4"/><path d="M12 3v3M4.9 6.9l2.1 2.1M3 15h3M18 15h3M17 9l2.1-2.1M4 20h16"/></svg><span data-t="tab_daily"></span></button>
     <button data-tab="channels" role="tab"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg><span data-t="tab_channels"></span></button>
     <button data-tab="about" role="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span data-t="tab_about"></span></button>
   </nav>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="/static/app.js?v=2"></script>
+  <script src="/static/ads.js?v=1"></script>
+  <script src="/static/app.js?v=3"></script>
 </body>
 </html>

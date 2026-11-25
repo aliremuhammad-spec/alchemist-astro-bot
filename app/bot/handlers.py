@@ -10,7 +10,7 @@ from aiogram.enums import ChatMemberStatus, ChatType
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import (CallbackQuery, ChatMemberUpdated, InlineKeyboardButton,
-                           InlineKeyboardMarkup, Message, WebAppInfo)
+                           InlineKeyboardMarkup, Message, PreCheckoutQuery, WebAppInfo)
 
 from .. import content, db
 from ..config import settings
@@ -144,6 +144,11 @@ async def cmd_stats(m: Message):
     charts = await p.fetchval("SELECT count(*) FROM events WHERE name='chart'")
     profiles = await p.fetchval("SELECT count(*) FROM profiles")
     fb = await p.fetchval("SELECT count(*) FROM feedback")
+    prem = await p.fetchval("SELECT count(DISTINCT user_id) FROM subscriptions WHERE ends_at > now()")
+    stars = await p.fetchval("SELECT coalesce(sum(stars),0) FROM payments WHERE NOT refunded")
+    ads = await p.fetch("""SELECT provider, count(*) n FROM ad_events WHERE status='completed'
+                           GROUP BY provider ORDER BY n DESC""")
+    syn = await p.fetchval("SELECT count(*) FROM events WHERE name='synastry'")
     langs = await p.fetch("SELECT lang, count(*) n FROM users GROUP BY lang ORDER BY n DESC")
     countries = await p.fetch("""SELECT country, count(DISTINCT user_id) n FROM profiles WHERE is_main
                                  GROUP BY country ORDER BY n DESC LIMIT 8""")
@@ -151,7 +156,8 @@ async def cmd_stats(m: Message):
                                GROUP BY s ORDER BY n DESC LIMIT 6""")
     txt = (f"📊 <b>الإحصائيات</b>\n👥 المستخدمين: {users} (جدد اليوم {new1}، نشطين 7 أيام {active7})\n"
            f"🌅 مشتركين بالأبراج: {daily}\n📢 قنوات/مجموعات: {chats}\n🔭 خرائط محسوبة: {charts} · ملفات محفوظة: {profiles}\n"
-           f"💡 اقتراحات: {fb}\n\n🌐 اللغات: " + ", ".join(f"{r['lang']} {r['n']}" for r in langs)
+           f"💡 اقتراحات: {fb}\n💞 توافقات: {syn}\n⭐ مميزين الآن: {prem} · مجموع النجوم: {stars}\n"
+           f"📺 إعلانات مكتملة: " + (", ".join(f"{r['provider']} {r['n']}" for r in ads) or "0") + "\n\n🌐 اللغات: " + ", ".join(f"{r['lang']} {r['n']}" for r in langs)
            + "\n📍 دول الولادة: " + (", ".join(f"{r['country']} {r['n']}" for r in countries) or "-")
            + "\n🔗 المصادر: " + ", ".join(f"{r['s']} {r['n']}" for r in sources))
     await m.answer(txt)
@@ -255,6 +261,67 @@ async def cmd_grant(m: Message, command: CommandObject):
         "INSERT INTO subscriptions(user_id,source,ends_at,granted_by,note) VALUES($1,'manual',$2,$3,$4)",
         uid, datetime.now(timezone.utc) + timedelta(days=days), m.from_user.id, parts[2] if len(parts) > 2 else None)
     await m.answer(f"✅ تمت ترقية {uid} لمدة {days} يوم")
+
+
+# ───────────── Stars payments ─────────────
+
+@router.pre_checkout_query()
+async def pre_checkout(q: PreCheckoutQuery):
+    ok = q.currency == "XTR" and q.invoice_payload == f"premium:{q.from_user.id}"
+    await q.answer(ok=ok, error_message=None if ok else "Invalid invoice")
+
+
+@router.message(F.successful_payment)
+async def paid(m: Message):
+    from ..monetize import record_payment
+    await record_payment(m.from_user.id, m.successful_payment)
+    lang = lang_of(m.from_user.language_code)
+    first = not m.successful_payment.is_recurring or m.successful_payment.is_first_recurring
+    if first:
+        await m.answer("✨ <b>تم تفعيل الاشتراك المميز!</b> شكراً لدعمك. افتح التطبيق وجرّب الخرائط الفرعية والتوافق بلا إعلانات."
+                       if lang == "ar" else "✨ <b>Premium is active!</b> Thanks for your support. Open the app to explore.",
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, "#premium")]]))
+    for a in settings.admin_ids:
+        try:
+            await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة من "
+                                        f"{escape(m.from_user.full_name)} (<code>{m.from_user.id}</code>)"
+                                        + (" · تجديد" if not first else ""))
+        except Exception:
+            pass
+
+
+@router.message(Command("setprice"), F.chat.type == ChatType.PRIVATE)
+async def cmd_setprice(m: Message, command: CommandObject):
+    if not is_admin(m.from_user.id):
+        return
+    v = (command.args or "").strip()
+    if not v.isdigit() or not 1 <= int(v) <= 10000:
+        await m.answer("الاستخدام: /setprice 300")
+        return
+    await db.kv_set("premium_stars", v)
+    await m.answer(f"✅ سعر الاشتراك الجديد {v} نجمة (للاشتراكات الجديدة فقط)")
+
+
+@router.message(Command("refund"), F.chat.type == ChatType.PRIVATE)
+async def cmd_refund(m: Message, command: CommandObject, bot: Bot):
+    """/refund <user_id> — refunds that user's latest Stars payment and ends the premium it bought."""
+    if not is_admin(m.from_user.id) or not (command.args or "").strip().isdigit():
+        await m.answer("الاستخدام: /refund user_id") if is_admin(m.from_user.id) else None
+        return
+    uid = int(command.args.strip())
+    row = await db.pool().fetchrow(
+        "SELECT * FROM payments WHERE user_id=$1 AND NOT refunded ORDER BY created_at DESC LIMIT 1", uid)
+    if not row:
+        await m.answer("ما في دفعة قابلة للاسترداد")
+        return
+    try:
+        await bot.refund_star_payment(user_id=uid, telegram_payment_charge_id=row["charge_id"])
+    except Exception as e:
+        await m.answer(f"❌ {e}")
+        return
+    await db.pool().execute("UPDATE payments SET refunded=TRUE WHERE id=$1", row["id"])
+    await db.pool().execute("UPDATE subscriptions SET ends_at=now() WHERE charge_id=$1", row["charge_id"])
+    await m.answer(f"✅ استُرد {row['stars']} نجمة للمستخدم {uid}")
 
 
 # ───────────── suggestion text capture (must stay after commands) ─────────────

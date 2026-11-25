@@ -64,6 +64,7 @@ def meta() -> dict:
         "instagram_partner": settings.instagram_partner, "instagram_partner_label": settings.instagram_partner_label,
         "add_channel": add_channel_link(), "add_group": add_group_link(),
         "free_profiles": settings.free_profiles,
+        "ads": settings.ads, "chart_ad": settings.chart_ad, "premium_stars": settings.premium_stars,
     }
 
 

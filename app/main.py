@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import db, scheduler
 from .api import router as api_router
+from .monetize import router as monetize_router
 from .bot.handlers import router as bot_router
 from .config import settings
 
@@ -74,6 +75,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="The Alchemist Astro", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.include_router(api_router)
+app.include_router(monetize_router)
 
 
 @app.get("/health")

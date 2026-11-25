@@ -25,6 +25,19 @@ class Settings:
     keepalive_minutes: int = int(os.getenv("KEEPALIVE_MINUTES", "13"))
     dev_auth: bool = os.getenv("DEV_AUTH", "") == "1"  # local browser testing only
     free_profiles: int = int(os.getenv("FREE_PROFILES", "3"))
+    premium_stars: int = int(os.getenv("PREMIUM_STARS", "300"))
+    # Ad network IDs are public (they ship in the page). Empty = network off.
+    ads: dict = field(default_factory=lambda: {
+        "adexium": os.getenv("ADEXIUM_WID", "81f20334-653b-4b3f-9ae4-de0b4736bc1b"),
+        "tads": os.getenv("TADS_WIDGET_ID", "13523"),
+        "onclicka": os.getenv("ONCLICKA_SPOT_ID", ""),
+        "monetag": os.getenv("MONETAG_ZONE", ""),
+        "adsgram": os.getenv("ADSGRAM_BLOCK_ID", ""),
+    })
+    chart_ad: bool = os.getenv("CHART_AD", "") == "1"  # optional ad after a new chart (off by default)
+    ad_min_seconds: int = 8
+    ad_daily_cap: int = 10
+    nofill_daily_cap: int = 3  # synastries allowed per day when no network has an ad
 
 
 settings = Settings()

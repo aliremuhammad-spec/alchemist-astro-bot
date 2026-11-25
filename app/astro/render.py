@@ -27,13 +27,17 @@ def western_wheel_svg(chart: dict, theme: str = "dark") -> str:
     return d.generate_wheel_only_svg_string(remove_css_variables=True)
 
 
-def _placements(chart: dict, lang: str) -> tuple[int | None, dict[int, list[str]]]:
+def _placements(chart: dict, lang: str, varga: dict | None = None) -> tuple[int | None, dict[int, list[str]]]:
     v = chart["vedic"]
-    asc = v["lagna"]["sign"] if v["lagna"] else None
+    labels = VEDIC_SHORT["ar" if lang == "ar" else "en"]
     by_sign: dict[int, list[str]] = {i: [] for i in range(12)}
+    if varga:  # divisional chart: signs only, no degrees
+        for key, p in varga["points"].items():
+            by_sign[p["sign"]].append(labels[key] + (" R" if p["retro"] and "node" not in key else ""))
+        return varga["lagna"], by_sign
+    asc = v["lagna"]["sign"] if v["lagna"] else None
     for key, p in v["points"].items():
-        label = VEDIC_SHORT["ar" if lang == "ar" else "en"][key]
-        txt = f"{label} {LRI}{int(p['deg'])}°{PDI}"
+        txt = f"{labels[key]} {LRI}{int(p['deg'])}°{PDI}"
         if p["retro"] and "node" not in key:
             txt += " R"
         by_sign[p["sign"]].append(txt)
@@ -63,9 +67,9 @@ _NORTH = {
 }
 
 
-def north_indian_svg(chart: dict, lang: str = "ar", theme: str = "dark") -> str:
+def north_indian_svg(chart: dict, lang: str = "ar", theme: str = "dark", varga: dict | None = None) -> str:
     c = THEMES[theme]
-    asc, by_sign = _placements(chart, lang)
+    asc, by_sign = _placements(chart, lang, varga)
     asc_sign = asc if asc is not None else chart["vedic"]["points"]["moon"]["sign"]
     b = [f'<g transform="translate(20,20)">',
          f'<rect width="400" height="400" rx="6" fill="{c["panel"]}" stroke="{c["line"]}" stroke-width="2"/>',
@@ -89,9 +93,9 @@ _SOUTH_POS = {11: (0, 0), 0: (0, 1), 1: (0, 2), 2: (0, 3), 3: (1, 3), 4: (2, 3),
               5: (3, 3), 6: (3, 2), 7: (3, 1), 8: (3, 0), 9: (2, 0), 10: (1, 0)}
 
 
-def south_indian_svg(chart: dict, lang: str = "ar", theme: str = "dark") -> str:
+def south_indian_svg(chart: dict, lang: str = "ar", theme: str = "dark", varga: dict | None = None) -> str:
     c = THEMES[theme]
-    asc, by_sign = _placements(chart, lang)
+    asc, by_sign = _placements(chart, lang, varga)
     names = SIGNS["ar" if lang == "ar" else "en"]
     s = 100
     b = ['<g transform="translate(20,20)">']
@@ -116,15 +120,21 @@ def south_indian_svg(chart: dict, lang: str = "ar", theme: str = "dark") -> str:
                else f"Moon: {nak_name} pada {nak['pada']}")]
     b.append(f'<rect x="{s + 1}" y="{s + 1}" width="{2 * s - 2}" height="{2 * s - 2}" fill="{c["bg"]}"/>')
     b.append(_lines(2 * s, 2 * s - 10, [t for t in centre if t], 12.5, c["text"]))
+    tag = f"D{varga['n']} · Lahiri" if varga else "Lahiri · Whole Sign"
     b.append(f'<text x="{2 * s}" y="{3 * s - 14}" font-size="10" text-anchor="middle" fill="{c["accent"]}">'
-             f'Lahiri · Whole Sign</text>')
+             f'{tag}</text>')
     b.append(f'<rect width="400" height="400" fill="none" stroke="{c["line"]}" stroke-width="2"/>')
     b.append("</g>")
     return _frame("".join(b), c)
 
 
-def indian_svg(chart: dict, style: str, lang: str, theme: str) -> str:
-    return (south_indian_svg if style == "south" else north_indian_svg)(chart, lang, theme)
+def indian_svg(chart: dict, style: str, lang: str, theme: str, varga: dict | None = None) -> str:
+    return (south_indian_svg if style == "south" else north_indian_svg)(chart, lang, theme, varga)
+
+
+def synastry_wheel_svg(dual_data, theme: str = "dark") -> str:
+    d = ChartDrawer(dual_data, theme="dark" if theme == "dark" else "classic")
+    return d.generate_wheel_only_svg_string(remove_css_variables=True)
 
 
 def svg_to_png(svg: str, width: int = 1000) -> bytes | None:

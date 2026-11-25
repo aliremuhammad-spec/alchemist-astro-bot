@@ -85,3 +85,31 @@ def test_unknown_time_has_no_angles():
     c = compute(BirthInput("T", 1995, 5, 15, 0, 0, False, 33.5, 36.3, "Asia/Damascus"))
     assert c["western"]["asc"] is None and c["vedic"]["lagna"] is None
     assert all(p["house"] is None for p in c["western"]["points"].values())
+
+
+def test_vargas_reference():
+    from app.astro.vargas import varga_sign, varga_chart, VARGAS
+    # Navamsha: Taurus 0°23' -> Capricorn; Scorpio 9°04' -> Virgo; Leo 29° -> Sagittarius
+    assert varga_sign(9, 30 + 0.38) == 9
+    assert varga_sign(9, 210 + 9.06) == 5
+    assert varga_sign(9, 120 + 29.0) == 8
+    # Hora: odd sign first half -> Leo, even sign first half -> Cancer
+    assert varga_sign(2, 5) == 4 and varga_sign(2, 35) == 3
+    # Trimshamsha: odd sign 0-5° -> Aries, even sign 0-5° -> Taurus
+    assert varga_sign(30, 2) == 0 and varga_sign(30, 32) == 1
+    # Shashtiamsha last part of Aries -> Aries + 59 = Pisces (59 % 12 = 11)
+    assert varga_sign(60, 29.9) == 11
+    c = compute(BirthInput("T", 1995, 5, 15, 14, 30, True, 33.5138, 36.2765, "Asia/Damascus"))
+    for n in VARGAS:
+        vc = varga_chart(c, n)
+        assert all(0 <= p["sign"] < 12 for p in vc["points"].values())
+
+
+def test_synastry_score():
+    from app.astro.synastry import compute_synastry, synastry_text
+    a = BirthInput("A", 1995, 5, 15, 14, 30, True, 33.51, 36.27, "Asia/Damascus")
+    b = BirthInput("B", 1993, 8, 2, 9, 10, False, 33.89, 35.5, "Asia/Beirut")
+    s = compute_synastry(a, b)
+    assert s["score"]["value"] >= 0 and s["aspects"]
+    assert all(x["b"] not in ("ascendant", "medium_coeli") for x in s["aspects"])  # B has no birth time
+    assert "التوافق" in synastry_text(s, "ar")

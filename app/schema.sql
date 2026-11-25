@@ -102,3 +102,28 @@ CREATE TABLE IF NOT EXISTS kv (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+
+-- One-time tickets: an ad view (or a no-fill fallback) unlocks one synastry.
+CREATE TABLE IF NOT EXISTS ad_tickets (
+  id          TEXT PRIMARY KEY,
+  user_id     BIGINT NOT NULL,
+  placement   TEXT NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  completed_at TIMESTAMPTZ,
+  provider    TEXT,
+  used_at     TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS ad_tickets_user ON ad_tickets(user_id, created_at);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id           BIGSERIAL PRIMARY KEY,
+  user_id      BIGINT NOT NULL,
+  stars        INT NOT NULL,
+  charge_id    TEXT UNIQUE,
+  payload      TEXT,
+  recurring    BOOLEAN,
+  first_recurring BOOLEAN,
+  expires_at   TIMESTAMPTZ,
+  refunded     BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);

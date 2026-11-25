@@ -7,7 +7,20 @@
   const I18N = {
     ar: {
       brand: "الخيميائي", beta: "<b>نسخة تجريبية</b> · من تطوير الخيميائي",
-      tab_chart: "خارطتي", tab_daily: "برج اليوم", tab_channels: "قنواتي", tab_about: "حول",
+      tab_chart: "خارطتي", tab_syn: "التوافق", tab_daily: "برج اليوم", premium_btn: "✨ مميز",
+      syn_title: "التوافق بين خارطتين", syn_sub: "اختار خارطتين من خرائطك المحفوظة. الحساب مجاني مقابل مشاهدة فيديو إعلاني قصير.",
+      syn_need: "لازم يكون عندك خارطتين محفوظتين على الأقل. ضيف خارطة الشخص التاني من تبويب «خارطتي».",
+      syn_a: "الشخص الأول", syn_b: "الشخص التاني", syn_go_ad: "شاهد إعلاناً واحسب التوافق", syn_go: "احسب التوافق",
+      syn_same: "اختار شخصين مختلفين", ad_loading: "عم نحمّل الإعلان…", ad_closed: "انسكّر الإعلان قبل نهايته، جرّب مرة تانية.",
+      ad_limit: "وصلت للحد اليومي، جرّب بكرا أو اشترك بالمميز.", score: "مؤشر التوافق", syn_details: "تفاصيل الاتصالات",
+      varga: "الخريطة الفرعية", varga_lock: "الخرائط الفرعية من D2 لـ D60 للمشتركين المميزين (D9 مجانية).",
+      prem_title: "الخيميائي المميز", prem_sub: "اشتراك شهري بالنجوم يفتح كل المزايا المتقدمة.",
+      prem_active: "اشتراكك فعّال حتى ", prem_buy: "اشترك بـ {n} نجمة شهرياً", prem_paid: "تم الاشتراك، أهلاً بك بالمميز ✨",
+      prem_perks: [["الخرائط الفرعية D2 لـ D60", "الهورا، الدريكانا، النافامشا، الداشامشا وكل الشودشافارغا"],
+                   ["التوافق بلا إعلانات", "احسب توافق ما بدك مع أي خارطة محفوظة"],
+                   ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
+                   ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الاختيارات الأسبوعية، التوافق الفيدي (36 نقطة)، تقرير PDF"]],
+      prem_manual: "ما عندك نجوم تلغرام؟ راسلنا على إنستغرام لطرق دفع تانية.", tab_channels: "قنواتي", tab_about: "حول",
       hero_title: "خارطتك كما كانت السماء لحظة ولادتك",
       hero_sub: "بالنظامين الغربي والفيدي، مع الرسم الهندي الشمالي أو الجنوبي.",
       new_chart: "خارطة جديدة", name: "الاسم", name_ph: "اسمك أو اسم صاحب الخارطة",
@@ -46,7 +59,20 @@
     },
     en: {
       brand: "The Alchemist", beta: "<b>Beta</b> · developed by The Alchemist",
-      tab_chart: "My chart", tab_daily: "Daily", tab_channels: "Channels", tab_about: "About",
+      tab_chart: "My chart", tab_syn: "Match", tab_daily: "Daily", premium_btn: "✨ Premium",
+      syn_title: "Compatibility of two charts", syn_sub: "Pick two saved charts. It's free in exchange for a short video ad.",
+      syn_need: "You need at least two saved charts. Add the other person's chart in My chart.",
+      syn_a: "First person", syn_b: "Second person", syn_go_ad: "Watch an ad and compare", syn_go: "Compare charts",
+      syn_same: "Pick two different people", ad_loading: "Loading the ad…", ad_closed: "The ad was closed early. Try again.",
+      ad_limit: "Daily limit reached. Try tomorrow or go Premium.", score: "Compatibility score", syn_details: "Aspect details",
+      varga: "Divisional chart", varga_lock: "Divisional charts D2–D60 are for Premium members (D9 is free).",
+      prem_title: "Alchemist Premium", prem_sub: "A monthly Stars subscription that unlocks every advanced feature.",
+      prem_active: "Your subscription is active until ", prem_buy: "Subscribe for {n} Stars a month", prem_paid: "You're Premium now ✨",
+      prem_perks: [["Divisional charts D2–D60", "Hora, Drekkana, Navamsha, Dashamsha and the full Shodashavarga"],
+                   ["Ad-free compatibility", "Compare any saved charts, as often as you like"],
+                   ["Unlimited profiles", "Save family and friends without a limit"],
+                   ["Coming for members", "Personal daily transits, transit alerts, weekly electional dates, Vedic 36-point matching, PDF report"]],
+      prem_manual: "No Telegram Stars? Message us on Instagram for other payment options.", tab_channels: "Channels", tab_about: "About",
       hero_title: "Your chart: the sky at the moment you were born",
       hero_sub: "Western and Vedic, with a North or South Indian chart.",
       new_chart: "New chart", name: "Name", name_ph: "Your name or the chart owner's",
@@ -127,7 +153,9 @@
   function setTab(tab) {
     S.tab = tab;
     document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
-    ({ chart: renderChart, daily: renderDaily, channels: renderChannels, about: renderAbout })[tab]();
+    ({ chart: renderChart, synastry: renderSynastry, daily: renderDaily, channels: renderChannels,
+       about: renderAbout, premium: renderPremium })[tab]();
+    $("#prem-btn").classList.toggle("on", tab === "premium");
     window.scrollTo(0, 0);
   }
 
@@ -247,7 +275,11 @@
           name: f.name, day: f.day, month: f.month, year: f.year, hour: f.hour, minute: f.minute,
           time_known: !f.unknown, country: f.country, city_id: f.city_id, indian_style: S.style,
           theme: S.theme, lang: S.lang, save: true }) });
-        S.chart = res; S.profileId = res.profile_id; S.editing = false; S.system = "western";
+        // optional ad after a new chart (switched on server-side with CHART_AD=1; never for Premium)
+        if (S.session.meta.chart_ad && !S.session.premium && window.Ads) {
+          try { await window.Ads.watch("chart", S.session.meta.ads || {}, api); } catch (e) { /* the chart is free either way */ }
+        }
+        S.chart = res; S.profileId = res.profile_id; S.editing = false; S.system = "western"; S.varga = 1; S.vargaSvg = null;
         if (res.profile_limit_hit) toast(T("limit").replace("{n}", S.session.meta.free_profiles));
         await refreshSession();
         haptic("medium");
@@ -268,7 +300,8 @@
         <div class="seg" id="sys"><button data-v="western" aria-pressed="${S.system === "western"}">${T("western")}</button><button data-v="vedic" aria-pressed="${S.system === "vedic"}">${T("vedic")}</button></div>
         <div class="seg" id="sty" ${S.system === "vedic" ? "" : "hidden"}><button data-v="north" aria-pressed="${S.style === "north"}">${T("north")}</button><button data-v="south" aria-pressed="${S.style === "south"}">${T("south")}</button></div>
       </div>
-      <div id="svg">${S.system === "western" ? c.svg.western : c.svg.indian}</div>
+      ${S.system === "vedic" && S.profileId ? `<label for="varga">${T("varga")}</label><select id="varga">${vargaOptions()}</select>` : ""}
+      <div id="svg">${S.system === "western" ? c.svg.western : (S.vargaSvg || c.svg.indian)}</div>
     </section>
     ${warn}
     <details ${S.system === "western" ? "open" : ""}><summary>${T("details_w")}</summary><div class="report">${c.text.western}</div></details>
@@ -280,7 +313,23 @@
     </div>`;
   }
 
+  function vargaOptions() {
+    const prem = S.session.premium;
+    return (S.vargas || [{ n: 1, name: "Rashi", ar: "الراشي" }]).map((v) =>
+      `<option value="${v.n}" ${v.n === S.varga ? "selected" : ""}>${v.n === 1 || v.n === 9 || prem ? "" : "🔒 "}D${v.n} · ${esc(S.lang === "ar" ? v.ar : v.name)}</option>`).join("");
+  }
+
+  async function loadVarga(n) {
+    if (n === 1) { S.varga = 1; S.vargaSvg = null; return renderChart(); }
+    if (n !== 9 && !S.session.premium) { toast(T("varga_lock")); $("#varga").value = String(S.varga); return; }
+    try {
+      const r = await api(`/api/profiles/${S.profileId}/varga/${n}?style=${S.style}&theme=${S.theme}&lang=${S.lang}`);
+      S.varga = n; S.vargaSvg = r.svg; renderChart();
+    } catch (e) { toast(T("err") + e.message); }
+  }
+
   function bindChart() {
+    const vs = $("#varga"); if (vs) vs.onchange = () => loadVarga(+vs.value);
     $("#sys").onclick = (e) => {
       const b = e.target.closest("button"); if (!b) return;
       S.system = b.dataset.v; haptic(); renderChart();
@@ -315,7 +364,8 @@
       if (!keepSystem && p) S.style = p.indian_style;
       S.chart = await api(`/api/profiles/${pid}/chart?style=${S.style}&theme=${S.theme}&lang=${S.lang}`);
       S.profileId = pid; S.editing = false;
-      if (!keepSystem) S.system = "western";
+      if (!keepSystem) { S.system = "western"; S.varga = 1; S.vargaSvg = null; }
+      else if (S.varga && S.varga !== 1) { const n = S.varga; S.varga = 1; S.vargaSvg = null; renderChart(); return loadVarga(n); }
       renderChart();
     } catch (e) { toast(T("err") + e.message); }
   }
@@ -406,6 +456,77 @@
     };
   }
 
+  /* ───────────── synastry tab ───────────── */
+  function renderSynastry() {
+    const ps = S.session.profiles;
+    if (ps.length < 2) {
+      $("#view").innerHTML = `<h2>${T("syn_title")}</h2><p class="muted">${T("syn_need")}</p><button class="btn" id="go-chart">${T("new_chart")}</button>`;
+      $("#go-chart").onclick = () => { S.editing = true; setTab("chart"); };
+      return;
+    }
+    const opt = (sel) => ps.map((p) => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${esc(p.name)} · ${p.birth_date}</option>`).join("");
+    const prem = S.session.premium;
+    $("#view").innerHTML = `<h2>${T("syn_title")}</h2><p class="muted">${prem ? "" : T("syn_sub")}</p>
+      <label for="sa">${T("syn_a")}</label><select id="sa">${opt(S.synA || ps[0].id)}</select>
+      <label for="sb">${T("syn_b")}</label><select id="sb">${opt(S.synB || ps[1].id)}</select>
+      <button class="btn block" id="syn-go">${prem ? T("syn_go") : T("syn_go_ad")}</button>
+      <div id="syn-out">${S.synResult ? synView(S.synResult) : ""}</div>`;
+    $("#syn-go").onclick = runSynastry;
+  }
+
+  function synView(r) {
+    return `<section class="stage" style="margin-top:16px"><p class="name">${esc(r.names[0])} · ${esc(r.names[1])}</p>
+      <div class="score"><b>${r.score.value}</b><span class="muted">${T("score")}</span></div>${r.svg}</section>
+      <details open><summary>${T("syn_details")}</summary><div class="report">${r.text}</div></details>`;
+  }
+
+  async function runSynastry() {
+    const a = +$("#sa").value, b = +$("#sb").value;
+    if (a === b) return toast(T("syn_same"));
+    S.synA = a; S.synB = b;
+    const btn = $("#syn-go"); btn.disabled = true;
+    let ticket = null;
+    try {
+      if (!S.session.premium) {
+        btn.innerHTML = `<span class="spinner"></span> ${T("ad_loading")}`;
+        const r = await window.Ads.watch("synastry", S.session.meta.ads || {}, api);
+        if (!r.granted) throw new Error("ad");
+        ticket = r.ticket;
+      }
+      btn.innerHTML = `<span class="spinner"></span> ${T("calculating")}`;
+      S.synResult = await api("/api/synastry", { method: "POST", body: JSON.stringify({ a, b, ticket, theme: S.theme, lang: S.lang }) });
+      haptic("medium"); renderSynastry();
+    } catch (e) {
+      const msg = e instanceof window.Ads.AdSkipped ? T("ad_closed") : /limit/.test(e.message) ? T("ad_limit") : T("err") + e.message;
+      toast(msg); btn.disabled = false; btn.textContent = S.session.premium ? T("syn_go") : T("syn_go_ad");
+    }
+  }
+
+  /* ───────────── premium ───────────── */
+  async function renderPremium() {
+    const info = await api("/api/premium");
+    const perks = T("prem_perks").map(([b, s]) => `<li><b>${b}</b><span>${s}</span></li>`).join("");
+    $("#view").innerHTML = `<h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p><ul class="perks">${perks}</ul>
+      ${info.active ? `<p class="warn">${T("prem_active")}${info.until.slice(0, 10)}</p>`
+                    : `<button class="btn block" id="buy">⭐ ${T("prem_buy").replace("{n}", info.stars)}</button>`}
+      <p class="muted" style="margin-top:14px">${T("prem_manual")}</p>`;
+    const buy = $("#buy");
+    if (buy) buy.onclick = async () => {
+      buy.disabled = true;
+      try {
+        const { link } = await api("/api/premium/invoice", { method: "POST" });
+        const done = async (status) => {
+          buy.disabled = false;
+          if (status === "paid") {
+            toast(T("prem_paid")); haptic("heavy");
+            setTimeout(async () => { await refreshSession(); renderPremium(); }, 1500);
+          }
+        };
+        if (tg && tg.openInvoice) tg.openInvoice(link, done); else { openTg(link); buy.disabled = false; }
+      } catch (e) { toast(T("err") + e.message); buy.disabled = false; }
+    };
+  }
+
   async function refreshSession() { S.session = await api("/api/session", { method: "POST" }); }
 
   /* ───────────── boot ───────────── */
@@ -421,16 +542,18 @@
     S.lang = code.startsWith("ar") ? "ar" : "en";
     applyLang();
     document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => { haptic(); setTab(b.dataset.tab); });
+    $("#prem-btn").onclick = () => { haptic(); setTab("premium"); };
     if (!DEV && !(tg && tg.initData)) { $("#view").innerHTML = `<p class="warn">${T("open_in_tg")}</p>`; return; }
     try {
       await refreshSession();
       S.lang = S.session.user.lang || S.lang; applyLang();
+      api("/api/vargas").then((v) => { S.vargas = v; }).catch(() => {});
       // Telegram puts tgWebAppData in the hash; only plain words are our own tab links (#daily, #channels…)
       const h = location.hash.replace("#", "");
       const start = (/^[a-z]+$/.test(h) && h) || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "chart";
       const main = S.session.profiles[0];
       if (main && start === "chart") { S.style = main.indian_style; await loadProfile(main.id); setTab("chart"); }
-      else setTab(["chart", "daily", "channels", "about"].includes(start) ? start : "chart");
+      else setTab(["chart", "synastry", "daily", "channels", "about", "premium"].includes(start) ? start : "chart");
     } catch (e) {
       $("#view").innerHTML = `<p class="warn">${T("err")}${esc(e.message)}</p>`;
     }
