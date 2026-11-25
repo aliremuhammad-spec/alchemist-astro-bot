@@ -1,0 +1,28 @@
+# Render Blueprint. Database: Neon (free Postgres). Secrets marked sync:false go in the dashboard only.
+services:
+  - type: web
+    name: alchemist-astro-bot
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: BOT_USERNAME
+        value: TheAlchemistAstroBot
+      - key: ADMIN_IDS
+        value: "8449364055"
+      - key: DEFAULT_TZ
+        value: Asia/Damascus
+      - key: INSTAGRAM_MAIN
+        value: the.alchemist.astro
+      - key: INSTAGRAM_PARTNER
+        sync: false
+      - key: DAILY_URL
+        sync: false
+      - key: WEEKLY_URL
+        sync: false

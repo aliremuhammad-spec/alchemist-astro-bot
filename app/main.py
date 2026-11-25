@@ -1,0 +1,98 @@
+from __future__ import annotations
+
+import logging
+import hashlib
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.types import BotCommand, MenuButtonWebApp, Update, WebAppInfo
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from . import db, scheduler
+from .api import router as api_router
+from .bot.handlers import router as bot_router
+from .config import settings
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger("app")
+WEB_DIR = Path(__file__).resolve().parents[1] / "web"
+
+# Stable across restarts: explicit secret, else derived from the bot token.
+WEBHOOK_SECRET = settings.webhook_secret or hashlib.sha256(f"wh:{settings.bot_token}".encode()).hexdigest()[:48]
+
+COMMANDS = {
+    "ar": [("start", "البداية"), ("app", "فتح التطبيق"), ("channel", "الأبراج لقناتك أو مجموعتك"),
+           ("suggest", "اقتراح للتطوير"), ("about", "عن البوت والكود المصدري")],
+    "en": [("start", "Start"), ("app", "Open the app"), ("channel", "Horoscopes for your channel"),
+           ("suggest", "Suggest an improvement"), ("about", "About & source code")],
+}
+
+
+async def configure_bot(bot: Bot) -> None:
+    if not settings.public_url:
+        log.warning("PUBLIC_URL/RENDER_EXTERNAL_URL not set: webhook not registered")
+        return
+    await bot.set_webhook(f"{settings.public_url}/tg/webhook", secret_token=WEBHOOK_SECRET,
+                          allowed_updates=["message", "callback_query", "my_chat_member",
+                                           "pre_checkout_query"],
+                          drop_pending_updates=False)
+    await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
+        text="🔭 الخيميائي", web_app=WebAppInfo(url=settings.public_url)))
+    await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["ar"]])
+    await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["en"]],
+                              language_code="en")
+    await bot.set_my_description(
+        "✨ بوت الخيميائي للفلك (نسخة تجريبية Beta)\n"
+        "خارطتك الفلكية بالنظامين الغربي والفيدي، أبراج يومية بالوقت اللي بيناسبك، "
+        "وأبراج يومية مجانية لقناتك أو مجموعتك.")
+    await bot.set_my_short_description("خارطتك الفلكية الغربية والفيدية + أبراج يومية · Beta من تطوير الخيميائي")
+    log.info("webhook + menu registered at %s", settings.public_url)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await db.init()
+    bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    dp = Dispatcher()
+    dp.include_router(bot_router)
+    app.state.bot, app.state.dp = bot, dp
+    try:
+        await configure_bot(bot)
+    except Exception:
+        log.exception("bot configuration failed")
+    sched = scheduler.start(bot)
+    yield
+    sched.shutdown(wait=False)
+    await bot.session.close()
+    await db.close()
+
+
+app = FastAPI(title="The Alchemist Astro", lifespan=lifespan, docs_url=None, redoc_url=None)
+app.include_router(api_router)
+
+
+@app.get("/health")
+async def health():
+    return {"ok": True}
+
+
+@app.post("/tg/webhook")
+async def webhook(request: Request, x_telegram_bot_api_secret_token: str = Header(default="")):
+    if x_telegram_bot_api_secret_token != WEBHOOK_SECRET:
+        raise HTTPException(403)
+    update = Update.model_validate(await request.json(), context={"bot": request.app.state.bot})
+    await request.app.state.dp.feed_update(request.app.state.bot, update)
+    return {"ok": True}
+
+
+@app.get("/")
+async def index():
+    return FileResponse(WEB_DIR / "index.html", headers={"Cache-Control": "no-cache"})
+
+
+app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")

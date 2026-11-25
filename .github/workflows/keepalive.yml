@@ -1,0 +1,14 @@
+# Render free instances sleep after 15 idle minutes. This pings the service every 13 minutes.
+# (The app also pings itself while awake; this workflow is what wakes it if it fell asleep.)
+# GitHub may delay scheduled runs by a few minutes under load.
+name: keepalive
+on:
+  schedule:
+    - cron: "*/13 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - run: curl -fsS --max-time 90 --retry 2 "https://alchemist-astro-bot.onrender.com/health"

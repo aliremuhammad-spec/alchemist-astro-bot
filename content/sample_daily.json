@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "date": "2026-11-26",
+  "signs": {
+    "aries":       {"ar": "نص تجريبي لبرج الحمل.",   "en": "Sample text for Aries."},
+    "taurus":      {"ar": "نص تجريبي لبرج الثور.",   "en": "Sample text for Taurus."},
+    "gemini":      {"ar": "نص تجريبي لبرج الجوزاء.", "en": "Sample text for Gemini."},
+    "cancer":      {"ar": "نص تجريبي لبرج السرطان.", "en": "Sample text for Cancer."},
+    "leo":         {"ar": "نص تجريبي لبرج الأسد.",   "en": "Sample text for Leo."},
+    "virgo":       {"ar": "نص تجريبي لبرج العذراء.", "en": "Sample text for Virgo."},
+    "libra":       {"ar": "نص تجريبي لبرج الميزان.", "en": "Sample text for Libra."},
+    "scorpio":     {"ar": "نص تجريبي لبرج العقرب.",  "en": "Sample text for Scorpio."},
+    "sagittarius": {"ar": "نص تجريبي لبرج القوس.",   "en": "Sample text for Sagittarius."},
+    "capricorn":   {"ar": "نص تجريبي لبرج الجدي.",   "en": "Sample text for Capricorn."},
+    "aquarius":    {"ar": "نص تجريبي لبرج الدلو.",   "en": "Sample text for Aquarius."},
+    "pisces":      {"ar": "نص تجريبي لبرج الحوت.",   "en": "Sample text for Pisces."}
+  }
+}
