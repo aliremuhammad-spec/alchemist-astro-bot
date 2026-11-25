@@ -149,6 +149,7 @@ async def cmd_stats(m: Message):
     ads = await p.fetch("""SELECT provider, count(*) n FROM ad_events WHERE status='completed'
                            GROUP BY provider ORDER BY n DESC""")
     syn = await p.fetchval("SELECT count(*) FROM events WHERE name='synastry'")
+    nofill = await p.fetchval("SELECT count(*) FROM ad_events WHERE status='nofill'")
     langs = await p.fetch("SELECT lang, count(*) n FROM users GROUP BY lang ORDER BY n DESC")
     countries = await p.fetch("""SELECT country, count(DISTINCT user_id) n FROM profiles WHERE is_main
                                  GROUP BY country ORDER BY n DESC LIMIT 8""")
@@ -157,7 +158,8 @@ async def cmd_stats(m: Message):
     txt = (f"📊 <b>الإحصائيات</b>\n👥 المستخدمين: {users} (جدد اليوم {new1}، نشطين 7 أيام {active7})\n"
            f"🌅 مشتركين بالأبراج: {daily}\n📢 قنوات/مجموعات: {chats}\n🔭 خرائط محسوبة: {charts} · ملفات محفوظة: {profiles}\n"
            f"💡 اقتراحات: {fb}\n💞 توافقات: {syn}\n⭐ مميزين الآن: {prem} · مجموع النجوم: {stars}\n"
-           f"📺 إعلانات مكتملة: " + (", ".join(f"{r['provider']} {r['n']}" for r in ads) or "0") + "\n\n🌐 اللغات: " + ", ".join(f"{r['lang']} {r['n']}" for r in langs)
+           f"📺 إعلانات مكتملة: " + (", ".join(f"{r['provider']} {r['n']}" for r in ads) or "0")
+           + f" · بدون إعلان متاح: {nofill}\n\n🌐 اللغات: " + ", ".join(f"{r['lang']} {r['n']}" for r in langs)
            + "\n📍 دول الولادة: " + (", ".join(f"{r['country']} {r['n']}" for r in countries) or "-")
            + "\n🔗 المصادر: " + ", ".join(f"{r['s']} {r['n']}" for r in sources))
     await m.answer(txt)
