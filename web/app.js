@@ -425,7 +425,9 @@
     try {
       await refreshSession();
       S.lang = S.session.user.lang || S.lang; applyLang();
-      const start = location.hash.replace("#", "") || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "chart";
+      // Telegram puts tgWebAppData in the hash; only plain words are our own tab links (#daily, #channels…)
+      const h = location.hash.replace("#", "");
+      const start = (/^[a-z]+$/.test(h) && h) || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "chart";
       const main = S.session.profiles[0];
       if (main && start === "chart") { S.style = main.indian_style; await loadProfile(main.id); setTab("chart"); }
       else setTab(["chart", "daily", "channels", "about"].includes(start) ? start : "chart");
