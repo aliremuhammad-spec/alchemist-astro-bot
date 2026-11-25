@@ -19,8 +19,8 @@ class Settings:
     weekly_url: str = os.getenv("WEEKLY_URL", "")
     default_tz: str = os.getenv("DEFAULT_TZ", "Asia/Damascus")
     source_url: str = os.getenv("SOURCE_URL", "https://github.com/aliremuhammad-spec/alchemist-astro-bot")
-    instagram_main: str = os.getenv("INSTAGRAM_MAIN", "the.alchemist.astro")
-    instagram_partner: str = os.getenv("INSTAGRAM_PARTNER", "")
+    instagram_main: str = os.getenv("INSTAGRAM_MAIN") or "the.alchemist.astro"
+    instagram_partner: str = os.getenv("INSTAGRAM_PARTNER") or "the.emerland.tablet"
     instagram_partner_label: str = os.getenv("INSTAGRAM_PARTNER_LABEL", "لوح الزمرد")
     keepalive_minutes: int = int(os.getenv("KEEPALIVE_MINUTES", "13"))
     dev_auth: bool = os.getenv("DEV_AUTH", "") == "1"  # local browser testing only
