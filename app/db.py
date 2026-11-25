@@ -12,7 +12,8 @@ _pool: asyncpg.Pool | None = None
 async def init(dsn: str | None = None) -> asyncpg.Pool:
     global _pool
     _pool = await asyncpg.create_pool(dsn or settings.database_url, min_size=1, max_size=5,
-                                      command_timeout=30)
+                                      command_timeout=30,
+                                      statement_cache_size=0)  # Neon pooler (PgBouncer) safe
     async with _pool.acquire() as c:
         await c.execute((Path(__file__).parent / "schema.sql").read_text())
     return _pool
