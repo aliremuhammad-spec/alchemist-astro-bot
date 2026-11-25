@@ -41,7 +41,8 @@ def dms(deg: float) -> str:
     m = int(round((deg - d) * 60))
     if m == 60:
         d, m = d + 1, 0
-    return f"\u2066{d}°{m:02d}′\u2069"  # isolate so it reads correctly inside Arabic
+    # LRM around each neutral keeps "24°11′" left-to-right inside Arabic text (Telegram drops isolates)
+    return f"\u200e{d}\u200e°\u200e{m:02d}\u200e′\u200e"
 
 
 def _pos(p: dict, lang: str) -> str:
@@ -79,7 +80,7 @@ def western_text(chart: dict, lang: str) -> str:
         n2 = _pname(a["p2"], lang)
         g, ar, en = ASPECTS.get(a["type"], ("·", a["type"], a["type"]))
         mv = t["applying"] if a["applying"] else t["separating"]
-        out.append(f"{n1} {g} {n2} — {ar if lang == 'ar' else en} (\u2066{a['orb']:.1f}°\u2069، {mv})"
+        out.append(f"{n1} {g} {n2} — {ar if lang == 'ar' else en} (\u200e{a['orb']:.1f}\u200e°\u200e، {mv})"
                    if lang == "ar" else f"{n1} {g} {n2} — {en} ({a['orb']:.1f}°, {mv})")
     out.append("")
     el = " · ".join(f"{ELEMENTS[lang][k]} {v}%" for k, v in w["elements"].items())
