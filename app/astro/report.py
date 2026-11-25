@@ -42,7 +42,7 @@ def dms(deg: float) -> str:
     if m == 60:
         d, m = d + 1, 0
     # LRM around each neutral keeps "24°11′" left-to-right inside Arabic text (Telegram drops isolates)
-    return f"\u200e{d}\u200e°\u200e{m:02d}\u200e′\u200e"
+    return f"\u200e{d}\u200e°\u200e{m:02d}\u200e"
 
 
 def _pos(p: dict, lang: str) -> str:
