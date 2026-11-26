@@ -28,9 +28,9 @@ WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 WEBHOOK_SECRET = settings.webhook_secret or hashlib.sha256(f"wh:{settings.bot_token}".encode()).hexdigest()[:48]
 
 COMMANDS = {
-    "ar": [("start", "البداية"), ("app", "فتح التطبيق"), ("channel", "الأبراج لقناتك أو مجموعتك"),
+    "ar": [("start", "البداية"), ("app", "فتح التطبيق"), ("invite", "ادعُ أصحابك واربح أيام مميز"), ("channel", "الأبراج لقناتك أو مجموعتك"),
            ("suggest", "اقتراح للتطوير"), ("about", "عن البوت والكود المصدري")],
-    "en": [("start", "Start"), ("app", "Open the app"), ("channel", "Horoscopes for your channel"),
+    "en": [("start", "Start"), ("app", "Open the app"), ("invite", "Invite friends, earn Premium days"), ("channel", "Horoscopes for your channel"),
            ("suggest", "Suggest an improvement"), ("about", "About & source code")],
 }
 

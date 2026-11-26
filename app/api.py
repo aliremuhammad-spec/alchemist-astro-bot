@@ -40,12 +40,16 @@ def _lang(req_lang: str | None, user: dict) -> str:
 
 @router.post("/session")
 async def session(user: dict = Depends(current_user)):
+    from . import referral
+    if user.get("start_param") and referral.inviter_from(user["start_param"]):
+        await referral.attach(user["id"], user["start_param"])
     profiles = await db.pool().fetch("SELECT * FROM profiles WHERE user_id=$1 ORDER BY is_main DESC, id", user["id"])
     daily = await db.pool().fetchrow("SELECT * FROM daily_prefs WHERE user_id=$1", user["id"])
     return {
         "user": {"id": user["id"], "first_name": user["first_name"], "lang": user["lang"], "tz": user["tz"]},
         "premium": await db.is_premium(user["id"]),
         "is_admin": user["id"] in settings.admin_ids,
+        "report_credits": await db.pool().fetchval("SELECT report_credits FROM users WHERE id=$1", user["id"]) or 0,
         "profiles": [_profile_out(p) for p in profiles],
         "daily": _daily_out(daily),
         "meta": meta(),
@@ -256,7 +260,7 @@ async def set_daily(body: DailyIn, user: dict = Depends(current_user)):
 @router.get("/channels")
 async def my_channels(user: dict = Depends(current_user)):
     rows = await db.pool().fetch(
-        "SELECT chat_id,title,kind,active,send_time,tz,lang FROM broadcast_chats WHERE added_by=$1 ORDER BY created_at",
+        "SELECT chat_id,title,kind,active,send_time,tz,lang,ref_link FROM broadcast_chats WHERE added_by=$1 ORDER BY created_at",
         user["id"])
     return [dict(r) for r in rows]
 
@@ -266,17 +270,30 @@ class ChannelIn(BaseModel):
     tz: str
     lang: str = "ar"
     active: bool = True
+    ref_link: str | None = None
+
+
+def clean_ref_link(link: str | None) -> str | None:
+    """Accept only this bot's Telegram affiliate links: t.me/<bot>?start=_tgr_XXXX."""
+    link = (link or "").strip()
+    if not link:
+        return None
+    m = re.match(r"^(?:https?://)?t\.me/([A-Za-z0-9_]+)\?start=(_tgr_[A-Za-z0-9_-]{4,64})$", link)
+    if not m or m[1].lower() != settings.bot_username.lower():
+        raise HTTPException(400, "bad_ref_link")
+    return f"https://t.me/{settings.bot_username}?start={m[2]}"
 
 
 @router.post("/channels/{chat_id}")
 async def update_channel(chat_id: int, body: ChannelIn, user: dict = Depends(current_user)):
     if not HHMM.match(body.send_time) or body.tz not in _TZS or body.lang not in ("ar", "en"):
         raise HTTPException(400, "invalid settings")
+    ref = clean_ref_link(body.ref_link)
     r = await db.pool().execute(
-        """UPDATE broadcast_chats SET send_time=$3, tz=$4, lang=$5, active=$6,
+        """UPDATE broadcast_chats SET send_time=$3, tz=$4, lang=$5, active=$6, ref_link=$7,
              last_sent = CASE WHEN send_time <> $3 THEN NULL ELSE last_sent END
            WHERE chat_id=$1 AND added_by=$2""",
-        chat_id, user["id"], body.send_time, body.tz, body.lang, body.active)
+        chat_id, user["id"], body.send_time, body.tz, body.lang, body.active, ref)
     if r.endswith(" 0"):
         raise HTTPException(404, "chat")
     return {"ok": True}

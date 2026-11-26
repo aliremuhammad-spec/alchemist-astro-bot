@@ -291,3 +291,28 @@ details[open] summary::after { content: "−"; }
 .wk-day summary { cursor: pointer; font-weight: 600; padding: 2px 0; }
 .wk-day[open] summary { margin-bottom: 6px; color: var(--brass); }
 .locked p { line-height: 1.8; }
+
+/* invites, detailed synastry, channel benefits, payment help */
+.btn.gift { background: var(--brass); color: #1a1406; }
+.invite-cta { display: block; width: 100%; text-align: start; cursor: pointer; color: var(--parchment); font: inherit;
+  background: var(--brass-soft); border: 1px dashed var(--brass); }
+.checks li { padding-inline-start: 22px; position: relative; margin-bottom: 6px; }
+.checks li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: var(--verdigris); font-weight: 700; }
+ol.steps { margin: 6px 0 0; padding-inline-start: 20px; } ol.steps li { margin-bottom: 6px; }
+.syn-detail h3 { margin: 16px 0 8px; }
+.theme { padding: 10px 0; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+.theme:last-of-type { border-bottom: 0; }
+.tbar { height: 6px; border-radius: 3px; background: var(--ink-3); overflow: hidden; }
+.tbar span { display: block; height: 100%; background: var(--verdigris); border-radius: 3px; }
+.akbox { display: flex; align-items: center; gap: 14px; margin: 14px 0 8px; }
+.akbox > div:last-child { display: grid; }
+table.ak { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.ak td { padding: 8px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.ak td small { display: block; font-size: 12px; }
+table.ak td.num { white-space: nowrap; text-align: end; font-weight: 600; }
+table.ak tr.full td.num { color: var(--verdigris); } table.ak tr.zero td.num { color: var(--danger); }
+.pill.warnp { background: rgba(224, 122, 106, .15); color: var(--danger); }
+.kpis.three { grid-template-columns: repeat(3, 1fr); }
+.kpi span { font-size: 12px; color: var(--fog); }
+.card.manual p { margin: 0 0 8px; }
+.center { text-align: center; }

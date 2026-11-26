@@ -19,6 +19,7 @@ from .texts import add_channel_link, add_group_link, t
 log = logging.getLogger(__name__)
 router = Router()
 _awaiting_suggestion: set[int] = set()
+_awaiting_payment_msg: set[int] = set()
 
 
 def lang_of(code: str | None) -> str:
@@ -61,6 +62,20 @@ async def start(m: Message, command: CommandObject):
     u = m.from_user
     row = await db.upsert_user(u.id, u.first_name, u.username, u.language_code, command.args)
     lang = row["lang"]
+    from .. import referral
+    if referral.inviter_from(command.args) and await referral.attach(u.id, command.args):
+        await m.answer(t(lang, "welcome", name=escape(u.first_name or "")), reply_markup=main_keyboard(lang),
+                       disable_web_page_preview=True)
+        await m.answer(t(lang, "ref_gift"), reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang)]]))
+        return
+    if command.args == "pay":
+        _awaiting_payment_msg.add(u.id)
+        _awaiting_suggestion.discard(u.id)
+        await m.answer(t(lang, "pay_prompt"))
+        return
+    if command.args == "invite":
+        await send_invite(m, lang)
+        return
     if command.args == "channel":
         await m.answer(t(lang, "channel_info"), reply_markup=channel_keyboard(lang))
         return
@@ -70,6 +85,24 @@ async def start(m: Message, command: CommandObject):
         return
     await m.answer(t(lang, "welcome", name=escape(u.first_name or "")), reply_markup=main_keyboard(lang),
                    disable_web_page_preview=True)
+
+
+async def send_invite(m: Message, lang: str) -> None:
+    from urllib.parse import quote
+
+    from .. import referral
+    st = await referral.stats(m.from_user.id)
+    share = f"https://t.me/share/url?url={quote(st['link'])}&text={quote(t(lang, 'invite_share_text'))}"
+    await m.answer(t(lang, "invite_info", link=st["link"], invited=st["invited"], active=st["active"], days=st["days"]),
+                   reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                       [InlineKeyboardButton(text=t(lang, "invite_share"), url=share)], [app_button(lang, "#invite")]]),
+                   disable_web_page_preview=True)
+
+
+@router.message(Command("invite"), F.chat.type == ChatType.PRIVATE)
+async def cmd_invite(m: Message):
+    row = await db.upsert_user(m.from_user.id, m.from_user.first_name, m.from_user.username, m.from_user.language_code)
+    await send_invite(m, row["lang"])
 
 
 @router.message(Command("app"), F.chat.type == ChatType.PRIVATE)
@@ -117,14 +150,18 @@ async def cb_suggest(c: CallbackQuery):
 @router.message(Command("cancel"), F.chat.type == ChatType.PRIVATE)
 async def cmd_cancel(m: Message):
     _awaiting_suggestion.discard(m.from_user.id)
+    _awaiting_payment_msg.discard(m.from_user.id)
     await m.answer(t(lang_of(m.from_user.language_code), "cancelled"))
 
 
-async def save_feedback(bot: Bot, uid: int, first_name: str | None, username: str | None, text: str) -> None:
+async def save_feedback(bot: Bot, uid: int, first_name: str | None, username: str | None, text: str,
+                        kind: str = "suggestion") -> None:
     text = text.strip()[:3500]
-    await db.pool().execute("INSERT INTO feedback(user_id,text) VALUES($1,$2)", uid, text)
+    stored = f"💳 [طلب دفع] {text}" if kind == "payment" else text
+    await db.pool().execute("INSERT INTO feedback(user_id,text) VALUES($1,$2)", uid, stored)
     who = f"@{username}" if username else escape(first_name or "")
-    msg = (f"💡 <b>اقتراح جديد</b>\nمن: {who} (<code>{uid}</code>)\n\n{escape(text)}\n\n"
+    head = "💳 <b>طلب طريقة دفع تانية</b>" if kind == "payment" else "💡 <b>اقتراح جديد</b>"
+    msg = (f"{head}\nمن: {who} (<code>{uid}</code>)\n\n{escape(text)}\n\n"
            f"للرد: <code>/reply {uid} </code>نص الرد")
     for admin in settings.admin_ids:
         try:
@@ -279,15 +316,28 @@ async def cmd_grant(m: Message, command: CommandObject):
 
 @router.pre_checkout_query()
 async def pre_checkout(q: PreCheckoutQuery):
-    ok = q.currency == "XTR" and q.invoice_payload == f"premium:{q.from_user.id}"
+    ok = q.currency == "XTR" and q.invoice_payload in (f"premium:{q.from_user.id}", f"synrep:{q.from_user.id}")
     await q.answer(ok=ok, error_message=None if ok else "Invalid invoice")
 
 
 @router.message(F.successful_payment)
 async def paid(m: Message):
     from ..monetize import record_payment
-    await record_payment(m.from_user.id, m.successful_payment)
     lang = lang_of(m.from_user.language_code)
+    if m.successful_payment.invoice_payload.startswith("synrep:"):
+        from ..monetize import record_report_payment
+        await record_report_payment(m.from_user.id, m.successful_payment)
+        await m.answer("✅ تم الدفع. ارجع للتطبيق واضغط «📄 تقرير التوافق» مرة تانية." if lang == "ar"
+                       else "✅ Paid. Go back to the app and tap “📄 Compatibility report” again.",
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, "#synastry")]]))
+        for a in settings.admin_ids:
+            try:
+                await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة (تقرير توافق) من "
+                                            f"{escape(m.from_user.full_name)} (<code>{m.from_user.id}</code>)")
+            except Exception:
+                pass
+        return
+    await record_payment(m.from_user.id, m.successful_payment)
     first = not m.successful_payment.is_recurring or m.successful_payment.is_first_recurring
     if first:
         await m.answer("✨ <b>تم تفعيل الاشتراك المميز!</b> شكراً لدعمك. افتح التطبيق وجرّب الخرائط الفرعية والتوافق بلا إعلانات."
@@ -340,6 +390,11 @@ async def cmd_refund(m: Message, command: CommandObject, bot: Bot):
 
 @router.message(F.chat.type == ChatType.PRIVATE, F.text, ~F.text.startswith("/"))
 async def any_text(m: Message, bot: Bot):
+    if m.from_user.id in _awaiting_payment_msg:
+        _awaiting_payment_msg.discard(m.from_user.id)
+        await save_feedback(bot, m.from_user.id, m.from_user.first_name, m.from_user.username, m.text, kind="payment")
+        await m.answer(t(lang_of(m.from_user.language_code), "pay_thanks"))
+        return
     if m.from_user.id in _awaiting_suggestion:
         _awaiting_suggestion.discard(m.from_user.id)
         await save_feedback(bot, m.from_user.id, m.from_user.first_name, m.from_user.username, m.text)

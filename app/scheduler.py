@@ -55,7 +55,8 @@ def user_messages(lang: str, sign: int, day, data: dict, tz: str) -> list[str]:
     return split_text(text)
 
 
-def digest_messages(lang: str, day, data: dict, tz: str = "Asia/Damascus", limit: int = 3900) -> list[str]:
+def digest_messages(lang: str, day, data: dict, tz: str = "Asia/Damascus", limit: int = 3900,
+                    ref_link: str | None = None) -> list[str]:
     parts = [t(lang, "digest_title", date=day.isoformat())]
     ov = forecasts.daily_overview_html(data, lang, tz)
     if ov:
@@ -63,7 +64,7 @@ def digest_messages(lang: str, day, data: dict, tz: str = "Asia/Damascus", limit
     for i, key in enumerate(SIGN_KEYS):
         parts.append(f"{SIGN_GLYPH[i]} <b>{sign_name(i, lang)}</b>\n{forecasts.daily_sign_short(data, key, lang, tz)}")
     if data.get("format") == "md":
-        parts.append(t(lang, "digest_more", link=f"https://t.me/{settings.bot_username}?start=daily"))
+        parts.append(t(lang, "digest_more", link=ref_link or f"https://t.me/{settings.bot_username}?start=daily"))
     parts.append(t(lang, "digest_footer", link=f"https://t.me/{settings.bot_username}?start=channel"))
     msgs, cur = [], ""
     for p in parts:
@@ -147,7 +148,7 @@ async def dispatch_chats(bot: Bot) -> None:
             await _alert_missing(bot, day)
             continue
         okall = True
-        for msg in digest_messages(r["lang"], day, data, r["tz"]):
+        for msg in digest_messages(r["lang"], day, data, r["tz"], ref_link=r["ref_link"]):
             ok = await _send(bot, r["chat_id"], msg)
             if ok is False:
                 await db.pool().execute("UPDATE broadcast_chats SET active=FALSE WHERE chat_id=$1", r["chat_id"])
@@ -181,6 +182,14 @@ async def pull_content() -> None:
         log.warning("weekly fetch failed: %s", e)
 
 
+async def run_referrals(bot: Bot) -> None:
+    from . import referral
+    try:
+        await referral.check_activations(bot)
+    except Exception:
+        log.exception("referral check failed")
+
+
 async def keepalive() -> None:
     """Render free instances sleep after 15 idle minutes; an inbound hit every 13 keeps us up."""
     if not settings.public_url:
@@ -196,6 +205,7 @@ def start(bot: Bot) -> AsyncIOScheduler:
     s = AsyncIOScheduler(timezone="UTC")
     s.add_job(tick, "interval", minutes=1, args=[bot], id="tick", max_instances=1, coalesce=True)
     s.add_job(pull_content, "interval", minutes=30, id="pull", next_run_time=datetime.now(ZoneInfo("UTC")))
+    s.add_job(run_referrals, "interval", minutes=60, args=[bot], id="referrals")
     s.add_job(keepalive, "interval", minutes=settings.keepalive_minutes, id="keepalive")
     s.start()
     return s

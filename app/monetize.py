@@ -84,7 +84,7 @@ async def ad_complete(body: AdDone, user: dict = Depends(current_user)):
 
 
 async def _consume_ticket(uid: int, ticket: str | None) -> None:
-    if await db.is_premium(uid):
+    if uid in settings.admin_ids or await db.is_premium(uid):
         return  # premium users never see ads
     if not ticket:
         raise HTTPException(402, "ad_required")
@@ -113,11 +113,41 @@ async def synastry(body: SynIn, user: dict = Depends(current_user)):
     pb = await _load_profile(body.b, user["id"])
     await _consume_ticket(user["id"], body.ticket)
     lang = _lang(body.lang, user)
-    s = await run_in_threadpool(compute_synastry, _profile_birth(pa), _profile_birth(pb))
+    ba, bb = _profile_birth(pa), _profile_birth(pb)
+    s = await run_in_threadpool(compute_synastry, ba, bb)
     svg = await run_in_threadpool(synastry_wheel_svg, s["_data"], "light" if body.theme == "light" else "dark")
     await db.event(user["id"], "synastry")
-    return {"names": s["names"], "score": s["score"], "aspects": s["aspects"][:30],
-            "text": synastry_text(s, lang), "svg": svg.split("?>", 1)[-1]}
+    out = {"names": s["names"], "score": s["score"], "aspects": s["aspects"][:30],
+           "text": synastry_text(s, lang), "svg": svg.split("?>", 1)[-1], "a": body.a, "b": body.b}
+    if await _is_member(user["id"]):
+        from .astro.synastry_detail import detail
+        d = await run_in_threadpool(detail, ba, bb, s)
+        d.pop("_charts", None)
+        out["detail"] = d
+        out["report_quota"] = await synastry_quota(user["id"])
+    else:
+        out["locked"] = True
+    return out
+
+
+async def _is_member(uid: int) -> bool:
+    return uid in settings.admin_ids or await db.is_premium(uid)
+
+
+SYN_MONTHLY = 30
+
+
+async def synastry_quota(uid: int) -> dict:
+    used = await db.pool().fetchval(
+        """SELECT count(*) FROM report_log WHERE user_id=$1 AND kind='synastry' AND paid_with='premium'
+           AND created_at >= date_trunc('month', now())""", uid)
+    credits = await db.pool().fetchval("SELECT syn_report_credits FROM users WHERE id=$1", uid) or 0
+    return {"used": used, "limit": SYN_MONTHLY, "credits": credits, "price": await syn_report_price()}
+
+
+async def syn_report_price() -> int:
+    v = await db.kv_get("syn_report_stars", "50")
+    return int(v) if v.isdigit() else 50
 
 
 # ───────────── premium: divisional charts ─────────────
@@ -202,7 +232,13 @@ async def profile_report(pid: int, request: Request, body: dict | None = None, u
     from .report.builder import build_pdf
 
     uid = user["id"]
-    if uid not in settings.admin_ids and not await db.is_premium(uid):
+    if uid in settings.admin_ids:
+        paid_with = "admin"
+    elif await db.is_premium(uid):
+        paid_with = "premium"
+    elif (await db.pool().fetchval("SELECT report_credits FROM users WHERE id=$1", uid) or 0) > 0:
+        paid_with = "credit"
+    else:
         raise HTTPException(402, "premium_required")
     if not interp.ready():
         raise HTTPException(503, "report_unavailable")
@@ -219,9 +255,12 @@ async def profile_report(pid: int, request: Request, body: dict | None = None, u
         _report_busy.discard(uid)
     bot: Bot = request.app.state.bot
     safe = "".join(ch for ch in p["name"] if ch.isalnum() or ch in " _-").strip().replace(" ", "_") or "chart"
-    caption = (f"📄 تقرير الخارطة الفلكية: <b>{p['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
-               else f"📄 Natal chart report: <b>{p['name']}</b>\nfrom The Alchemist 🜍")
-    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_report_{safe}.pdf"), caption=caption)
+    caption = (f"📄 التقرير الفلكي لخارطة <b>{p['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
+               else f"📄 Astrological report: <b>{p['name']}</b>\nfrom The Alchemist 🜍")
+    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_astrological_report_{safe}.pdf"), caption=caption)
+    if paid_with == "credit":
+        await db.pool().execute("UPDATE users SET report_credits=greatest(report_credits-1,0) WHERE id=$1", uid)
+    await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'natal',$2)", uid, paid_with)
     await db.event(uid, "report_sent")
     return {"ok": True, "pages_bytes": len(pdf)}
 
@@ -242,3 +281,95 @@ async def weekly(tz: str = "Asia/Damascus", lang: str | None = None, user: dict 
     tz = tz if tz in available_timezones() else "Asia/Damascus"
     await db.event(user["id"], "weekly_view")
     return {**head, "locked": False, **forecasts.weekly_view(data, tz, _lang(lang, user))}
+
+
+
+# ───────────── compatibility report (premium: 30/month free, then paid; free users: no) ─────────────
+
+class SynReportIn(BaseModel):
+    a: int
+    b: int
+    lang: str | None = None
+
+
+_syn_busy: set[int] = set()
+
+
+@router.post("/synastry/report")
+async def synastry_report(body: SynReportIn, request: Request, user: dict = Depends(current_user)):
+    from aiogram.types import BufferedInputFile
+
+    from .astro.synastry_detail import detail
+    from .report.synastry_report import build_synastry_pdf
+
+    uid = user["id"]
+    if body.a == body.b:
+        raise HTTPException(400, "same_profile")
+    if uid in settings.admin_ids:
+        paid_with = "admin"
+    elif await db.is_premium(uid):
+        q = await synastry_quota(uid)
+        if q["used"] < q["limit"]:
+            paid_with = "premium"
+        elif q["credits"] > 0:
+            paid_with = "credit"
+        else:
+            raise HTTPException(402, "report_quota")
+    else:
+        raise HTTPException(402, "premium_required")
+    if uid in _syn_busy:
+        raise HTTPException(429, "report_in_progress")
+    pa = await _load_profile(body.a, uid)
+    pb = await _load_profile(body.b, uid)
+    lang = _lang(body.lang, user)
+    _syn_busy.add(uid)
+    try:
+        ba, bb = _profile_birth(pa), _profile_birth(pb)
+        s = await run_in_threadpool(compute_synastry, ba, bb)
+        d = await run_in_threadpool(detail, ba, bb, s)
+        pdf = await run_in_threadpool(build_synastry_pdf, [pa["name"], pb["name"]], s, d, lang)
+    finally:
+        _syn_busy.discard(uid)
+    bot: Bot = request.app.state.bot
+    safe = "_".join("".join(ch for ch in n if ch.isalnum()) or "x" for n in (pa["name"], pb["name"]))
+    cap = (f"💞 تقرير التوافق الفلكي: <b>{pa['name']}</b> و<b>{pb['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
+           else f"💞 Compatibility report: <b>{pa['name']}</b> & <b>{pb['name']}</b>\nfrom The Alchemist 🜍")
+    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_compatibility_{safe}.pdf"), caption=cap)
+    if paid_with == "credit":
+        await db.pool().execute("UPDATE users SET syn_report_credits=greatest(syn_report_credits-1,0) WHERE id=$1", uid)
+    await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'synastry',$2)", uid, paid_with)
+    await db.event(uid, "syn_report_sent")
+    return {"ok": True, "quota": await synastry_quota(uid)}
+
+
+@router.post("/synastry/report/invoice")
+async def synastry_report_invoice(request: Request, user: dict = Depends(current_user)):
+    if not await _is_member(user["id"]):
+        raise HTTPException(402, "premium_required")
+    bot: Bot = request.app.state.bot
+    ar = user["lang"] == "ar"
+    price = await syn_report_price()
+    link = await bot.create_invoice_link(
+        title="تقرير توافق إضافي" if ar else "Extra compatibility report",
+        description=("تقرير توافق فلكي إضافي (غربي + فيدي) بعد استهلاك الـ30 تقرير الشهرية." if ar
+                     else "One extra compatibility report (Western + Vedic) beyond the monthly 30."),
+        payload=f"synrep:{user['id']}", currency="XTR",
+        prices=[LabeledPrice(label="Report", amount=price)])
+    return {"link": link, "stars": price}
+
+
+async def record_report_payment(uid: int, sp) -> None:
+    r = await db.pool().execute(
+        """INSERT INTO payments(user_id,stars,charge_id,payload,recurring,first_recurring,expires_at)
+           VALUES($1,$2,$3,$4,FALSE,FALSE,NULL) ON CONFLICT(charge_id) DO NOTHING""",
+        uid, sp.total_amount, sp.telegram_payment_charge_id, sp.invoice_payload)
+    if not r.endswith(" 0"):
+        await db.pool().execute("UPDATE users SET syn_report_credits=syn_report_credits+1 WHERE id=$1", uid)
+
+
+# ───────────── invites ─────────────
+
+@router.get("/invite")
+async def invite(user: dict = Depends(current_user)):
+    from . import referral
+    return await referral.stats(user["id"])

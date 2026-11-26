@@ -127,3 +127,24 @@ CREATE TABLE IF NOT EXISTS payments (
   refunded     BOOLEAN NOT NULL DEFAULT FALSE,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- referrals (personal invites) and per-user credits
+ALTER TABLE users ADD COLUMN IF NOT EXISTS report_credits INT NOT NULL DEFAULT 0;      -- free natal reports (invite gift)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS syn_report_credits INT NOT NULL DEFAULT 0;  -- paid synastry reports
+CREATE TABLE IF NOT EXISTS referrals (
+  invitee_id    BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  inviter_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  activated_at  TIMESTAMPTZ,
+  reward_days   INT NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS referrals_inviter ON referrals(inviter_id);
+CREATE TABLE IF NOT EXISTS report_log (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    BIGINT NOT NULL,
+  kind       TEXT NOT NULL,                  -- natal | synastry
+  paid_with  TEXT NOT NULL,                  -- premium | credit | admin
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS report_log_user ON report_log(user_id, kind, created_at);
+ALTER TABLE broadcast_chats ADD COLUMN IF NOT EXISTS ref_link TEXT;                  -- owner's Telegram affiliate link

@@ -17,7 +17,26 @@
       unknown_note: "بنحسب الخارطة على الظهر، وبدون طالع وبيوت لأنها بتعتمد على الوقت بالدقيقة.",
       place: "مكان الولادة", continent: "القارة", country: "الدولة", city_ph: "ابحث عن مدينتك…",
       indian_style: "شكل الخارطة الهندية", north: "شمالي", south: "جنوبي", calc: "احسب الخارطة", calculating: "عم نحسب…",
-      western: "غربية", vedic: "فيدية", report: "📄 تقرير PDF", report_wait: "عم نجهّز التقرير… بياخد شي دقيقة", report_sent: "وصلك التقرير عالمحادثة مع البوت", report_lock: "التقرير المفصّل للمشتركين المميزين", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف القاعدة (.sqlite أو .json أو .json.gz)", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
+      western: "غربية", vedic: "فيدية", report: "📄 تقرير فلكي PDF", report_gift: "🎁 تقرير فلكي مجاني", report_wait: "عم نجهّز التقرير الفلكي… بياخد شي دقيقة", report_sent: "وصلك التقرير الفلكي عالمحادثة مع البوت", report_lock: "التقرير الفلكي المفصّل للمشتركين المميزين، أو هدية لما حدا يدعيك",
+      inv_title: "ادعُ أصحابك", inv_sub: "صديقك بياخد تقرير فلكي مجاني لخارطته، وإنت بتاخد 3 أيام مميز عن كل صديق بيصير نشط.",
+      inv_how: "النشط = حفظ خارطته ورجع للبوت بيوم تاني.", inv_link: "رابطك الخاص", inv_copy: "انسخ", inv_copied: "انتسخ الرابط", inv_share: "📤 شارك مع صديق",
+      inv_invited: "دعوات", inv_active: "نشطين", inv_days: "يوم مميز ربحته", inv_cta: "🎁 ادعُ صديق: هو بياخد تقرير فلكي مجاني، وإنت 3 أيام مميز",
+      inv_share_text: "طلعت خارطتي الفلكية بالخيميائي 🔭 جرّب إنت كمان، وبيوصلك تقرير فلكي مجاني لخارطتك 🎁",
+      syn_partner: "💞 ادعُ الشخص التاني: بيحسب خارطته لحاله وبياخد تقرير فلكي هدية.",
+      syn_locked_h: "التوافق المفصّل للمميزين", syn_locked: "المشتركين المميزين بيشوفوا التوافق على مستويين مع تقرير PDF:",
+      syn_locked_list: ["محاور العلاقة: الانجذاب، المشاعر، التواصل، الالتزام…", "البيوت اللي بيفعّلها كل طرف عند التاني", "الأشتاكوتا الفيدية (36 نقطة) وفحص المانغاليك", "تقرير توافق PDF (30 تقرير بالشهر)"],
+      syn_tab_w: "غربي", syn_tab_v: "فيدي", syn_themes: "محاور العلاقة", syn_soft: "متناغم", syn_hard: "متوتر", syn_intense: "مكثّف",
+      syn_overlays: "البيوت اللي بيفعّلها كل طرف", syn_ov_line: "كواكب {b} ببيوت {a}", syn_ov_none: "بحاجة لوقت ميلاد دقيق",
+      syn_ak: "الأشتاكوتا", syn_ak_note: "الحساب التقليدي بيعتبر الشخص الأول طرف الرجل والتاني طرف المرأة.",
+      syn_verdict: { excellent: "ممتاز", good: "جيد", average: "مقبول", low: "ضعيف" }, syn_manglik: "المانغاليك", syn_manglik_yes: "مانغاليك", syn_manglik_no: "غير مانغاليك",
+      syn_mbal: "متوازن بين الطرفين", syn_munbal: "غير متوازن بين الطرفين",
+      syn_doshas: { nadi: "نادي دوشا", bhakoot: "بهاكوت دوشا", gana: "تباين الغانا" },
+      syn_report: "📄 تقرير التوافق PDF", syn_report_left: "باقيلك {n} من {m} هالشهر", syn_report_sent: "وصلك تقرير التوافق عالمحادثة",
+      syn_report_buy: "⭐ تقرير إضافي بـ {n} نجمة", syn_report_quota: "خلصت تقارير هالشهر. فيك تشتري تقرير إضافي.", syn_report_paid: "تم الدفع، اضغط على زر التقرير مرة تانية",
+      ch_why_h: "شو بتستفيد؟", ch_why: ["محتوى يومي جاهز ومجاني بينشر لحاله بالوقت واللغة اللي بتختارها", "الأوقات بالمنشور محوّلة لتوقيت جمهورك", "منشور ثابت كل يوم بيحافظ على تفاعل قناتك", "💰 عمولة 20% من النجوم اللي بيدفعها كل متابع بيدخل من رابطك، لمدة 3 شهور، وتلغرام بيحوّلها لرصيدك مباشرة"],
+      ch_aff_h: "كيف تاخد عمولة 20%؟", ch_aff_steps: ["افتح بروفايل البوت بتلغرام ← «برنامج الإحالة» (أو الإعدادات ← نجومي ← اربح نجوم)", "انضم بقناتك وانسخ رابط الإحالة", "الصقه هون بإعدادات القناة، وكل منشور يومي بيحمل رابطك"],
+      ch_ref: "رابط الإحالة تبعك (t.me/…?start=_tgr_…)", ch_ref_bad: "الرابط لازم يكون رابط إحالة البوت من تلغرام",
+      prem_contact: "💬 تواصل مع الإدارة", prem_or_invite: "أو اربح أيام مميز مجاناً: كل صديق نشط = 3 أيام", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف القاعدة (.sqlite أو .json أو .json.gz)", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
       share: "شارك", del: "حذف", deleted: "انحذفت الخارطة", saved_charts: "خرائطك",
       limit: "الخطة المجانية بتحفظ {n} خرائط. الخارطة انحسبت بس ما انحفظت.",
       need_city: "اختار المدينة من القائمة", need_date: "التاريخ غير صحيح",
@@ -27,7 +46,7 @@
       maha: "مها دشا", antar: "أنتار دشا", until: "حتى", timeline: "خط الدشا", full_text: "النص الكامل",
       applying: "يقترب", separating: "يبتعد", retro: "متراجع",
       varga: "الخريطة الفرعية", varga_lock: "الخرائط الفرعية من D2 لـ D60 للمشتركين المميزين (D9 مجانية).",
-      syn_title: "التوافق بين خارطتين", syn_sub: "اختار خارطتين من خرائطك. الحساب مجاني مقابل فيديو إعلاني قصير.",
+      syn_title: "التوافق بين خارطتين", syn_sub: "اختار خارطتين من خرائطك. الحساب الأساسي مجاني مقابل فيديو إعلاني قصير، والمفصّل (غربي + فيدي) للمميزين.",
       syn_need: "لازم يكون عندك خارطتين محفوظتين. ضيف خارطة الشخص التاني من «خارطتي».",
       syn_a: "الشخص الأول", syn_b: "الشخص التاني", syn_go_ad: "شاهد إعلاناً واحسب التوافق", syn_go: "احسب التوافق",
       syn_same: "اختار شخصين مختلفين", ad_loading: "عم نحمّل الإعلان…", ad_closed: "انسكّر الإعلان قبل نهايته، جرّب مرة تانية.",
@@ -54,12 +73,12 @@
       prem_title: "الخيميائي المميز", prem_sub: "اشتراك شهري بالنجوم يفتح كل المزايا المتقدمة.",
       prem_active: "اشتراكك فعّال حتى ", prem_buy: "اشترك بـ {n} نجمة شهرياً", prem_paid: "تم الاشتراك، أهلاً بك بالمميز ✨",
       prem_perks: [["الخرائط الفرعية D2 لـ D60", "الهورا، الدريكانا، النافامشا، الداشامشا وكل الشودشافارغا"],
-        ["التوافق بلا إعلانات", "احسب توافق ما بدك مع أي خارطة محفوظة"],
+        ["توافق مفصّل بلا إعلانات", "غربي وفيدي (الأشتاكوتا 36 نقطة) مع 30 تقرير توافق PDF بالشهر"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
-        ["تقرير PDF مفصّل", "تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا، بيوصلك عالمحادثة"],
+        ["تقرير فلكي PDF مفصّل", "تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا، بيوصلك عالمحادثة"],
         ["الاختيارات الفلكية الأسبوعية", "أفضل أوقات الأسبوع للبدايات والعقود والسفر، محوّلة لتوقيتك"],
         ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، التوافق الفيدي (36 نقطة)"]],
-      prem_manual: "ما عندك نجوم تلغرام؟ راسلنا على إنستغرام لطرق دفع تانية.",
+      prem_manual: "ما عندك نجوم تلغرام؟ تواصل مع الإدارة لطرق دفع تانية.",
       err: "صار خطأ: ", open_in_tg: "افتح التطبيق من داخل تلغرام عبر البوت.",
       months: ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"],
       signs: ["الحمل", "الثور", "الجوزاء", "السرطان", "الأسد", "العذراء", "الميزان", "العقرب", "القوس", "الجدي", "الدلو", "الحوت"],
@@ -68,7 +87,7 @@
       k_users: "المستخدمين", k_new: "جدد اليوم", k_active: "نشطين 7 أيام", k_daily: "مشتركين بالأبراج", k_chats: "قنوات ومجموعات",
       k_charts: "خرائط محسوبة", k_syn: "توافقات", k_prem: "مميزين الآن", k_stars: "نجوم مدفوعة", k_blocked: "حظروا البوت",
       k_series: "آخر 14 يوم", k_newusers: "مستخدمين جدد", k_ads: "الإعلانات (30 يوم)", k_req: "طلبات", k_geo: "دول الولادة",
-      k_tz: "المناطق الزمنية", k_lang: "اللغات", k_src: "مصادر الدخول", geo_note: "الموقع الحالي غير معروف؛ هاي دولة الولادة بالخارطة الرئيسية.",
+      k_tz: "المناطق الزمنية", k_inv: "دعوات", k_inv_act: "دعوات نشطة", k_reports: "تقارير فلكية", k_syn_reports: "تقارير توافق", syn_price: "سعر تقرير التوافق الإضافي (نجوم)", k_lang: "اللغات", k_src: "مصادر الدخول", geo_note: "الموقع الحالي غير معروف؛ هاي دولة الولادة بالخارطة الرئيسية.",
       st: { completed: "مكتمل", nofill: "بدون إعلان متاح", skipped: "تخطّى", rejected_fast: "مرفوض (سريع)" },
       search_user: "ابحث بالرقم أو الاسم أو @username", premium_until: "مميز حتى", upgrade: "ترقية", days: "يوم", revoke: "إلغاء المميز",
       note: "ملاحظة (مثلاً: دفع بطريقة أخرى)", granted: "تمت الترقية", revoked: "تم إلغاء المميز", message_user: "راسله",
@@ -88,7 +107,26 @@
       unknown_note: "We'll cast it for noon, without Ascendant and houses, which need the exact time.",
       place: "Birthplace", continent: "Continent", country: "Country", city_ph: "Search your city…",
       indian_style: "Indian chart style", north: "North", south: "South", calc: "Calculate chart", calculating: "Calculating…",
-      western: "Western", vedic: "Vedic", report: "📄 PDF report", report_wait: "Preparing your report… about a minute", report_sent: "Report sent to your chat with the bot", report_lock: "The detailed report is for Premium members", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload database file (.sqlite, .json or .json.gz)", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
+      western: "Western", vedic: "Vedic", report: "📄 Astrological report PDF", report_gift: "🎁 Free astrological report", report_wait: "Preparing your astrological report… about a minute", report_sent: "Astrological report sent to your chat with the bot", report_lock: "The detailed astrological report is for Premium members, or a gift when someone invites you",
+      inv_title: "Invite friends", inv_sub: "Your friend gets a free astrological report; you get 3 Premium days for every friend who becomes active.",
+      inv_how: "Active = saved a chart and came back another day.", inv_link: "Your link", inv_copy: "Copy", inv_copied: "Link copied", inv_share: "📤 Share with a friend",
+      inv_invited: "Invited", inv_active: "Active", inv_days: "Premium days earned", inv_cta: "🎁 Invite a friend: they get a free astrological report, you get 3 Premium days",
+      inv_share_text: "I cast my birth chart with The Alchemist 🔭 Try it and get a free astrological report of yours 🎁",
+      syn_partner: "💞 Invite the other person: they cast their own chart and get an astrological report as a gift.",
+      syn_locked_h: "Detailed compatibility is Premium", syn_locked: "Premium members see compatibility on two levels, plus a PDF report:",
+      syn_locked_list: ["Relationship themes: attraction, emotions, communication, commitment…", "The houses each person activates in the other", "Vedic Ashtakoota (36 points) and Manglik check", "Compatibility PDF report (30 a month)"],
+      syn_tab_w: "Western", syn_tab_v: "Vedic", syn_themes: "Relationship themes", syn_soft: "Harmonious", syn_hard: "Tense", syn_intense: "Intense",
+      syn_overlays: "Houses each person activates", syn_ov_line: "{b}'s planets in {a}'s houses", syn_ov_none: "Needs an exact birth time",
+      syn_ak: "Ashtakoota", syn_ak_note: "Classically the first person is read as the groom and the second as the bride.",
+      syn_verdict: { excellent: "Excellent", good: "Good", average: "Acceptable", low: "Low" }, syn_manglik: "Manglik", syn_manglik_yes: "Manglik", syn_manglik_no: "Not Manglik",
+      syn_mbal: "Balanced between both", syn_munbal: "Not balanced between both",
+      syn_doshas: { nadi: "Nadi dosha", bhakoot: "Bhakoot dosha", gana: "Gana contrast" },
+      syn_report: "📄 Compatibility report PDF", syn_report_left: "{n} of {m} left this month", syn_report_sent: "Compatibility report sent to your chat",
+      syn_report_buy: "⭐ Extra report for {n} Stars", syn_report_quota: "This month's reports are used up. You can buy an extra one.", syn_report_paid: "Paid. Tap the report button again",
+      ch_why_h: "What you get", ch_why: ["Free daily content posted automatically at your time and language", "Times in posts are converted to your audience's zone", "A steady daily post keeps your channel engaged", "💰 20% of the Stars spent by everyone who joins through your link, for 3 months, paid by Telegram to your balance"],
+      ch_aff_h: "How to earn the 20%", ch_aff_steps: ["Open the bot's profile in Telegram → Affiliate program (or Settings → My Stars → Earn Stars)", "Join with your channel and copy the referral link", "Paste it here in the channel settings so every daily post carries it"],
+      ch_ref: "Your referral link (t.me/…?start=_tgr_…)", ch_ref_bad: "Use the bot's Telegram referral link",
+      prem_contact: "💬 Contact the team", prem_or_invite: "Or earn Premium days for free: each active friend = 3 days", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload database file (.sqlite, .json or .json.gz)", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
       share: "Share", del: "Delete", deleted: "Chart deleted", saved_charts: "Your charts",
       limit: "Free plan keeps {n} charts. This one was calculated but not saved.",
       need_city: "Choose a city from the list", need_date: "Invalid date",
@@ -98,7 +136,7 @@
       maha: "Mahadasha", antar: "Antardasha", until: "until", timeline: "Dasha timeline", full_text: "Full text",
       applying: "applying", separating: "separating", retro: "retrograde",
       varga: "Divisional chart", varga_lock: "Divisional charts D2–D60 are for Premium members (D9 is free).",
-      syn_title: "Compatibility of two charts", syn_sub: "Pick two saved charts. Free in exchange for a short video ad.",
+      syn_title: "Compatibility of two charts", syn_sub: "Pick two saved charts. The basic reading is free for a short video ad; the detailed one (Western + Vedic) is Premium.",
       syn_need: "You need two saved charts. Add the other person's chart in My chart.",
       syn_a: "First person", syn_b: "Second person", syn_go_ad: "Watch an ad and compare", syn_go: "Compare charts",
       syn_same: "Pick two different people", ad_loading: "Loading the ad…", ad_closed: "The ad was closed early. Try again.",
@@ -125,12 +163,12 @@
       prem_title: "Alchemist Premium", prem_sub: "A monthly Stars subscription that unlocks every advanced feature.",
       prem_active: "Your subscription is active until ", prem_buy: "Subscribe for {n} Stars a month", prem_paid: "You're Premium now ✨",
       prem_perks: [["Divisional charts D2–D60", "Hora, Drekkana, Navamsha, Dashamsha and the full Shodashavarga"],
-        ["Ad-free compatibility", "Compare any saved charts, as often as you like"],
+        ["Detailed compatibility, no ads", "Western and Vedic (36-point Ashtakoota) with 30 compatibility PDF reports a month"],
         ["Unlimited profiles", "Save family and friends without a limit"],
-        ["Detailed PDF report", "Full Western and Vedic interpretation with yogas and dashas, sent to your chat"],
+        ["Detailed astrological report PDF", "Full Western and Vedic interpretation with yogas and dashas, sent to your chat"],
         ["Weekly electional picks", "The week's best windows for beginnings, contracts and travel, in your time zone"],
         ["Coming for members", "Personal daily transits, transit alerts, Vedic 36-point matching"]],
-      prem_manual: "No Telegram Stars? Message us on Instagram for other payment options.",
+      prem_manual: "No Telegram Stars? Contact the team for other payment options.",
       err: "Error: ", open_in_tg: "Open the app from inside Telegram via the bot.",
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       signs: ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"],
@@ -139,7 +177,7 @@
       k_users: "Users", k_new: "New today", k_active: "Active 7 days", k_daily: "Daily subscribers", k_chats: "Channels & groups",
       k_charts: "Charts cast", k_syn: "Synastries", k_prem: "Premium now", k_stars: "Stars paid", k_blocked: "Blocked the bot",
       k_series: "Last 14 days", k_newusers: "New users", k_ads: "Ads (30 days)", k_req: "requests", k_geo: "Birth countries",
-      k_tz: "Time zones", k_lang: "Languages", k_src: "Sources", geo_note: "Current location is unknown; this is the birth country of the main chart.",
+      k_tz: "Time zones", k_inv: "Invites", k_inv_act: "Active invites", k_reports: "Astrological reports", k_syn_reports: "Compatibility reports", syn_price: "Extra compatibility report price (Stars)", k_lang: "Languages", k_src: "Sources", geo_note: "Current location is unknown; this is the birth country of the main chart.",
       st: { completed: "completed", nofill: "no fill", skipped: "skipped", rejected_fast: "rejected (too fast)" },
       search_user: "Search by id, name or @username", premium_until: "Premium until", upgrade: "Upgrade", days: "days", revoke: "Revoke premium",
       note: "Note (e.g. paid another way)", granted: "Upgraded", revoked: "Premium revoked", message_user: "Message",
@@ -208,6 +246,7 @@
 
   /* ───────────── tabs ───────────── */
   const VIEWS = {};
+  const isPrem = () => !!(S.session && (S.session.premium || S.session.is_admin));
   function setTab(tab) {
     if (!VIEWS[tab]) tab = "chart";
     S.tab = tab;
@@ -216,6 +255,9 @@
     const v = $("#view"); v.classList.remove("enter"); void v.offsetWidth; v.classList.add("enter");
     VIEWS[tab]();
     window.scrollTo(0, 0);
+    if (tab === "synastry" || tab === "premium" || tab === "chart") refreshSession().then(() => {
+      const was = S._prem; S._prem = isPrem(); if (was !== undefined && was !== S._prem && S.tab === tab) VIEWS[tab]();
+    }).catch(() => {});
   }
 
   /* ───────────── chart tab ───────────── */
@@ -333,7 +375,7 @@
       try {
         const res = await post("/api/chart", { name: f.name, day: f.day, month: f.month, year: f.year, hour: f.hour, minute: f.minute,
           time_known: !f.unknown, country: f.country, city_id: f.city_id, indian_style: S.style, theme: S.theme, lang: S.lang, save: true });
-        if (S.session.meta.chart_ad && !S.session.premium && window.Ads) {
+        if (S.session.meta.chart_ad && !isPrem() && window.Ads) {
           try { await window.Ads.watch("chart", S.session.meta.ads || {}, api); } catch (e) { /* the chart is free either way */ }
         }
         S.chart = res; S.profileId = res.profile_id; S.editing = false; S.system = "western"; S.varga = 1; S.vargaSvg = null; S.form = {};
@@ -405,21 +447,24 @@
     <details class="card"><summary>${T("full_text")}</summary><div class="report">${ved ? c.text.vedic : c.text.western}</div></details>
     <div class="actions">
       ${S.profileId ? `<button class="btn" id="send">${T("send")}</button>` : ""}
-      ${S.profileId ? `<button class="btn ${S.session.premium || S.session.is_admin ? "" : "ghost"}" id="report">${S.session.premium || S.session.is_admin ? "" : "🔒 "}${T("report")}</button>` : ""}
+      ${S.profileId ? (isPrem() ? `<button class="btn" id="report">${T("report")}</button>`
+        : S.session.report_credits > 0 ? `<button class="btn gift" id="report">${T("report_gift")}</button>`
+        : `<button class="btn ghost" id="report">🔒 ${T("report")}</button>`) : ""}
       <button class="btn ghost" id="share">${T("share")}</button>
       ${S.profileId ? `<button class="btn ghost danger" id="del">${T("del")}</button>` : ""}
-    </div>`;
+    </div>
+    ${S.profileId ? `<button class="card invite-cta" data-invite>${T("inv_cta")}</button>` : ""}`;
   }
 
   function vargaOptions() {
-    const prem = S.session.premium;
+    const prem = isPrem();
     return (S.vargas || [{ n: 1, name: "Rashi", ar: "الراشي" }]).map((v) =>
       `<option value="${v.n}" ${v.n === S.varga ? "selected" : ""}>${v.n === 1 || v.n === 9 || prem ? "" : "🔒 "}D${v.n} · ${esc(S.lang === "ar" ? v.ar : v.name)}</option>`).join("");
   }
 
   async function loadVarga(n) {
     if (n === 1) { S.varga = 1; S.vargaSvg = null; return VIEWS.chart(); }
-    if (n !== 9 && !S.session.premium) { toast(T("varga_lock")); $("#varga").value = String(S.varga); return; }
+    if (n !== 9 && !isPrem()) { toast(T("varga_lock")); $("#varga").value = String(S.varga); return; }
     try {
       const r = await api(`/api/profiles/${S.profileId}/varga/${n}?style=${S.style}&theme=${S.theme}&lang=${S.lang}`);
       S.varga = n; S.vargaSvg = r.svg; VIEWS.chart();
@@ -442,12 +487,16 @@
     };
     const rep = $("#report");
     if (rep) rep.onclick = async () => {
-      if (!S.session.premium && !S.session.is_admin) { toast(T("report_lock")); return setTab("premium"); }
+      if (!isPrem() && !(S.session.report_credits > 0)) { toast(T("report_lock")); return setTab("premium"); }
       rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
-      try { await post(`/api/profiles/${S.profileId}/report`, { lang: S.lang, style: S.style }); toast(T("report_sent")); haptic("heavy"); }
+      try {
+        await post(`/api/profiles/${S.profileId}/report`, { lang: S.lang, style: S.style }); toast(T("report_sent")); haptic("heavy");
+        if (!isPrem() && S.session.report_credits > 0) { S.session.report_credits--; VIEWS.chart(); return; }
+      }
       catch (e) { toast(e.message === "premium_required" ? T("report_lock") : T("err") + e.message); }
       rep.disabled = false; rep.textContent = T("report");
     };
+    document.querySelectorAll("[data-invite]").forEach((b) => b.onclick = () => setTab("invite"));
     $("#share").onclick = () => {
       const url = `https://t.me/${S.session.meta.bot}`;
       const text = S.lang === "ar" ? "احسب خارطتك الفلكية الغربية والفيدية مجاناً مع بوت الخيميائي ✨" : "Cast your Western & Vedic birth chart for free ✨";
@@ -478,18 +527,21 @@
   VIEWS.synastry = function renderSynastry() {
     const ps = S.session.profiles;
     if (ps.length < 2) {
-      $("#view").innerHTML = `<h2>${T("syn_title")}</h2><p class="muted">${T("syn_need")}</p><button class="btn" id="go-chart">+ ${T("new_chart")}</button>`;
+      $("#view").innerHTML = `<h2>${T("syn_title")}</h2><p class="muted">${T("syn_need")}</p><button class="btn" id="go-chart">+ ${T("new_chart")}</button>
+        <button class="card invite-cta mt16" data-invite>${T("syn_partner")}</button>`;
       $("#go-chart").onclick = () => { S.editing = true; setTab("chart"); };
+      document.querySelector("[data-invite]").onclick = () => setTab("invite");
       return;
     }
     const opt = (sel) => ps.map((p) => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${esc(p.name)} · ${p.birth_date}</option>`).join("");
-    const prem = S.session.premium;
+    const prem = isPrem();
     $("#view").innerHTML = `<h2>${T("syn_title")}</h2>${prem ? "" : `<p class="muted">${T("syn_sub")}</p>`}
       <div class="card form"><label for="sa">${T("syn_a")}</label><select id="sa">${opt(S.synA || ps[0].id)}</select>
       <label for="sb">${T("syn_b")}</label><select id="sb">${opt(S.synB || ps[1].id)}</select>
       <button class="btn block" id="syn-go">${prem ? T("syn_go") : T("syn_go_ad")}</button></div>
       <div id="syn-out">${S.synResult ? synView(S.synResult) : ""}</div>`;
     $("#syn-go").onclick = runSynastry;
+    bindSynDetail();
   };
 
   function synView(r) {
@@ -501,7 +553,64 @@
       <div class="scorebox"><div class="ring" style="--p:${pct}"><b class="num">${r.score.value}</b></div><div><b>${esc(lvl)}</b><small class="muted">${T("score")}</small></div></div>
       <div class="wheel">${r.svg}</div></section>
       <section class="card"><h3>${T("aspects")}</h3><ul class="asp">${asp}</ul></section>
+      ${r.detail ? synDetail(r) : r.locked ? synLocked() : ""}
       <details class="card"><summary>${T("full_text")}</summary><div class="report">${r.text}</div></details>`;
+  }
+
+  function synLocked() {
+    return `<section class="card locked"><h3>✨ ${T("syn_locked_h")}</h3><p class="muted">${T("syn_locked")}</p>
+      <ul class="plain checks">${T("syn_locked_list").map((x) => `<li>${x}</li>`).join("")}</ul>
+      <button class="btn block" data-go-prem>${T("go_premium")}</button></section>`;
+  }
+
+  function synDetail(r) {
+    const d = r.detail, w = d.western, v = d.vedic, ak = v.ashtakoota, ar = S.lang === "ar";
+    const tab = S.synTab || "w", [A, B] = r.names.map(esc);
+    const themes = w.themes.map((t) => `<div class="theme"><div class="row between"><b>${esc(ar ? t.ar : t.en)}</b>
+        <small class="muted">${T("syn_soft")} ${t.soft} · ${T("syn_hard")} ${t.hard}${t.intense ? ` · ${T("syn_intense")} ${t.intense}` : ""}</small></div>
+        ${t.score === null ? "" : `<div class="tbar"><span style="width:${Math.max(3, t.score)}%"></span></div>`}
+        <small class="muted">${esc(ar ? t.about_ar : t.about_en)}</small></div>`).join("");
+    const ov = (list, a, b) => `<div><h4>${T("syn_ov_line").replace("{a}", a).replace("{b}", b)}</h4>${list ? `<ul class="plain">${list.map((o) => `<li>${PL[o.planet][0]} ${pn(o.planet)} → ${S.lang === "ar" ? "البيت" : "House"} <span class="num">${o.house}</span></li>`).join("")}</ul>` : `<p class="muted small">${T("syn_ov_none")}</p>`}</div>`;
+    const kootas = ak.kootas.map((k) => `<tr class="${k.points >= k.max ? "full" : k.points === 0 ? "zero" : ""}"><td><b>${esc(ar ? k.ar : k.en)}</b><small class="muted">${esc(ar ? k.about_ar : k.about_en)}</small></td><td class="num">${k.points}/${k.max}</td></tr>`).join("");
+    const mg = v.manglik.map((m, i) => `<span class="pill ${m.is ? "warnp" : ""}">${[A, B][i]}: ${m.is ? T("syn_manglik_yes") : T("syn_manglik_no")}</span>`).join("");
+    const q = r.report_quota;
+    const left = q ? Math.max(0, q.limit - q.used) : 0;
+    const repBtn = q ? (left > 0 || q.credits > 0 || S.session.is_admin
+      ? `<button class="btn block" id="syn-rep">${T("syn_report")}</button><p class="muted small center">${T("syn_report_left").replace("{n}", left + q.credits).replace("{m}", q.limit)}</p>`
+      : `<p class="muted small">${T("syn_report_quota")}</p><button class="btn block" id="syn-buy">${T("syn_report_buy").replace("{n}", q.price)}</button>`) : "";
+    return `<section class="card syn-detail"><div class="seg" id="syn-tabs"><button data-v="w" aria-pressed="${tab === "w"}">${T("syn_tab_w")}</button><button data-v="v" aria-pressed="${tab === "v"}">${T("syn_tab_v")}</button></div>
+      ${tab === "w" ? `<h3>${T("syn_themes")}</h3>${themes}<h3>${T("syn_overlays")}</h3><div class="grid2">${ov(w.overlays_ab, A, B)}${ov(w.overlays_ba, B, A)}</div>`
+        : `<div class="akbox"><div class="ring" style="--p:${Math.round(ak.total / 36 * 100)}"><b class="num">${ak.total}</b></div><div><b>${T("syn_ak")} · ${(T("syn_verdict") || {})[ak.verdict] || ak.verdict}</b><small class="muted">/ 36</small></div></div>
+           <table class="ak">${kootas}</table><p class="muted small">${T("syn_ak_note")}</p>
+           ${ak.doshas.length ? `<div class="pills">${ak.doshas.map((x) => `<span class="pill warnp">${T("syn_doshas")[x]}</span>`).join("")}</div>` : ""}
+           <h3>${T("syn_manglik")}</h3><div class="pills">${mg}</div><p class="muted small">${v.manglik_balanced ? T("syn_mbal") : T("syn_munbal")}</p>`}
+      <div class="mt16">${repBtn}</div></section>`;
+  }
+
+  function bindSynDetail() {
+    const tabs = $("#syn-tabs");
+    if (tabs) tabs.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; S.synTab = b.dataset.v; haptic(); VIEWS.synastry(); };
+    document.querySelectorAll("[data-go-prem]").forEach((b) => b.onclick = () => setTab("premium"));
+    const rep = $("#syn-rep");
+    if (rep) rep.onclick = async () => {
+      rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
+      try {
+        const r = await post("/api/synastry/report", { a: S.synResult.a, b: S.synResult.b, lang: S.lang });
+        S.synResult.report_quota = r.quota; toast(T("syn_report_sent")); haptic("heavy"); VIEWS.synastry();
+      } catch (e) {
+        if (e.message === "report_quota") { S.synResult.report_quota.used = S.synResult.report_quota.limit; S.synResult.report_quota.credits = 0; VIEWS.synastry(); toast(T("syn_report_quota")); }
+        else { toast(T("err") + e.message); rep.disabled = false; rep.textContent = T("syn_report"); }
+      }
+    };
+    const buy = $("#syn-buy");
+    if (buy) buy.onclick = async () => {
+      buy.disabled = true;
+      try {
+        const { link } = await post("/api/synastry/report/invoice");
+        const done = (status) => { buy.disabled = false; if (status === "paid") { S.synResult.report_quota.credits = (S.synResult.report_quota.credits || 0) + 1; toast(T("syn_report_paid")); VIEWS.synastry(); } };
+        if (tg && tg.openInvoice) tg.openInvoice(link, done); else { openTg(link); buy.disabled = false; }
+      } catch (e) { toast(T("err") + e.message); buy.disabled = false; }
+    };
   }
 
   async function runSynastry() {
@@ -511,7 +620,8 @@
     const btn = $("#syn-go"); btn.disabled = true;
     let ticket = null;
     try {
-      if (!S.session.premium) {
+      await refreshSession().catch(() => {});
+      if (!isPrem()) {
         btn.innerHTML = `<span class="spinner"></span> ${T("ad_loading")}`;
         const r = await window.Ads.watch("synastry", S.session.meta.ads || {}, api);
         if (!r.granted) throw new Error("ad");
@@ -523,7 +633,7 @@
       setTimeout(() => { const o = $("#syn-out"); if (o) o.scrollIntoView({ behavior: "smooth" }); }, 50);
     } catch (e) {
       const msg = window.Ads && e instanceof window.Ads.AdSkipped ? T("ad_closed") : /limit/.test(e.message) ? T("ad_limit") : T("err") + e.message;
-      toast(msg); btn.disabled = false; btn.textContent = S.session.premium ? T("syn_go") : T("syn_go_ad");
+      toast(msg); btn.disabled = false; btn.textContent = isPrem() ? T("syn_go") : T("syn_go_ad");
     }
   }
 
@@ -578,6 +688,19 @@
     };
   };
 
+  /* ───────────── invite friends ───────────── */
+  VIEWS.invite = async function renderInvite() {
+    $("#view").innerHTML = skeleton(3);
+    const st = await api("/api/invite");
+    if (S.tab !== "invite") return;
+    $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">🎁</div><h2>${T("inv_title")}</h2><p class="muted">${T("inv_sub")}</p></section>
+      <div class="kpis three"><div class="kpi"><b class="num">${st.invited}</b><span>${T("inv_invited")}</span></div><div class="kpi"><b class="num">${st.active}</b><span>${T("inv_active")}</span></div><div class="kpi"><b class="num">${st.days}</b><span>${T("inv_days")}</span></div></div>
+      <div class="card form"><label>${T("inv_link")}</label><div class="row"><input id="inv-link" dir="ltr" readonly value="${esc(st.link)}"><button class="btn small ghost" id="inv-copy">${T("inv_copy")}</button></div>
+      <button class="btn block big mt8" id="inv-share">${T("inv_share")}</button><p class="muted small">${T("inv_how")}</p></div>`;
+    $("#inv-share").onclick = () => { haptic(); openTg(`https://t.me/share/url?url=${encodeURIComponent(st.link)}&text=${encodeURIComponent(T("inv_share_text"))}`); };
+    $("#inv-copy").onclick = async () => { try { await navigator.clipboard.writeText(st.link); } catch (e) { $("#inv-link").select(); document.execCommand("copy"); } toast(T("inv_copied")); };
+  };
+
   /* ───────────── weekly electional picks (premium, protected view) ───────────── */
   VIEWS.weekly = async function renderWeekly() {
     const tz = (S.session.daily && S.session.daily.tz) || Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Damascus";
@@ -610,7 +733,10 @@
     const m = S.session.meta;
     $("#view").innerHTML = `<section class="card promo"><h2>${T("ch_title")}</h2><p class="muted">${T("ch_sub")}</p>
       <div class="row"><button class="btn" id="c-add">📢 ${T("add_channel")}</button><button class="btn ghost" id="g-add">👥 ${T("add_group")}</button></div>
-      <p class="muted small">${T("ch_steps")}</p></section><h3>${T("my_chats")}</h3><div class="list" id="chats">${skeleton(2)}</div>`;
+      <p class="muted small">${T("ch_steps")}</p></section>
+      <section class="card"><h3>${T("ch_why_h")}</h3><ul class="plain checks">${T("ch_why").map((x) => `<li>${x}</li>`).join("")}</ul>
+      <h3>${T("ch_aff_h")}</h3><ol class="steps">${T("ch_aff_steps").map((x) => `<li>${x}</li>`).join("")}</ol></section>
+      <h3>${T("my_chats")}</h3><div class="list" id="chats">${skeleton(2)}</div>`;
     $("#c-add").onclick = () => openTg(m.add_channel);
     $("#g-add").onclick = () => openTg(m.add_group);
     const [chats, tzs] = await Promise.all([api("/api/channels"), api("/api/timezones")]);
@@ -620,12 +746,13 @@
       <div class="grid2"><input type="time" value="${c.send_time}" data-k="send_time" aria-label="${T("send_time")}">
       <select data-k="lang" aria-label="${T("post_lang")}"><option value="ar" ${c.lang === "ar" ? "selected" : ""}>العربية</option><option value="en" ${c.lang === "en" ? "selected" : ""}>English</option></select></div>
       <select data-k="tz" class="mt8" aria-label="${T("tz")}">${tzs.map((z) => `<option ${z === c.tz ? "selected" : ""}>${z}</option>`).join("")}</select>
+      <label class="mt8 small">${T("ch_ref")}</label><input data-k="ref_link" dir="ltr" placeholder="https://t.me/${esc(m.bot)}?start=_tgr_…" value="${esc(c.ref_link || "")}">
       <label class="switch"><input type="checkbox" data-k="active" ${c.active ? "checked" : ""}> ${T("active")}</label>
       <button class="btn small mt8" data-save>${T("save")}</button></div>`).join("");
     box.querySelectorAll("[data-save]").forEach((b) => b.onclick = async () => {
       const it = b.closest("[data-chat]"), g = (k) => it.querySelector(`[data-k="${k}"]`);
-      try { await post(`/api/channels/${it.dataset.chat}`, { send_time: g("send_time").value, tz: g("tz").value, lang: g("lang").value, active: g("active").checked }); toast(T("saved")); }
-      catch (e) { toast(T("err") + e.message); }
+      try { await post(`/api/channels/${it.dataset.chat}`, { send_time: g("send_time").value, tz: g("tz").value, lang: g("lang").value, active: g("active").checked, ref_link: g("ref_link").value.trim() || null }); toast(T("saved")); }
+      catch (e) { toast(e.message === "bad_ref_link" ? T("ch_ref_bad") : T("err") + e.message); }
     });
   };
 
@@ -673,7 +800,10 @@
       <ul class="perks">${perks}</ul>
       ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`
                     : `<button class="btn block big" id="buy">⭐ ${T("prem_buy").replace("{n}", info.stars)}</button>`}
-      <p class="muted small mt16">${T("prem_manual")}</p>`;
+      <div class="card manual mt16"><p class="small">${T("prem_manual")}</p><button class="btn ghost block" id="contact-admin">${T("prem_contact")}</button></div>
+      <button class="card invite-cta" data-invite>${T("prem_or_invite")}</button>`;
+    $("#contact-admin").onclick = () => { haptic(); openTg(`https://t.me/${S.session.meta.bot}?start=pay`); if (tg && tg.close) setTimeout(() => tg.close(), 300); };
+    document.querySelector("[data-invite]").onclick = () => setTab("invite");
     const buy = $("#buy");
     if (buy) buy.onclick = async () => {
       buy.disabled = true;
@@ -722,7 +852,8 @@
       : `<p class="muted small">${T("no_items")}</p>`;
     $("#admin").innerHTML = `<div class="kpis">${kpi(o.users, T("k_users"))}${kpi(o.new_today, T("k_new"))}${kpi(o.active7, T("k_active"))}
       ${kpi(o.daily_subs, T("k_daily"))}${kpi(o.chats, T("k_chats"))}${kpi(o.charts, T("k_charts"))}${kpi(o.synastry, T("k_syn"))}
-      ${kpi(o.premium, T("k_prem"))}${kpi(o.stars, "⭐ " + T("k_stars"))}${kpi(o.blocked, T("k_blocked"))}</div>
+      ${kpi(o.premium, T("k_prem"))}${kpi(o.stars, "⭐ " + T("k_stars"))}${kpi(o.blocked, T("k_blocked"))}
+      ${kpi(o.invited, T("k_inv"))}${kpi(o.invited_active, T("k_inv_act"))}${kpi(o.reports, T("k_reports"))}${kpi(o.syn_reports, T("k_syn_reports"))}</div>
       <section class="card"><h3>${T("k_newusers")} · ${T("k_series")}</h3>${seriesChart(o.series)}</section>
       <section class="card"><h3>${T("k_ads")}</h3><p class="muted small">${T("k_req")}: <span class="num">${o.ads_requested}</span></p>${adTable}</section>
       <section class="card"><h3>${T("k_geo")}</h3><p class="muted small">${T("geo_note")}</p>${listBars(o.countries, "country", countryName)}</section>
@@ -791,10 +922,11 @@
       <div class="card form"><label for="du">${T("daily_url")}</label><input id="du" dir="ltr" value="${esc(c.daily_url)}">
       <label for="wu">${T("weekly_url")}</label><input id="wu" dir="ltr" value="${esc(c.weekly_url)}">
       <label for="pr">${T("price")}</label><input id="pr" type="number" min="1" max="10000" value="${c.premium_stars}">
+      <label for="spr">${T("syn_price")}</label><input id="spr" type="number" min="1" max="10000" value="${c.syn_report_stars}">
       <div class="row mt8"><button class="btn" id="cs">${T("save")}</button><button class="btn ghost" id="cf2">${T("fetch_now")}</button></div></div>
       <section class="card"><h3>${T("fetched_days")}</h3>${c.days.length ? `<ul class="plain">${c.days.map((d) => `<li class="num">${d.day} <small class="muted">· ${d.fetched_at.slice(0, 16).replace("T", " ")}</small></li>`).join("")}</ul>` : `<p class="muted small">${T("no_items")}</p>`}</section>`;
     $("#cs").onclick = async () => {
-      try { await post("/api/admin/settings", { daily_url: $("#du").value, weekly_url: $("#wu").value, premium_stars: +$("#pr").value }); toast(T("saved")); }
+      try { await post("/api/admin/settings", { daily_url: $("#du").value, weekly_url: $("#wu").value, premium_stars: +$("#pr").value, syn_report_stars: +$("#spr").value }); toast(T("saved")); }
       catch (e) { toast(T("err") + e.message); }
     };
     $("#ipu").onclick = async () => {
@@ -845,7 +977,7 @@
     if (!DEV && !(tg && tg.initData)) { $("#view").innerHTML = `<p class="warn">${T("open_in_tg")}</p>`; return; }
     $("#view").innerHTML = skeleton(5);
     try {
-      await refreshSession();
+      await refreshSession(); S._prem = isPrem();
       S.lang = S.session.user.lang || S.lang; applyLang();
       if (S.session.is_admin) { $("#tab-admin").hidden = false; document.querySelector(".tabs").classList.add("six"); }
       api("/api/vargas").then((v) => { S.vargas = v; }).catch(() => {});

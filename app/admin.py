@@ -52,6 +52,10 @@ async def overview(_: dict = Depends(admin_user)):
         "premium": await q("SELECT count(DISTINCT user_id) FROM subscriptions WHERE ends_at > now()"),
         "stars": await q("SELECT coalesce(sum(stars),0) FROM payments WHERE NOT refunded"),
         "feedback": await q("SELECT count(*) FROM feedback"),
+        "invited": await q("SELECT count(*) FROM referrals"),
+        "invited_active": await q("SELECT count(*) FROM referrals WHERE activated_at IS NOT NULL"),
+        "reports": await q("SELECT count(*) FROM report_log WHERE kind='natal'"),
+        "syn_reports": await q("SELECT count(*) FROM report_log WHERE kind='synastry'"),
     }
     out["ads"] = [dict(r) for r in await p.fetch(
         """SELECT provider, status, count(*) n FROM ad_events
@@ -72,7 +76,8 @@ async def overview(_: dict = Depends(admin_user)):
         "SELECT tz, count(*) n FROM users WHERE tz IS NOT NULL GROUP BY tz ORDER BY n DESC LIMIT 8")]
     out["langs"] = [dict(r) for r in await p.fetch("SELECT lang, count(*) n FROM users GROUP BY lang ORDER BY n DESC")]
     out["sources"] = [dict(r) for r in await p.fetch(
-        "SELECT coalesce(start_param,'—') src, count(*) n FROM users GROUP BY src ORDER BY n DESC LIMIT 8")]
+        """SELECT CASE WHEN start_param ~ '^r[0-9]+$' THEN 'invite' WHEN start_param LIKE '_tgr_%' THEN 'affiliate'
+                  ELSE coalesce(start_param,'—') END src, count(*) n FROM users GROUP BY src ORDER BY n DESC LIMIT 8""")]
     return out
 
 
@@ -197,6 +202,7 @@ async def content_status(_: dict = Depends(admin_user)):
         "daily_url": (await db.kv_get("daily_url", settings.daily_url) or settings.daily_url),
         "weekly_url": (await db.kv_get("weekly_url", settings.weekly_url) or settings.weekly_url),
         "premium_stars": int(await db.kv_get("premium_stars", str(settings.premium_stars))),
+        "syn_report_stars": int(await db.kv_get("syn_report_stars", "50")),
         "days": [{"day": r["day"].isoformat(), "fetched_at": r["fetched_at"].isoformat()} for r in days],
         "weeks": [{"week_start": r["week_start"].isoformat(), "fetched_at": r["fetched_at"].isoformat()} for r in weeks],
         "has_today": any(r["day"] == today for r in days),
@@ -207,6 +213,7 @@ class SettingsIn(BaseModel):
     daily_url: str | None = None
     weekly_url: str | None = None
     premium_stars: int | None = Field(None, ge=1, le=10000)
+    syn_report_stars: int | None = Field(None, ge=1, le=10000)
 
 
 @router.post("/settings")
@@ -217,6 +224,8 @@ async def save_settings(body: SettingsIn, _: dict = Depends(admin_user)):
         await db.kv_set("weekly_url", body.weekly_url.strip())
     if body.premium_stars is not None:
         await db.kv_set("premium_stars", str(body.premium_stars))
+    if body.syn_report_stars is not None:
+        await db.kv_set("syn_report_stars", str(body.syn_report_stars))
     return {"ok": True}
 
 

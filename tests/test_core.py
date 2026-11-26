@@ -174,3 +174,25 @@ def test_github_urls():
     u = "https://github.com/the-alchemist-astro/astro-forecasts/blob/main/daily-forecast.md"
     assert F.gh_raw(u) == "https://raw.githubusercontent.com/the-alchemist-astro/astro-forecasts/main/daily-forecast.md"
     assert F.gh_api(u) == "https://api.github.com/repos/the-alchemist-astro/astro-forecasts/contents/daily-forecast.md?ref=main"
+
+
+def test_ashtakoota_same_nakshatra_is_28_with_nadi_dosha():
+    from app.astro.ashtakoota import ashtakoota
+    r = ashtakoota({"moon_lon": 10, "moon_nak": 0}, {"moon_lon": 10, "moon_nak": 0})
+    assert r["total"] == 28 and r["points"]["nadi"] == 0 and "nadi" in r["doshas"]
+
+
+def test_referral_param_and_affiliate_link():
+    import pytest
+    from fastapi import HTTPException
+
+    from app.api import clean_ref_link
+    from app.config import settings
+    from app.referral import inviter_from
+    assert inviter_from("r8449364055") == 8449364055
+    assert inviter_from("channel") is None and inviter_from("r12") is None
+    bot = settings.bot_username
+    assert clean_ref_link(f"https://t.me/{bot}?start=_tgr_AbC123xyz") == f"https://t.me/{bot}?start=_tgr_AbC123xyz"
+    assert clean_ref_link("") is None
+    with pytest.raises(HTTPException):
+        clean_ref_link("https://t.me/otherbot?start=_tgr_AbC123xyz")
