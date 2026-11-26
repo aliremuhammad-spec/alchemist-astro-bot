@@ -249,7 +249,7 @@ async def fetch_now(_: dict = Depends(admin_user)):
 
 @router.get("/interp")
 async def interp_status(_: dict = Depends(admin_user)):
-    return interp.status()
+    return {**interp.status(), "compat": interp.compat.status()}
 
 
 @router.post("/interp/upload")
@@ -261,5 +261,6 @@ async def interp_upload(file: UploadFile = File(...), _: dict = Depends(admin_us
         payload = interp.parse_upload(raw, file.filename or "")
     except Exception as ex:
         raise HTTPException(400, f"cannot read file: {ex}")
+    kind = interp.kind_of(payload)
     n = await interp.import_payload(payload)
-    return {"ok": True, "imported": n, **interp.status()}
+    return {"ok": True, "imported": n, "kind": kind, **interp.status(), "compat": interp.compat.status()}

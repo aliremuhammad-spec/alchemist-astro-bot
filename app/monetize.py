@@ -119,15 +119,48 @@ async def synastry(body: SynIn, user: dict = Depends(current_user)):
     await db.event(user["id"], "synastry")
     out = {"names": s["names"], "score": s["score"], "aspects": s["aspects"][:30],
            "text": synastry_text(s, lang), "svg": svg.split("?>", 1)[-1], "a": body.a, "b": body.b}
-    if await _is_member(user["id"]):
-        from .astro.synastry_detail import detail
-        d = await run_in_threadpool(detail, ba, bb, s)
-        d.pop("_charts", None)
-        out["detail"] = d
+    from .astro import compat
+    member = await _is_member(user["id"])
+    if compat.ready():
+        r = await run_in_threadpool(_compat_analysis, ba, bb, [pa["name"], pb["name"]], lang, await footer_ctx())
+        if member:
+            out["compat"] = _slim(r)
+        else:
+            out["compat_teaser"] = {
+                "overall": r["overall"], "band": (r["overall_entry"] or {}).get("title"),
+                "summary": (r["overall_entry"] or {}).get("summary"),
+                "dimensions": [{"key": d["key"], "level": d["level"]} for d in r["dimensions"]]}
+    if member:
+        if not compat.ready():
+            from .astro.synastry_detail import detail
+            d = await run_in_threadpool(detail, ba, bb, s)
+            d.pop("_charts", None)
+            out["detail"] = d
         out["report_quota"] = await synastry_quota(user["id"])
     else:
         out["locked"] = True
     return out
+
+
+def _slim(r: dict) -> dict:
+    """The app shows the strongest items; the PDF keeps everything."""
+    r = dict(r)
+    r["aspects"] = r["aspects"][:12]
+    r["composite"] = {"asc": r["composite"]["asc"],
+                      "planets": [{k: v for k, v in p.items() if k != "house_entry"} for p in r["composite"]["planets"][:7]]}
+    return r
+
+
+def _compat_analysis(ba, bb, names, lang, fctx):
+    from .astro import compat
+    from .astro.engine import compute as _compute
+    return compat.analyse(_compute(ba), _compute(bb), tuple(names), lang, footer_ctx=fctx)
+
+
+async def footer_ctx() -> dict:
+    """Placeholders of the compatibility database's mandatory footer."""
+    booking = await db.kv_get("booking_command", "")
+    return {"booking": booking or None, "instagram": f"@{settings.instagram_main}" if settings.instagram_main else None}
 
 
 async def _is_member(uid: int) -> bool:
@@ -324,10 +357,16 @@ async def synastry_report(body: SynReportIn, request: Request, user: dict = Depe
     lang = _lang(body.lang, user)
     _syn_busy.add(uid)
     try:
+        from .astro import compat
         ba, bb = _profile_birth(pa), _profile_birth(pb)
         s = await run_in_threadpool(compute_synastry, ba, bb)
-        d = await run_in_threadpool(detail, ba, bb, s)
-        pdf = await run_in_threadpool(build_synastry_pdf, [pa["name"], pb["name"]], s, d, lang)
+        if compat.ready():
+            from .report.synastry_report import build_compat_pdf
+            r = await run_in_threadpool(_compat_analysis, ba, bb, [pa["name"], pb["name"]], lang, await footer_ctx())
+            pdf = await run_in_threadpool(build_compat_pdf, r, s, lang)
+        else:
+            d = await run_in_threadpool(detail, ba, bb, s)
+            pdf = await run_in_threadpool(build_synastry_pdf, [pa["name"], pb["name"]], s, d, lang)
     finally:
         _syn_busy.discard(uid)
     bot: Bot = request.app.state.bot

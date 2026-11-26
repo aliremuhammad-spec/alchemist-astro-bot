@@ -24,7 +24,10 @@
       inv_share_text: "طلعت خارطتي الفلكية بالخيميائي 🔭 جرّب إنت كمان، وبيوصلك تقرير فلكي مجاني لخارطتك 🎁",
       syn_partner: "💞 ادعُ الشخص التاني: بيحسب خارطته لحاله وبياخد تقرير فلكي هدية.",
       syn_locked_h: "التوافق المفصّل للمميزين", syn_locked: "المشتركين المميزين بيشوفوا التوافق على مستويين مع تقرير PDF:",
-      syn_locked_list: ["محاور العلاقة: الانجذاب، المشاعر، التواصل، الالتزام…", "البيوت اللي بيفعّلها كل طرف عند التاني", "الأشتاكوتا الفيدية (36 نقطة) وفحص المانغاليك", "تقرير توافق PDF (30 تقرير بالشهر)"],
+      syn_locked_list: ["تفسير كامل لأبعاد العلاقة: الانجذاب، التواصل، القيم، الاستقرار، الاحتكاك", "أقوى الاتصالات بين الخارطتين، والبيوت اللي بيفعّلها كل طرف، والخارطة المركّبة", "الأشتاكوتا الفيدية (36 نقطة) مع الدوشا والمانغاليك", "تقرير توافق PDF مفصّل (30 تقرير بالشهر)"],
+      syn_tab_s: "الخلاصة", syn_dims: "أبعاد العلاقة", syn_signs: "الشمس والقمر والزهرة والمريخ", syn_contacts: "أقوى الاتصالات بين الخارطتين",
+      syn_balance: "توازن العناصر والطبائع", syn_composite: "الخارطة المركّبة", syn_policy: "حساب محايد: الكوتات الاتجاهية بتنحسب بالاتجاهين وبيأخذ المتوسط.",
+      syn_dosha_h: "الدوشا وحالات التخفيف (حسب المدارس)", syn_moon_h: "علاقة برجي القمر والتارا",
       syn_tab_w: "غربي", syn_tab_v: "فيدي", syn_themes: "محاور العلاقة", syn_soft: "متناغم", syn_hard: "متوتر", syn_intense: "مكثّف",
       syn_overlays: "البيوت اللي بيفعّلها كل طرف", syn_ov_line: "كواكب {b} ببيوت {a}", syn_ov_none: "بحاجة لوقت ميلاد دقيق",
       syn_ak: "الأشتاكوتا", syn_ak_note: "الحساب التقليدي بيعتبر الشخص الأول طرف الرجل والتاني طرف المرأة.",
@@ -36,7 +39,7 @@
       ch_why_h: "شو بتستفيد؟", ch_why: ["محتوى يومي جاهز ومجاني بينشر لحاله بالوقت واللغة اللي بتختارها", "الأوقات بالمنشور محوّلة لتوقيت جمهورك", "منشور ثابت كل يوم بيحافظ على تفاعل قناتك", "💰 عمولة 20% من النجوم اللي بيدفعها كل متابع بيدخل من رابطك، لمدة 3 شهور، وتلغرام بيحوّلها لرصيدك مباشرة"],
       ch_aff_h: "كيف تاخد عمولة 20%؟", ch_aff_steps: ["افتح بروفايل البوت بتلغرام ← «برنامج الإحالة» (أو الإعدادات ← نجومي ← اربح نجوم)", "انضم بقناتك وانسخ رابط الإحالة", "الصقه هون بإعدادات القناة، وكل منشور يومي بيحمل رابطك"],
       ch_ref: "رابط الإحالة تبعك (t.me/…?start=_tgr_…)", ch_ref_bad: "الرابط لازم يكون رابط إحالة البوت من تلغرام",
-      prem_contact: "💬 تواصل مع الإدارة", prem_or_invite: "أو اربح أيام مميز مجاناً: كل صديق نشط = 3 أيام", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف القاعدة (.sqlite أو .json أو .json.gz)", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
+      prem_contact: "💬 تواصل مع الإدارة", prem_or_invite: "أو اربح أيام مميز مجاناً: كل صديق نشط = 3 أيام", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف قاعدة (تفسيرات أو توافق: .sqlite أو .json أو .json.gz)، البوت بيتعرّف عليها لحاله", compat_db: "قاعدة التوافق", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
       share: "شارك", del: "حذف", deleted: "انحذفت الخارطة", saved_charts: "خرائطك",
       limit: "الخطة المجانية بتحفظ {n} خرائط. الخارطة انحسبت بس ما انحفظت.",
       need_city: "اختار المدينة من القائمة", need_date: "التاريخ غير صحيح",
@@ -114,7 +117,10 @@
       inv_share_text: "I cast my birth chart with The Alchemist 🔭 Try it and get a free astrological report of yours 🎁",
       syn_partner: "💞 Invite the other person: they cast their own chart and get an astrological report as a gift.",
       syn_locked_h: "Detailed compatibility is Premium", syn_locked: "Premium members see compatibility on two levels, plus a PDF report:",
-      syn_locked_list: ["Relationship themes: attraction, emotions, communication, commitment…", "The houses each person activates in the other", "Vedic Ashtakoota (36 points) and Manglik check", "Compatibility PDF report (30 a month)"],
+      syn_locked_list: ["Full reading of each dimension: attraction, communication, values, stability, friction", "Strongest contacts, the houses each person activates, and the composite chart", "Vedic Ashtakoota (36 points) with doshas and Manglik", "Detailed compatibility PDF report (30 a month)"],
+      syn_tab_s: "Summary", syn_dims: "Relationship dimensions", syn_signs: "Sun, Moon, Venus and Mars", syn_contacts: "Strongest contacts",
+      syn_balance: "Elements and modalities", syn_composite: "Composite chart", syn_policy: "Gender-neutral: directional kootas are computed both ways and averaged.",
+      syn_dosha_h: "Doshas and mitigations (school-dependent)", syn_moon_h: "Moon-sign relation and Tara",
       syn_tab_w: "Western", syn_tab_v: "Vedic", syn_themes: "Relationship themes", syn_soft: "Harmonious", syn_hard: "Tense", syn_intense: "Intense",
       syn_overlays: "Houses each person activates", syn_ov_line: "{b}'s planets in {a}'s houses", syn_ov_none: "Needs an exact birth time",
       syn_ak: "Ashtakoota", syn_ak_note: "Classically the first person is read as the groom and the second as the bride.",
@@ -126,7 +132,7 @@
       ch_why_h: "What you get", ch_why: ["Free daily content posted automatically at your time and language", "Times in posts are converted to your audience's zone", "A steady daily post keeps your channel engaged", "💰 20% of the Stars spent by everyone who joins through your link, for 3 months, paid by Telegram to your balance"],
       ch_aff_h: "How to earn the 20%", ch_aff_steps: ["Open the bot's profile in Telegram → Affiliate program (or Settings → My Stars → Earn Stars)", "Join with your channel and copy the referral link", "Paste it here in the channel settings so every daily post carries it"],
       ch_ref: "Your referral link (t.me/…?start=_tgr_…)", ch_ref_bad: "Use the bot's Telegram referral link",
-      prem_contact: "💬 Contact the team", prem_or_invite: "Or earn Premium days for free: each active friend = 3 days", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload database file (.sqlite, .json or .json.gz)", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
+      prem_contact: "💬 Contact the team", prem_or_invite: "Or earn Premium days for free: each active friend = 3 days", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload a database (interpretations or compatibility: .sqlite, .json or .json.gz); detected automatically", compat_db: "Compatibility database", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
       share: "Share", del: "Delete", deleted: "Chart deleted", saved_charts: "Your charts",
       limit: "Free plan keeps {n} charts. This one was calculated but not saved.",
       need_city: "Choose a city from the list", need_date: "Invalid date",
@@ -553,8 +559,56 @@
       <div class="scorebox"><div class="ring" style="--p:${pct}"><b class="num">${r.score.value}</b></div><div><b>${esc(lvl)}</b><small class="muted">${T("score")}</small></div></div>
       <div class="wheel">${r.svg}</div></section>
       <section class="card"><h3>${T("aspects")}</h3><ul class="asp">${asp}</ul></section>
-      ${r.detail ? synDetail(r) : r.locked ? synLocked() : ""}
+      ${r.compat ? compatView(r) : r.detail ? synDetail(r) : ""}${r.locked ? (r.compat_teaser ? compatTeaser(r.compat_teaser) : "") + synLocked() : ""}
       <details class="card"><summary>${T("full_text")}</summary><div class="report">${r.text}</div></details>`;
+  }
+
+  const DIMS = { ar: { attraction: "الانجذاب", communication: "التواصل", values: "القيم", stability: "الاستقرار", friction: "الاحتكاك" },
+                 en: { attraction: "Attraction", communication: "Communication", values: "Values", stability: "Stability", friction: "Friction" } };
+  const LVL = { ar: { high: "مرتفع", mid: "متوسط", low: "منخفض" }, en: { high: "High", mid: "Medium", low: "Low" } };
+  const ent = (d, open) => d ? `<details class="ent" ${open ? "open" : ""}><summary><b>${esc(d.title)}</b>${d.summary && d.summary !== d.title ? `<small>${esc(d.summary)}</small>` : ""}</summary>
+      ${d.text ? `<div class="pre">${esc(d.text)}</div>` : ""}${d.advice ? `<p class="adv">${esc(d.advice)}</p>` : ""}</details>` : "";
+
+  function compatTeaser(t) {
+    const L = S.lang === "ar" ? "ar" : "en";
+    return `<section class="card compat"><div class="akbox"><div class="ring" style="--p:${t.overall}"><b class="num">${t.overall}%</b></div>
+      <div><b>${esc(t.band || "")}</b><small class="muted">${esc(t.summary || "")}</small></div></div>
+      <div class="pills">${t.dimensions.map((d) => `<span class="pill">🔒 ${DIMS[L][d.key]}</span>`).join("")}</div></section>`;
+  }
+
+  function compatView(r) {
+    const c = r.compat, L = S.lang === "ar" ? "ar" : "en", tab = S.synTab || "s", [A, B] = c.names.map(esc);
+    const dims = c.dimensions.map((d) => `<div class="theme"><div class="row between"><b>${DIMS[L][d.key]}</b><small class="muted">${LVL[L][d.level]} · <span class="num">${Math.round(d.score)}</span></small></div>
+        <div class="tbar ${d.key === "friction" ? "warm" : ""}"><span style="width:${Math.max(3, d.score)}%"></span></div>${d.entry ? `<small class="muted">${esc(d.entry.summary || "")}</small>` : ""}</div>`).join("");
+    const ov = (list, a, b) => `<h3>${T("syn_ov_line").replace("{a}", a).replace("{b}", b)}</h3>${list ? list.map((o) => ent(o.entry)).join("") : `<p class="muted small">${T("syn_ov_none")}</p>`}`;
+    let body;
+    if (tab === "s") {
+      body = `<div class="akbox"><div class="ring" style="--p:${c.overall}"><b class="num">${c.overall}%</b></div><div><b>${esc((c.overall_entry || {}).title || "")}</b>
+          <small class="muted">${T("syn_tab_w")} <span class="num">${Math.round(c.western_score)}%</span> · ${T("syn_ak")} <span class="num">${c.ashtakoota_total}/36</span></small></div></div>
+        ${ent(c.overall_entry, true)}<h3>${T("syn_dims")}</h3>${dims}`;
+    } else if (tab === "w") {
+      body = `<h3>${T("syn_signs")}</h3>${c.sign_pairs.map((p) => ent(p.entry)).join("")}
+        <h3>${T("syn_contacts")}</h3>${c.aspects.slice(0, 12).map((x) => ent(x.entry)).join("")}
+        ${ov(c.overlays.ab, A, B)}${ov(c.overlays.ba, B, A)}
+        <h3>${T("syn_balance")}</h3>${c.balance.map((x) => ent(x.entry)).join("")}
+        <h3>${T("syn_composite")}</h3>${c.composite.asc ? ent(c.composite.asc) : ""}${c.composite.planets.slice(0, 7).map((p) => ent(p.sign_entry)).join("")}`;
+    } else {
+      const v = c.vedic;
+      body = `<div class="akbox"><div class="ring" style="--p:${Math.round(v.total / 36 * 100)}"><b class="num">${v.total}</b></div><div><b>${T("syn_ak")} · ${esc((v.score_band || {}).title || "")}</b><small class="muted">/ 36</small></div></div>
+        ${ent(v.score_band)}
+        <table class="ak">${v.kootas.map((k) => `<tr class="${k.points >= k.max ? "full" : k.points === 0 ? "zero" : ""}"><td><b>${esc((k.entry || {}).title || k.key)}</b><small class="muted">${esc((k.entry || {}).summary || "")}</small></td><td class="num">${k.points}/${k.max}</td></tr>`).join("")}</table>
+        <p class="muted small">${T("syn_policy")}</p>
+        ${v.doshas.length || v.yoni_pair ? `<h3>${T("syn_dosha_h")}</h3>${v.doshas.map((d) => ent(d)).join("")}${ent(v.yoni_pair)}${v.cancels.map((x) => ent(x)).join("")}` : ""}
+        <h3>${T("syn_moon_h")}</h3>${ent(v.moon_relation)}${v.tara.map((x) => ent(x)).join("")}
+        <h3>${T("syn_manglik")}</h3>${ent(v.manglik.entry)}${v.manglik.people.map((p, i) => p.is && p.entry ? ent({ ...p.entry, title: `${[A, B][i]}: ${p.entry.title}` }) : "").join("")}`;
+    }
+    const q = r.report_quota, left = q ? Math.max(0, q.limit - q.used) : 0;
+    const repBtn = q ? (left > 0 || q.credits > 0 || S.session.is_admin
+      ? `<button class="btn block" id="syn-rep">${T("syn_report")}</button><p class="muted small center">${T("syn_report_left").replace("{n}", left + q.credits).replace("{m}", q.limit)}</p>`
+      : `<p class="muted small">${T("syn_report_quota")}</p><button class="btn block" id="syn-buy">${T("syn_report_buy").replace("{n}", q.price)}</button>`) : "";
+    return `<section class="card syn-detail compat"><div class="seg three" id="syn-tabs">
+        <button data-v="s" aria-pressed="${tab === "s"}">${T("syn_tab_s")}</button><button data-v="w" aria-pressed="${tab === "w"}">${T("syn_tab_w")}</button><button data-v="v" aria-pressed="${tab === "v"}">${T("syn_tab_v")}</button></div>
+      ${body}<div class="mt16">${repBtn}</div>${c.footer ? `<p class="footer-note">${esc(c.footer)}</p>` : ""}</section>`;
   }
 
   function synLocked() {
@@ -916,6 +970,7 @@
     const ip = await api("/api/admin/interp").catch(() => ({ entries: 0 }));
     $("#admin").innerHTML = `<section class="card form"><h3>${T("interp_h")}</h3>
       <p class="${ip.entries ? "" : "warn"}"><b class="num">${ip.entries}</b> ${T("interp_n")}${ip.version ? ` · <span class="num">v${esc(ip.version)}</span>` : ""}</p>
+      <p class="${ip.compat && ip.compat.entries ? "" : "warn"}">${T("compat_db")}: <b class="num">${(ip.compat || {}).entries || 0}</b> ${T("interp_n")}${ip.compat && ip.compat.version ? ` · <span class="num">v${esc(ip.compat.version)}</span>` : ""}</p>
       <label for="ipf">${T("interp_up")}</label><input id="ipf" type="file" accept=".sqlite,.db,.json,.gz">
       <button class="btn mt8" id="ipu">${T("save")}</button></section>
       <p class="warn ${c.has_today ? "ok" : ""}">${c.has_today ? "✅ " + T("today_ok") : "⚠️ " + T("today_missing")}</p>
@@ -937,7 +992,7 @@
       try {
         const r = await fetch("/api/admin/interp/upload", { method: "POST", body: fd, headers });
         const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.status);
-        toast(T("interp_ok").replace("{n}", d.imported)); adContent();
+        toast(T("interp_ok").replace("{n}", d.imported) + (d.kind === "compat" ? " · " + T("compat_db") : "")); adContent();
       } catch (e) { toast(T("err") + e.message); b.disabled = false; b.textContent = T("save"); }
     };
     $("#cf2").onclick = async () => { const r = await post("/api/admin/fetch"); toast(`daily: ${r.daily} · weekly: ${r.weekly}`); adContent(); };

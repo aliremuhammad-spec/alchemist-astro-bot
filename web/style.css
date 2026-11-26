@@ -319,3 +319,15 @@ table.ak tr.full td.num { color: var(--verdigris); } table.ak tr.zero td.num { c
 .kpi span { font-size: 12px; color: var(--fog); }
 .card.manual p { margin: 0 0 8px; }
 .center { text-align: center; }
+
+/* compatibility database view */
+.seg.three button { flex: 1; }
+details.ent { border-bottom: 1px solid var(--line); padding: 9px 0; }
+details.ent summary { cursor: pointer; list-style: none; display: grid; gap: 2px; }
+details.ent summary::-webkit-details-marker { display: none; }
+details.ent summary small { color: var(--fog); font-size: 12.5px; line-height: 1.6; }
+details.ent[open] summary b { color: var(--brass); }
+details.ent .pre { white-space: pre-line; font-size: 14px; line-height: 1.85; margin-top: 6px; }
+details.ent .adv { background: var(--verd-soft); border-radius: var(--r-s); padding: 8px 10px; font-size: 13px; margin: 6px 0 0; }
+.tbar.warm span { background: var(--danger); }
+.footer-note { font-size: 12.5px; line-height: 1.8; color: var(--fog); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 14px; }

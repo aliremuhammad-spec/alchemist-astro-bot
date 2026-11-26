@@ -196,3 +196,25 @@ def test_referral_param_and_affiliate_link():
     assert clean_ref_link("") is None
     with pytest.raises(HTTPException):
         clean_ref_link("https://t.me/otherbot?start=_tgr_AbC123xyz")
+
+
+def test_compat_engine_with_private_db():
+    """Runs only where the private compatibility database is available (it is not in this repo)."""
+    import os
+
+    import pytest
+    path = os.environ.get("COMPAT_DB", "/mnt/user-data/uploads/37cb0680-astro_compat_db.json")
+    if not os.path.exists(path):
+        pytest.skip("private compatibility database not available")
+    from app import interp
+    from app.astro import compat
+    from app.astro.engine import BirthInput, compute
+    interp.load_for_tests(interp.parse_upload(open(path, "rb").read()))
+    a = compute(BirthInput("A", 1999, 5, 11, 10, 45, True, 33.51, 36.29, "Asia/Damascus"))
+    b = compute(BirthInput("B", 1996, 8, 12, 12, 4, True, 33.51, 36.29, "Asia/Damascus"))
+    r = compat.analyse(a, b, ("A", "B"), "ar", footer_ctx={"instagram": "@x"})
+    assert 0 <= r["overall"] <= 100 and len(r["dimensions"]) == 5
+    assert all("{X}" not in x["entry"]["text"] and "{Y}" not in x["entry"]["text"] for x in r["aspects"])
+    assert r["footer"].endswith("(@x).") and "{BOT_BOOKING_COMMAND}" not in r["footer"]
+    same = compat.ashtakoota({"sign": 0, "nak": 0, "deg": 5, "pada": 2}, {"sign": 0, "nak": 0, "deg": 5, "pada": 2})
+    assert same["points"]["nadi"] == 0 and "nadi" in same["dosha_keys"]

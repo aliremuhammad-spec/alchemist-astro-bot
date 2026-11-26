@@ -11,6 +11,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import BotCommand, MenuButtonWebApp, Update, WebAppInfo
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from . import db, interp, scheduler
@@ -79,6 +80,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="The Alchemist Astro", lifespan=lifespan, docs_url=None, redoc_url=None)
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.include_router(api_router)
 app.include_router(monetize_router)
 app.include_router(admin_router)
