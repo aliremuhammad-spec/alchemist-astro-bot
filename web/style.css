@@ -339,3 +339,10 @@ details.ent .adv { background: var(--verd-soft); border-radius: var(--r-s); padd
 .sheet h3 { margin: 0 0 4px; } .sheet .grid2 { margin-top: 12px; } .sheet .btn.block { margin-top: 10px; }
 @keyframes sheet-up { from { transform: translateY(24px); opacity: .4; } }
 @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+
+/* founding members */
+.card.founders { border-color: var(--brass); background: linear-gradient(0deg, var(--brass-soft), var(--brass-soft)), var(--ink-2); }
+.card.founders p { margin: 6px 0 10px; } .card.founders .tbar { margin-bottom: 4px; }
+.card.founders .tbar span { background: var(--brass); }
+.fd-left { color: var(--brass); font-weight: 600; font-size: 13px; }
+.pill.gold { background: var(--brass-soft); color: var(--brass); display: inline-block; margin-top: 8px; }

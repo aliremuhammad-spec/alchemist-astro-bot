@@ -10,7 +10,7 @@ from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
-from . import content, db, interp
+from . import content, db, interp, scheduler
 from .api import current_user
 from .config import settings
 
@@ -52,6 +52,7 @@ async def overview(_: dict = Depends(admin_user)):
         "premium": await q("SELECT count(DISTINCT user_id) FROM subscriptions WHERE ends_at > now()"),
         "stars": await q("SELECT coalesce(sum(stars),0) FROM payments WHERE NOT refunded"),
         "feedback": await q("SELECT count(*) FROM feedback"),
+        "founders": await q("SELECT count(*) FROM founders"),
         "invited": await q("SELECT count(*) FROM referrals"),
         "invited_active": await q("SELECT count(*) FROM referrals WHERE activated_at IS NOT NULL"),
         "reports": await q("SELECT count(*) FROM report_log WHERE kind='natal'"),
@@ -220,8 +221,10 @@ class SettingsIn(BaseModel):
 async def save_settings(body: SettingsIn, _: dict = Depends(admin_user)):
     if body.daily_url is not None:
         await db.kv_set("daily_url", body.daily_url.strip())
+        scheduler.set_url("daily", body.daily_url.strip() or settings.daily_url)
     if body.weekly_url is not None:
         await db.kv_set("weekly_url", body.weekly_url.strip())
+        scheduler.set_url("weekly", body.weekly_url.strip() or settings.weekly_url)
     if body.premium_stars is not None:
         await db.kv_set("premium_stars", str(body.premium_stars))
     if body.syn_report_stars is not None:

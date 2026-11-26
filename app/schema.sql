@@ -148,3 +148,14 @@ CREATE TABLE IF NOT EXISTS report_log (
 );
 CREATE INDEX IF NOT EXISTS report_log_user ON report_log(user_id, kind, created_at);
 ALTER TABLE broadcast_chats ADD COLUMN IF NOT EXISTS ref_link TEXT;                  -- owner's Telegram affiliate link
+
+-- founding members + one-off notices
+CREATE TABLE IF NOT EXISTS founders (
+  user_id    BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  number     INT NOT NULL UNIQUE,
+  claimed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS notices (
+  user_id BIGINT NOT NULL, kind TEXT NOT NULL, ref TEXT NOT NULL, sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, kind, ref)
+);

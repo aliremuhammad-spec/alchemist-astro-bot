@@ -268,6 +268,8 @@ async def cmd_setdaily(m: Message, command: CommandObject):
         return
     url = (command.args or "").strip()
     await db.kv_set("daily_url", url)
+    from .. import scheduler as _sch
+    _sch.set_url("daily", url)
     try:
         n = await content.fetch_daily(url)
         await m.answer(f"✅ تم حفظ الرابط وسحب {n} يوم")
@@ -316,7 +318,8 @@ async def cmd_grant(m: Message, command: CommandObject):
 
 @router.pre_checkout_query()
 async def pre_checkout(q: PreCheckoutQuery):
-    ok = q.currency == "XTR" and q.invoice_payload in (f"premium:{q.from_user.id}", f"synrep:{q.from_user.id}")
+    ok = q.currency == "XTR" and q.invoice_payload in (f"premium:{q.from_user.id}", f"synrep:{q.from_user.id}",
+                                                      f"natrep:{q.from_user.id}")
     await q.answer(ok=ok, error_message=None if ok else "Invalid invoice")
 
 
@@ -324,15 +327,17 @@ async def pre_checkout(q: PreCheckoutQuery):
 async def paid(m: Message):
     from ..monetize import record_payment
     lang = lang_of(m.from_user.language_code)
-    if m.successful_payment.invoice_payload.startswith("synrep:"):
+    if m.successful_payment.invoice_payload.startswith(("synrep:", "natrep:")):
         from ..monetize import record_report_payment
         await record_report_payment(m.from_user.id, m.successful_payment)
-        await m.answer("✅ تم الدفع. ارجع للتطبيق واضغط «📄 تقرير التوافق» مرة تانية." if lang == "ar"
-                       else "✅ Paid. Go back to the app and tap “📄 Compatibility report” again.",
-                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, "#synastry")]]))
+        syn = m.successful_payment.invoice_payload.startswith("synrep:")
+        what_ar, what_en = ("«📄 تقرير التوافق»", "“📄 Compatibility report”") if syn else ("«📄 تقرير فلكي»", "“📄 Astrological report”")
+        await m.answer(f"✅ تم الدفع. ارجع للتطبيق واضغط {what_ar} مرة تانية." if lang == "ar"
+                       else f"✅ Paid. Go back to the app and tap {what_en} again.",
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, "#synastry" if syn else "")]]))
         for a in settings.admin_ids:
             try:
-                await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة (تقرير توافق) من "
+                await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة ({'تقرير توافق' if syn else 'تقرير فلكي'}) من "
                                             f"{escape(m.from_user.full_name)} (<code>{m.from_user.id}</code>)")
             except Exception:
                 pass
@@ -417,6 +422,8 @@ async def on_my_chat_member(ev: ChatMemberUpdated, bot: Bot):
     adder = ev.from_user
     if status in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
         await db.pool().execute("UPDATE broadcast_chats SET active=FALSE WHERE chat_id=$1", chat.id)
+        from .. import scheduler as _sch
+        _sch.invalidate()
         return
     can_post = status == ChatMemberStatus.ADMINISTRATOR and (
         chat.type != ChatType.CHANNEL or getattr(ev.new_chat_member, "can_post_messages", False))
@@ -441,6 +448,8 @@ async def on_my_chat_member(ev: ChatMemberUpdated, bot: Bot):
              added_by=coalesce(EXCLUDED.added_by, broadcast_chats.added_by)
            RETURNING *""", chat.id, chat.title, chat.type, adder.id if adder else None, tz, lang)
     await db.event(adder.id if adder else None, "chat_added")
+    from .. import scheduler as _sch
+    _sch.invalidate()
     try:
         await bot.send_message(chat.id, t(lang, "chat_added_post", time=row["send_time"]))
     except Exception as e:

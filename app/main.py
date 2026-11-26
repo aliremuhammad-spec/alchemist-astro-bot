@@ -73,6 +73,8 @@ async def lifespan(app: FastAPI):
     except Exception:
         log.exception("bot configuration failed")
     sched = scheduler.start(bot)
+    from . import reports
+    reports.start(bot)
     yield
     sched.shutdown(wait=False)
     await bot.session.close()

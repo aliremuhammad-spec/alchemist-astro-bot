@@ -167,15 +167,10 @@ async def _is_member(uid: int) -> bool:
     return uid in settings.admin_ids or await db.is_premium(uid)
 
 
-SYN_MONTHLY = 30
-
-
 async def synastry_quota(uid: int) -> dict:
-    used = await db.pool().fetchval(
-        """SELECT count(*) FROM report_log WHERE user_id=$1 AND kind='synastry' AND paid_with='premium'
-           AND created_at >= date_trunc('month', now())""", uid)
-    credits = await db.pool().fetchval("SELECT syn_report_credits FROM users WHERE id=$1", uid) or 0
-    return {"used": used, "limit": SYN_MONTHLY, "credits": credits, "price": await syn_report_price()}
+    from . import founders
+    q = await founders.quota(uid, "synastry")
+    return {**q, "used": q["used"], "limit": q["limit"]}
 
 
 async def syn_report_price() -> int:
@@ -253,7 +248,6 @@ async def record_payment(uid: int, sp) -> None:
 
 # ───────────── PDF report (premium) ─────────────
 
-_report_busy: set[int] = set()
 
 
 def _place(p: dict, lang: str, country_name: str | None) -> tuple[str, str]:
@@ -269,45 +263,57 @@ def _place(p: dict, lang: str, country_name: str | None) -> tuple[str, str]:
 
 @router.post("/profiles/{pid}/report")
 async def profile_report(pid: int, request: Request, body: dict | None = None, user: dict = Depends(current_user)):
-    """Build the automated natal report as a PDF and send it to the user's chat with the bot."""
-    from aiogram.types import BufferedInputFile
-
-    from . import interp
+    """Queue the astrological report; the worker builds it and sends it to the user's chat."""
+    from . import founders, interp, reports
     from .report.builder import build_pdf
 
     uid = user["id"]
-    if uid in settings.admin_ids:
-        paid_with = "admin"
-    elif await db.is_premium(uid):
-        paid_with = "premium"
-    elif (await db.pool().fetchval("SELECT report_credits FROM users WHERE id=$1", uid) or 0) > 0:
-        paid_with = "credit"
-    else:
-        raise HTTPException(402, "premium_required")
+    try:
+        paid_with = await founders.decide(uid, "natal")
+    except PermissionError as e:
+        raise HTTPException(402, str(e))
     if not interp.ready():
         raise HTTPException(503, "report_unavailable")
-    if uid in _report_busy:
+    if reports.busy(uid):
         raise HTTPException(429, "report_in_progress")
     p = await _load_profile(pid, uid)
     lang = _lang((body or {}).get("lang"), user)
     style = (body or {}).get("style") or p["indian_style"]
-    _report_busy.add(uid)
-    try:
-        c = await run_in_threadpool(compute, _profile_birth(p))
-        c["meta"]["city"], c["meta"]["country"] = _place(p, lang, (body or {}).get("country_name"))
-        pdf = await run_in_threadpool(build_pdf, c, lang, style)
-    finally:
-        _report_busy.discard(uid)
-    bot: Bot = request.app.state.bot
+    birth, place = _profile_birth(p), _place(p, lang, (body or {}).get("country_name"))
     safe = "".join(ch for ch in p["name"] if ch.isalnum() or ch in " _-").strip().replace(" ", "_") or "chart"
     caption = (f"📄 التقرير الفلكي لخارطة <b>{p['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
                else f"📄 Astrological report: <b>{p['name']}</b>\nfrom The Alchemist 🜍")
-    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_astrological_report_{safe}.pdf"), caption=caption)
-    if paid_with == "credit":
-        await db.pool().execute("UPDATE users SET report_credits=greatest(report_credits-1,0) WHERE id=$1", uid)
-    await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'natal',$2)", uid, paid_with)
-    await db.event(uid, "report_sent")
-    return {"ok": True, "pages_bytes": len(pdf)}
+
+    def build():
+        c = compute(birth)
+        c["meta"]["city"], c["meta"]["country"] = place
+        return build_pdf(c, lang, style), f"Alchemist_astrological_report_{safe}.pdf", caption
+
+    async def done():
+        if paid_with == "credit":
+            await db.pool().execute("UPDATE users SET report_credits=greatest(report_credits-1,0) WHERE id=$1", uid)
+        await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'natal',$2)", uid, paid_with)
+        await db.event(uid, "report_sent")
+
+    pos = await reports.enqueue(reports.Job(uid, "natal", lang, build, done))
+    return {"queued": True, "position": pos, "paid_with": paid_with, "quota": await founders.quota(uid, "natal")}
+
+
+@router.post("/report/invoice")
+async def natal_report_invoice(request: Request, user: dict = Depends(current_user)):
+    """One extra astrological report for members who used their monthly allowance."""
+    from . import founders
+    q = await founders.quota(user["id"], "natal")
+    if not q["tier"]:
+        raise HTTPException(402, "premium_required")
+    bot: Bot = request.app.state.bot
+    ar = user["lang"] == "ar"
+    link = await bot.create_invoice_link(
+        title="تقرير فلكي إضافي" if ar else "Extra astrological report",
+        description=("تقرير فلكي PDF إضافي (غربي + فيدي) بعد استهلاك تقارير الشهر." if ar
+                     else "One extra astrological PDF report (Western + Vedic) beyond this month's allowance."),
+        payload=f"natrep:{user['id']}", currency="XTR", prices=[LabeledPrice(label="Report", amount=q["price"])])
+    return {"link": link, "stars": q["price"]}
 
 
 # ───────────── weekly electional picks (premium) ─────────────
@@ -337,60 +343,55 @@ class SynReportIn(BaseModel):
     lang: str | None = None
 
 
-_syn_busy: set[int] = set()
 
 
 @router.post("/synastry/report")
 async def synastry_report(body: SynReportIn, request: Request, user: dict = Depends(current_user)):
-    from aiogram.types import BufferedInputFile
-
+    from . import founders, reports
+    from .astro import compat
     from .astro.synastry_detail import detail
-    from .report.synastry_report import build_synastry_pdf
+    from .report.synastry_report import build_compat_pdf, build_synastry_pdf
 
     uid = user["id"]
     if body.a == body.b:
         raise HTTPException(400, "same_profile")
-    if uid in settings.admin_ids:
-        paid_with = "admin"
-    elif await db.is_premium(uid):
-        q = await synastry_quota(uid)
-        if q["used"] < q["limit"]:
-            paid_with = "premium"
-        elif q["credits"] > 0:
-            paid_with = "credit"
-        else:
-            raise HTTPException(402, "report_quota")
-    else:
-        raise HTTPException(402, "premium_required")
-    if uid in _syn_busy:
+    try:
+        paid_with = await founders.decide(uid, "synastry")
+    except PermissionError as e:
+        raise HTTPException(402, str(e))
+    if reports.busy(uid):
         raise HTTPException(429, "report_in_progress")
     pa = await _load_profile(body.a, uid)
     pb = await _load_profile(body.b, uid)
     lang = _lang(body.lang, user)
-    _syn_busy.add(uid)
-    try:
-        from .astro import compat
-        ba, bb = _profile_birth(pa), _profile_birth(pb)
-        s = await run_in_threadpool(compute_synastry, ba, bb)
+    ba, bb, names = _profile_birth(pa), _profile_birth(pb), [pa["name"], pb["name"]]
+    fctx = await footer_ctx()
+    safe = "_".join("".join(ch for ch in n if ch.isalnum()) or "x" for n in names)
+    cap = (f"💞 تقرير التوافق الفلكي: <b>{names[0]}</b> و<b>{names[1]}</b>\nمن الخيميائي 🜍" if lang == "ar"
+           else f"💞 Compatibility report: <b>{names[0]}</b> & <b>{names[1]}</b>\nfrom The Alchemist 🜍")
+
+    def build():
+        s = compute_synastry(ba, bb)
         if compat.ready():
-            from .report.synastry_report import build_compat_pdf
-            r = await run_in_threadpool(_compat_analysis, ba, bb, [pa["name"], pb["name"]], lang, await footer_ctx())
-            pdf = await run_in_threadpool(build_compat_pdf, r, s, lang)
+            pdf = build_compat_pdf(_compat_analysis(ba, bb, names, lang, fctx), s, lang)
         else:
-            d = await run_in_threadpool(detail, ba, bb, s)
-            pdf = await run_in_threadpool(build_synastry_pdf, [pa["name"], pb["name"]], s, d, lang)
-    finally:
-        _syn_busy.discard(uid)
-    bot: Bot = request.app.state.bot
-    safe = "_".join("".join(ch for ch in n if ch.isalnum()) or "x" for n in (pa["name"], pb["name"]))
-    cap = (f"💞 تقرير التوافق الفلكي: <b>{pa['name']}</b> و<b>{pb['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
-           else f"💞 Compatibility report: <b>{pa['name']}</b> & <b>{pb['name']}</b>\nfrom The Alchemist 🜍")
-    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_compatibility_{safe}.pdf"), caption=cap)
-    if paid_with == "credit":
-        await db.pool().execute("UPDATE users SET syn_report_credits=greatest(syn_report_credits-1,0) WHERE id=$1", uid)
-    await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'synastry',$2)", uid, paid_with)
-    await db.event(uid, "syn_report_sent")
-    return {"ok": True, "quota": await synastry_quota(uid)}
+            pdf = build_synastry_pdf(names, s, detail(ba, bb, s), lang)
+        return pdf, f"Alchemist_compatibility_{safe}.pdf", cap
+
+    async def done():
+        if paid_with == "credit":
+            await db.pool().execute("UPDATE users SET syn_report_credits=greatest(syn_report_credits-1,0) WHERE id=$1", uid)
+        await db.pool().execute("INSERT INTO report_log(user_id,kind,paid_with) VALUES($1,'synastry',$2)", uid, paid_with)
+        await db.event(uid, "syn_report_sent")
+
+    pos = await reports.enqueue(reports.Job(uid, "synastry", lang, build, done))
+    q = await synastry_quota(uid)
+    if paid_with == "premium":
+        q["used"] += 1
+        q["left"] = max(0, q["left"] - 1)
+    elif paid_with == "credit":
+        q["credits"] = max(0, q["credits"] - 1)
+    return {"queued": True, "position": pos, "quota": q}
 
 
 @router.post("/synastry/report/invoice")
@@ -399,11 +400,11 @@ async def synastry_report_invoice(request: Request, user: dict = Depends(current
         raise HTTPException(402, "premium_required")
     bot: Bot = request.app.state.bot
     ar = user["lang"] == "ar"
-    price = await syn_report_price()
+    price = (await synastry_quota(user["id"]))["price"]
     link = await bot.create_invoice_link(
         title="تقرير توافق إضافي" if ar else "Extra compatibility report",
-        description=("تقرير توافق فلكي إضافي (غربي + فيدي) بعد استهلاك الـ30 تقرير الشهرية." if ar
-                     else "One extra compatibility report (Western + Vedic) beyond the monthly 30."),
+        description=("تقرير توافق فلكي إضافي (غربي + فيدي) بعد استهلاك تقارير الشهر." if ar
+                     else "One extra compatibility report (Western + Vedic) beyond this month's allowance."),
         payload=f"synrep:{user['id']}", currency="XTR",
         prices=[LabeledPrice(label="Report", amount=price)])
     return {"link": link, "stars": price}
@@ -415,7 +416,8 @@ async def record_report_payment(uid: int, sp) -> None:
            VALUES($1,$2,$3,$4,FALSE,FALSE,NULL) ON CONFLICT(charge_id) DO NOTHING""",
         uid, sp.total_amount, sp.telegram_payment_charge_id, sp.invoice_payload)
     if not r.endswith(" 0"):
-        await db.pool().execute("UPDATE users SET syn_report_credits=syn_report_credits+1 WHERE id=$1", uid)
+        col = "report_credits" if sp.invoice_payload.startswith("natrep:") else "syn_report_credits"
+        await db.pool().execute(f"UPDATE users SET {col}={col}+1 WHERE id=$1", uid)
 
 
 # ───────────── invites ─────────────
@@ -424,3 +426,27 @@ async def record_report_payment(uid: int, sp) -> None:
 async def invite(user: dict = Depends(current_user)):
     from . import referral
     return await referral.stats(user["id"])
+
+
+# ───────────── founding members ─────────────
+
+@router.get("/founders")
+async def founders_status(user: dict = Depends(current_user)):
+    from . import founders
+    return await founders.status(user["id"])
+
+
+@router.post("/founders/claim")
+async def founders_claim(request: Request, user: dict = Depends(current_user)):
+    from . import founders
+    try:
+        r = await founders.claim(user["id"], request.app.state.bot)
+    except PermissionError as e:
+        raise HTTPException(409, str(e))
+    return {**r, **(await founders.status(user["id"]))}
+
+
+@router.get("/quota")
+async def quotas(user: dict = Depends(current_user)):
+    from . import founders
+    return {"natal": await founders.quota(user["id"], "natal"), "synastry": await founders.quota(user["id"], "synastry")}

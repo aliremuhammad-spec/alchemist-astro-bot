@@ -50,10 +50,28 @@ async def session(user: dict = Depends(current_user)):
         "premium": await db.is_premium(user["id"]),
         "is_admin": user["id"] in settings.admin_ids,
         "report_credits": await db.pool().fetchval("SELECT report_credits FROM users WHERE id=$1", user["id"]) or 0,
+        "founders": await _founders(user["id"]),
+        "tier": await _tier(user["id"]),
+        "quota": await _quotas(user["id"]),
         "profiles": [_profile_out(p) for p in profiles],
         "daily": _daily_out(daily),
         "meta": meta(),
     }
+
+
+async def _founders(uid: int) -> dict:
+    from . import founders
+    return await founders.status(uid)
+
+
+async def _quotas(uid: int) -> dict:
+    from . import founders
+    return {"natal": await founders.quota(uid, "natal"), "synastry": await founders.quota(uid, "synastry")}
+
+
+async def _tier(uid: int) -> str | None:
+    from . import founders
+    return await founders.tier(uid)
 
 
 def _profile_out(p) -> dict:
@@ -252,6 +270,8 @@ async def set_daily(body: DailyIn, user: dict = Depends(current_user)):
     await db.pool().execute("UPDATE users SET tz=$2 WHERE id=$1", user["id"], body.tz)
     await db.event(user["id"], "daily_on" if body.subscribed else "daily_off")
     row = await db.pool().fetchrow("SELECT * FROM daily_prefs WHERE user_id=$1", user["id"])
+    from . import scheduler
+    scheduler.invalidate()
     return _daily_out(row)
 
 
@@ -296,6 +316,8 @@ async def update_channel(chat_id: int, body: ChannelIn, user: dict = Depends(cur
         chat_id, user["id"], body.send_time, body.tz, body.lang, body.active, ref)
     if r.endswith(" 0"):
         raise HTTPException(404, "chat")
+    from . import scheduler
+    scheduler.invalidate()
     return {"ok": True}
 
 

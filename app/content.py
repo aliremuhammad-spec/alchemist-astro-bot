@@ -91,10 +91,24 @@ async def fetch_text(url: str) -> str:
         return r.text
 
 
-async def fetch_daily(url: str) -> int:
+_last_hash: dict[str, str] = {}
+
+
+def _unchanged(url: str, text: str) -> bool:
+    import hashlib
+    h = hashlib.sha256(text.encode()).hexdigest()
+    if _last_hash.get(url) == h:
+        return True
+    _last_hash[url] = h
+    return False
+
+
+async def fetch_daily(url: str, only_if_changed: bool = False) -> int:
     if not url:
         return 0
     text = await fetch_text(url)
+    if only_if_changed and _unchanged(url, text):
+        return 0
     days = forecasts.parse_daily_md(text) if forecasts.is_markdown(text) else parse_daily(json.loads(text))
     if not days:
         raise ValueError("daily file has no complete day (12 signs)")
@@ -103,14 +117,18 @@ async def fetch_daily(url: str) -> int:
             """INSERT INTO content_daily(day,data) VALUES($1,$2::jsonb)
                ON CONFLICT(day) DO UPDATE SET data=EXCLUDED.data, fetched_at=now()""",
             d, json.dumps(data, ensure_ascii=False))
+    from . import scheduler
+    scheduler.forget_content()
     log.info("daily content: %d day(s) from %s", len(days), url)
     return len(days)
 
 
-async def fetch_weekly(url: str) -> int:
+async def fetch_weekly(url: str, only_if_changed: bool = False) -> int:
     if not url:
         return 0
     text = await fetch_text(url)
+    if only_if_changed and _unchanged(url, text):
+        return 0
     if forecasts.is_markdown(text):
         payload = forecasts.parse_weekly_md(text)
         n = sum(len(s.get("days", [])) for s in payload["sections"]) or len(payload["sections"])

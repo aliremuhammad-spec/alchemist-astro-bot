@@ -17,7 +17,15 @@
       unknown_note: "بنحسب الخارطة على الظهر، وبدون طالع وبيوت لأنها بتعتمد على الوقت بالدقيقة.",
       place: "مكان الولادة", continent: "القارة", country: "الدولة", city_ph: "ابحث عن مدينتك…",
       indian_style: "شكل الخارطة الهندية", north: "شمالي", south: "جنوبي", calc: "احسب الخارطة", calculating: "عم نحسب…",
-      western: "غربية", vedic: "فيدية", cancel: "إلغاء", rl_title: "بأي لغة بدك التقرير؟", rl_sub: "اختار لغة التقرير قبل ما نجهّزه.", report: "📄 تقرير فلكي PDF", report_gift: "🎁 تقرير فلكي مجاني", report_wait: "عم نجهّز التقرير الفلكي… بياخد شي دقيقة", report_sent: "وصلك التقرير الفلكي عالمحادثة مع البوت", report_lock: "التقرير الفلكي المفصّل للمشتركين المميزين، أو هدية لما حدا يدعيك",
+      western: "غربية", vedic: "فيدية", fd_title: "العضوية المؤسسة", fd_sub: "شهر مميز مجاني لأول {n} عضو: {d} يوم بكل المزايا المميزة.", fd_left: "باقي {n} من {t}",
+      fd_soon: "بتبلش {d}: شهر مميز مجاني لأول {n} عضو. حضّر خارطتك من هلأ.", fd_claim: "🌟 احجز مقعدك المجاني", fd_claim_chart: "احسب خارطتك واحجز مقعدك",
+      fd_need_chart: "احسب خارطتك واحفظها أول، بعدين احجز مقعدك.", fd_done: "🌟 مبروك! صرت العضو المؤسس رقم {n}", fd_full: "خلصت المقاعد المؤسسة",
+      fd_already: "إنت عضو مؤسس من قبل", fd_not_started: "العضوية المؤسسة لسا ما بلّشت", fd_badge: "عضو مؤسس رقم {n}",
+      q_natal: "باقيلك {n} من {m} تقارير فلكية هالشهر", q_syn: "باقيلك {n} من {m} تقارير توافق هالشهر",
+      queued: "دخل تقريرك الطابور (دورك رقم {n})، ورح يوصلك عالمحادثة مع البوت.", in_progress: "في تقرير إلك عم يتجهّز، استنى يوصل وبعدين اطلب التاني.",
+      extra_h: "خلصت تقارير هالشهر", extra_natal: "استخدمت كل التقارير الفلكية المشمولة باشتراكك ({m}). فيك تطلب تقرير إضافي بالنجوم.",
+      extra_syn: "استخدمت كل تقارير التوافق المشمولة ({m}). فيك تطلب تقرير إضافي بالنجوم.", extra_buy: "⭐ تقرير إضافي بـ {n} نجمة", extra_paid: "تم الدفع، اطلب التقرير مرة تانية",
+      cancel: "إلغاء", rl_title: "بأي لغة بدك التقرير؟", rl_sub: "اختار لغة التقرير قبل ما نجهّزه.", report: "📄 تقرير فلكي PDF", report_gift: "🎁 تقرير فلكي مجاني", report_wait: "عم نجهّز التقرير الفلكي… بياخد شي دقيقة", report_sent: "وصلك التقرير الفلكي عالمحادثة مع البوت", report_lock: "التقرير الفلكي المفصّل للمشتركين المميزين، أو هدية لما حدا يدعيك",
       inv_title: "ادعُ أصحابك", inv_sub: "صديقك بياخد تقرير فلكي مجاني لخارطته، وإنت بتاخد 3 أيام مميز عن كل صديق بيصير نشط.",
       inv_how: "النشط = حفظ خارطته ورجع للبوت بيوم تاني.", inv_link: "رابطك الخاص", inv_copy: "انسخ", inv_copied: "انتسخ الرابط", inv_share: "📤 شارك مع صديق",
       inv_invited: "دعوات", inv_active: "نشطين", inv_days: "يوم مميز ربحته", inv_cta: "🎁 ادعُ صديق: هو بياخد تقرير فلكي مجاني، وإنت 3 أيام مميز",
@@ -76,9 +84,9 @@
       prem_title: "الخيميائي المميز", prem_sub: "اشتراك شهري بالنجوم يفتح كل المزايا المتقدمة.",
       prem_active: "اشتراكك فعّال حتى ", prem_buy: "اشترك بـ {n} نجمة شهرياً", prem_paid: "تم الاشتراك، أهلاً بك بالمميز ✨",
       prem_perks: [["الخرائط الفرعية D2 لـ D60", "الهورا، الدريكانا، النافامشا، الداشامشا وكل الشودشافارغا"],
-        ["توافق مفصّل بلا إعلانات", "غربي وفيدي (الأشتاكوتا 36 نقطة) مع 30 تقرير توافق PDF بالشهر"],
+        ["توافق مفصّل بلا إعلانات", "غربي وفيدي (الأشتاكوتا 36 نقطة) مع 30 تقرير توافق PDF بالشهر (5 بالشهر المجاني للمؤسسين)"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
-        ["تقرير فلكي PDF مفصّل", "تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا، بيوصلك عالمحادثة"],
+        ["تقرير فلكي PDF مفصّل", "10 تقارير بالشهر (3 بالشهر المجاني للمؤسسين): تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا"],
         ["الاختيارات الفلكية الأسبوعية", "أفضل أوقات الأسبوع للبدايات والعقود والسفر، محوّلة لتوقيتك"],
         ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الحسابات الفيدية المتقدمة (شادبالا وأشتاكافارغا)"]],
       prem_manual: "ما عندك نجوم تلغرام؟ تواصل مع الإدارة لطرق دفع تانية.",
@@ -90,7 +98,7 @@
       k_users: "المستخدمين", k_new: "جدد اليوم", k_active: "نشطين 7 أيام", k_daily: "مشتركين بالأبراج", k_chats: "قنوات ومجموعات",
       k_charts: "خرائط محسوبة", k_syn: "توافقات", k_prem: "مميزين الآن", k_stars: "نجوم مدفوعة", k_blocked: "حظروا البوت",
       k_series: "آخر 14 يوم", k_newusers: "مستخدمين جدد", k_ads: "الإعلانات (30 يوم)", k_req: "طلبات", k_geo: "دول الولادة",
-      k_tz: "المناطق الزمنية", k_inv: "دعوات", k_inv_act: "دعوات نشطة", k_reports: "تقارير فلكية", k_syn_reports: "تقارير توافق", syn_price: "سعر تقرير التوافق الإضافي (نجوم)", k_lang: "اللغات", k_src: "مصادر الدخول", geo_note: "الموقع الحالي غير معروف؛ هاي دولة الولادة بالخارطة الرئيسية.",
+      k_tz: "المناطق الزمنية", k_founders: "مؤسسين", k_inv: "دعوات", k_inv_act: "دعوات نشطة", k_reports: "تقارير فلكية", k_syn_reports: "تقارير توافق", syn_price: "سعر تقرير التوافق الإضافي (نجوم)", k_lang: "اللغات", k_src: "مصادر الدخول", geo_note: "الموقع الحالي غير معروف؛ هاي دولة الولادة بالخارطة الرئيسية.",
       st: { completed: "مكتمل", nofill: "بدون إعلان متاح", skipped: "تخطّى", rejected_fast: "مرفوض (سريع)" },
       search_user: "ابحث بالرقم أو الاسم أو @username", premium_until: "مميز حتى", upgrade: "ترقية", days: "يوم", revoke: "إلغاء المميز",
       note: "ملاحظة (مثلاً: دفع بطريقة أخرى)", granted: "تمت الترقية", revoked: "تم إلغاء المميز", message_user: "راسله",
@@ -110,7 +118,15 @@
       unknown_note: "We'll cast it for noon, without Ascendant and houses, which need the exact time.",
       place: "Birthplace", continent: "Continent", country: "Country", city_ph: "Search your city…",
       indian_style: "Indian chart style", north: "North", south: "South", calc: "Calculate chart", calculating: "Calculating…",
-      western: "Western", vedic: "Vedic", cancel: "Cancel", rl_title: "Which language for the report?", rl_sub: "Choose the report language before we prepare it.", report: "📄 Astrological report PDF", report_gift: "🎁 Free astrological report", report_wait: "Preparing your astrological report… about a minute", report_sent: "Astrological report sent to your chat with the bot", report_lock: "The detailed astrological report is for Premium members, or a gift when someone invites you",
+      western: "Western", vedic: "Vedic", fd_title: "Founding membership", fd_sub: "A free Premium month for the first {n} members: {d} days of every Premium feature.", fd_left: "{n} of {t} left",
+      fd_soon: "Opens {d}: a free Premium month for the first {n} members. Get your chart ready now.", fd_claim: "🌟 Claim your free seat", fd_claim_chart: "Cast your chart and claim a seat",
+      fd_need_chart: "Cast and save your chart first, then claim your seat.", fd_done: "🌟 Welcome, founding member #{n}!", fd_full: "All founding seats are taken",
+      fd_already: "You're already a founding member", fd_not_started: "Founding membership hasn't opened yet", fd_badge: "Founding member #{n}",
+      q_natal: "{n} of {m} astrological reports left this month", q_syn: "{n} of {m} compatibility reports left this month",
+      queued: "Your report is in the queue (position {n}); it will arrive in your chat with the bot.", in_progress: "One of your reports is being prepared; wait for it before requesting another.",
+      extra_h: "This month's reports are used", extra_natal: "You've used the astrological reports included in your plan ({m}). You can order an extra one with Stars.",
+      extra_syn: "You've used the compatibility reports included ({m}). You can order an extra one with Stars.", extra_buy: "⭐ Extra report for {n} Stars", extra_paid: "Paid. Request the report again",
+      cancel: "Cancel", rl_title: "Which language for the report?", rl_sub: "Choose the report language before we prepare it.", report: "📄 Astrological report PDF", report_gift: "🎁 Free astrological report", report_wait: "Preparing your astrological report… about a minute", report_sent: "Astrological report sent to your chat with the bot", report_lock: "The detailed astrological report is for Premium members, or a gift when someone invites you",
       inv_title: "Invite friends", inv_sub: "Your friend gets a free astrological report; you get 3 Premium days for every friend who becomes active.",
       inv_how: "Active = saved a chart and came back another day.", inv_link: "Your link", inv_copy: "Copy", inv_copied: "Link copied", inv_share: "📤 Share with a friend",
       inv_invited: "Invited", inv_active: "Active", inv_days: "Premium days earned", inv_cta: "🎁 Invite a friend: they get a free astrological report, you get 3 Premium days",
@@ -169,9 +185,9 @@
       prem_title: "Alchemist Premium", prem_sub: "A monthly Stars subscription that unlocks every advanced feature.",
       prem_active: "Your subscription is active until ", prem_buy: "Subscribe for {n} Stars a month", prem_paid: "You're Premium now ✨",
       prem_perks: [["Divisional charts D2–D60", "Hora, Drekkana, Navamsha, Dashamsha and the full Shodashavarga"],
-        ["Detailed compatibility, no ads", "Western and Vedic (36-point Ashtakoota) with 30 compatibility PDF reports a month"],
+        ["Detailed compatibility, no ads", "Western and Vedic (36-point Ashtakoota) with 30 compatibility PDF reports a month (5 in the founders' free month)"],
         ["Unlimited profiles", "Save family and friends without a limit"],
-        ["Detailed astrological report PDF", "Full Western and Vedic interpretation with yogas and dashas, sent to your chat"],
+        ["Detailed astrological report PDF", "10 a month (3 in the founders' free month): full Western and Vedic interpretation with yogas and dashas"],
         ["Weekly electional picks", "The week's best windows for beginnings, contracts and travel, in your time zone"],
         ["Coming for members", "Personal daily transits, transit alerts, advanced Vedic strength (Shadbala, Ashtakavarga)"]],
       prem_manual: "No Telegram Stars? Contact the team for other payment options.",
@@ -183,7 +199,7 @@
       k_users: "Users", k_new: "New today", k_active: "Active 7 days", k_daily: "Daily subscribers", k_chats: "Channels & groups",
       k_charts: "Charts cast", k_syn: "Synastries", k_prem: "Premium now", k_stars: "Stars paid", k_blocked: "Blocked the bot",
       k_series: "Last 14 days", k_newusers: "New users", k_ads: "Ads (30 days)", k_req: "requests", k_geo: "Birth countries",
-      k_tz: "Time zones", k_inv: "Invites", k_inv_act: "Active invites", k_reports: "Astrological reports", k_syn_reports: "Compatibility reports", syn_price: "Extra compatibility report price (Stars)", k_lang: "Languages", k_src: "Sources", geo_note: "Current location is unknown; this is the birth country of the main chart.",
+      k_tz: "Time zones", k_founders: "Founders", k_inv: "Invites", k_inv_act: "Active invites", k_reports: "Astrological reports", k_syn_reports: "Compatibility reports", syn_price: "Extra compatibility report price (Stars)", k_lang: "Languages", k_src: "Sources", geo_note: "Current location is unknown; this is the birth country of the main chart.",
       st: { completed: "completed", nofill: "no fill", skipped: "skipped", rejected_fast: "rejected (too fast)" },
       search_user: "Search by id, name or @username", premium_until: "Premium until", upgrade: "Upgrade", days: "days", revoke: "Revoke premium",
       note: "Note (e.g. paid another way)", granted: "Upgraded", revoked: "Premium revoked", message_user: "Message",
@@ -293,13 +309,73 @@
     const v = $("#view");
     const showForm = S.editing || !S.chart;
     const first = !S.session.profiles.length;
-    v.innerHTML = `${profileChips()}
+    v.innerHTML = `${profileChips()}${foundersBanner()}
       ${S.chart && !S.editing ? chartView() : ""}
       ${showForm ? (first ? `${zodiacRing()}<h2 class="hero-title">${T("hero_title")}</h2><p class="muted center">${T("hero_sub")}</p>` : "") + formView() : ""}`;
     v.querySelectorAll("[data-pid]").forEach((b) => b.onclick = () => loadProfile(+b.dataset.pid));
     const nb = v.querySelector("[data-new]"); if (nb) nb.onclick = () => { S.editing = true; VIEWS.chart(); };
     if (showForm) bindForm(); else bindChart();
+    bindFounders();
   };
+
+  /* ───────────── founding members ───────────── */
+  function foundersBanner() {
+    const f = S.session.founders;
+    if (!f || f.claimed || S.session.is_admin) return "";
+    if (!f.started) {
+      const d = new Date(f.start).toLocaleDateString(S.lang === "ar" ? "ar-SY" : "en-GB", { day: "numeric", month: "long" });
+      return `<section class="card founders soon"><b>🌟 ${T("fd_title")}</b><p class="small">${T("fd_soon").replace("{n}", f.total).replace("{d}", d)}</p></section>`;
+    }
+    if (!f.open) return "";
+    const pct = Math.round((f.taken / f.total) * 100);
+    return `<section class="card founders"><div class="row between"><b>🌟 ${T("fd_title")}</b><span class="num fd-left">${T("fd_left").replace("{n}", f.left).replace("{t}", f.total)}</span></div>
+      <p class="small">${T("fd_sub").replace("{n}", f.total).replace("{d}", f.days)}</p>
+      <div class="tbar"><span style="width:${Math.max(3, pct)}%"></span></div>
+      <button class="btn block" data-founder>${f.has_chart ? T("fd_claim") : T("fd_claim_chart")}</button></section>`;
+  }
+
+  function bindFounders() {
+    document.querySelectorAll("[data-founder]").forEach((b) => b.onclick = async () => {
+      const f = S.session.founders;
+      if (!f.has_chart) { S.editing = true; setTab("chart"); toast(T("fd_need_chart")); return; }
+      b.disabled = true; b.innerHTML = `<span class="spinner"></span>`;
+      try {
+        const r = await post("/api/founders/claim");
+        await refreshSession(); S._prem = isPrem(); haptic("heavy");
+        toast(T("fd_done").replace("{n}", r.number)); VIEWS[S.tab]();
+      } catch (e) {
+        const m = { full: T("fd_full"), already: T("fd_already"), need_chart: T("fd_need_chart"), not_started: T("fd_not_started") }[e.message];
+        toast(m || T("err") + e.message); await refreshSession(); VIEWS[S.tab]();
+      }
+    });
+  }
+
+  function quotaLine(kind) {
+    const q = (S.session.quota || {})[kind];
+    if (!q || !q.tier || q.tier === "admin") return "";
+    return `<p class="muted small center">${T(kind === "natal" ? "q_natal" : "q_syn").replace("{n}", q.left + q.credits).replace("{m}", q.limit)}</p>`;
+  }
+
+  async function buyExtra(kind) {
+    const url = kind === "natal" ? "/api/report/invoice" : "/api/synastry/report/invoice";
+    try {
+      const { link } = await post(url);
+      const done = async (status) => { if (status === "paid") { toast(T("extra_paid")); await refreshSession(); VIEWS[S.tab](); } };
+      if (tg && tg.openInvoice) tg.openInvoice(link, done); else openTg(link);
+    } catch (e) { toast(T("err") + e.message); }
+  }
+
+  function askBuyExtra(kind) {
+    const q = (S.session.quota || {})[kind] || {};
+    const box = document.createElement("div");
+    box.className = "sheet-back";
+    box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><h3>${T("extra_h")}</h3>
+      <p class="muted small">${T(kind === "natal" ? "extra_natal" : "extra_syn").replace("{m}", q.limit || "")}</p>
+      <button class="btn block" data-b="1">${T("extra_buy").replace("{n}", q.price || 50)}</button>
+      <button class="btn ghost block" data-b="">${T("cancel")}</button></div>`;
+    box.addEventListener("click", (e) => { const b = e.target.closest("[data-b]"); if (b || e.target === box) { box.remove(); if (b && b.dataset.b) buyExtra(kind); } });
+    document.body.appendChild(box);
+  }
 
   function formView() {
     const f = S.form; const y = new Date().getFullYear();
@@ -459,6 +535,7 @@
       <button class="btn ghost" id="share">${T("share")}</button>
       ${S.profileId ? `<button class="btn ghost danger" id="del">${T("del")}</button>` : ""}
     </div>
+    ${S.profileId ? quotaLine("natal") : ""}
     ${S.profileId ? `<button class="card invite-cta" data-invite>${T("inv_cta")}</button>` : ""}`;
   }
 
@@ -499,10 +576,14 @@
       try {
         const pr = S.session.profiles.find((x) => x.id === S.profileId) || {};
         let country_name = null; try { country_name = new Intl.DisplayNames([lang], { type: "region" }).of(pr.country); } catch (e) {}
-        await post(`/api/profiles/${S.profileId}/report`, { lang, style: S.style, country_name }); toast(T("report_sent")); haptic("heavy");
-        if (!isPrem() && S.session.report_credits > 0) { S.session.report_credits--; VIEWS.chart(); return; }
+        const r = await post(`/api/profiles/${S.profileId}/report`, { lang, style: S.style, country_name });
+        toast(T("queued").replace("{n}", r.position)); haptic("heavy");
+        await refreshSession(); VIEWS.chart(); return;
       }
-      catch (e) { toast(e.message === "premium_required" ? T("report_lock") : T("err") + e.message); }
+      catch (e) {
+        if (e.message === "report_quota") askBuyExtra("natal");
+        else toast(e.message === "premium_required" ? T("report_lock") : e.message === "report_in_progress" ? T("in_progress") : T("err") + e.message);
+      }
       rep.disabled = false; rep.textContent = T("report");
     };
     document.querySelectorAll("[data-invite]").forEach((b) => b.onclick = () => setTab("invite"));
@@ -605,7 +686,7 @@
         <h3>${T("syn_moon_h")}</h3>${ent(v.moon_relation)}${v.tara.map((x) => ent(x)).join("")}
         <h3>${T("syn_manglik")}</h3>${ent(v.manglik.entry)}${v.manglik.people.map((p, i) => p.is && p.entry ? ent({ ...p.entry, title: `${[A, B][i]}: ${p.entry.title}` }) : "").join("")}`;
     }
-    const q = r.report_quota, left = q ? Math.max(0, q.limit - q.used) : 0;
+    const q = r.report_quota, left = q ? (q.left ?? Math.max(0, q.limit - q.used)) : 0;
     const repBtn = q ? (left > 0 || q.credits > 0 || S.session.is_admin
       ? `<button class="btn block" id="syn-rep">${T("syn_report")}</button><p class="muted small center">${T("syn_report_left").replace("{n}", left + q.credits).replace("{m}", q.limit)}</p>`
       : `<p class="muted small">${T("syn_report_quota")}</p><button class="btn block" id="syn-buy">${T("syn_report_buy").replace("{n}", q.price)}</button>`) : "";
@@ -648,7 +729,7 @@
     const kootas = ak.kootas.map((k) => `<tr class="${k.points >= k.max ? "full" : k.points === 0 ? "zero" : ""}"><td><b>${esc(ar ? k.ar : k.en)}</b><small class="muted">${esc(ar ? k.about_ar : k.about_en)}</small></td><td class="num">${k.points}/${k.max}</td></tr>`).join("");
     const mg = v.manglik.map((m, i) => `<span class="pill ${m.is ? "warnp" : ""}">${[A, B][i]}: ${m.is ? T("syn_manglik_yes") : T("syn_manglik_no")}</span>`).join("");
     const q = r.report_quota;
-    const left = q ? Math.max(0, q.limit - q.used) : 0;
+    const left = q ? (q.left ?? Math.max(0, q.limit - q.used)) : 0;
     const repBtn = q ? (left > 0 || q.credits > 0 || S.session.is_admin
       ? `<button class="btn block" id="syn-rep">${T("syn_report")}</button><p class="muted small center">${T("syn_report_left").replace("{n}", left + q.credits).replace("{m}", q.limit)}</p>`
       : `<p class="muted small">${T("syn_report_quota")}</p><button class="btn block" id="syn-buy">${T("syn_report_buy").replace("{n}", q.price)}</button>`) : "";
@@ -671,10 +752,10 @@
       rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
       try {
         const r = await post("/api/synastry/report", { a: S.synResult.a, b: S.synResult.b, lang });
-        S.synResult.report_quota = r.quota; toast(T("syn_report_sent")); haptic("heavy"); VIEWS.synastry();
+        S.synResult.report_quota = r.quota; toast(T("queued").replace("{n}", r.position)); haptic("heavy"); VIEWS.synastry();
       } catch (e) {
-        if (e.message === "report_quota") { S.synResult.report_quota.used = S.synResult.report_quota.limit; S.synResult.report_quota.credits = 0; VIEWS.synastry(); toast(T("syn_report_quota")); }
-        else { toast(T("err") + e.message); rep.disabled = false; rep.textContent = T("syn_report"); }
+        if (e.message === "report_quota") { S.synResult.report_quota.left = 0; S.synResult.report_quota.credits = 0; VIEWS.synastry(); toast(T("syn_report_quota")); }
+        else { toast(e.message === "report_in_progress" ? T("in_progress") : T("err") + e.message); rep.disabled = false; rep.textContent = T("syn_report"); }
       }
     };
     const buy = $("#syn-buy");
@@ -871,7 +952,9 @@
     const info = await api("/api/premium");
     if (S.tab !== "premium") return;
     const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 5 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
-    $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p></section>
+    const fd = S.session.founders || {};
+    $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p>
+      ${fd.claimed ? `<p class="pill gold">🌟 ${T("fd_badge").replace("{n}", fd.number)}</p>` : ""}</section>${foundersBanner()}
       <ul class="perks">${perks}</ul>
       ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`
                     : `<button class="btn block big" id="buy">⭐ ${T("prem_buy").replace("{n}", info.stars)}</button>`}
@@ -879,6 +962,7 @@
       <button class="card invite-cta" data-invite>${T("prem_or_invite")}</button>`;
     $("#contact-admin").onclick = () => { haptic(); openTg(`https://t.me/${S.session.meta.bot}?start=pay`); if (tg && tg.close) setTimeout(() => tg.close(), 300); };
     document.querySelector("[data-invite]").onclick = () => setTab("invite");
+    bindFounders();
     const buy = $("#buy");
     if (buy) buy.onclick = async () => {
       buy.disabled = true;
@@ -928,7 +1012,7 @@
     $("#admin").innerHTML = `<div class="kpis">${kpi(o.users, T("k_users"))}${kpi(o.new_today, T("k_new"))}${kpi(o.active7, T("k_active"))}
       ${kpi(o.daily_subs, T("k_daily"))}${kpi(o.chats, T("k_chats"))}${kpi(o.charts, T("k_charts"))}${kpi(o.synastry, T("k_syn"))}
       ${kpi(o.premium, T("k_prem"))}${kpi(o.stars, "⭐ " + T("k_stars"))}${kpi(o.blocked, T("k_blocked"))}
-      ${kpi(o.invited, T("k_inv"))}${kpi(o.invited_active, T("k_inv_act"))}${kpi(o.reports, T("k_reports"))}${kpi(o.syn_reports, T("k_syn_reports"))}</div>
+      ${kpi(o.founders, "🌟 " + T("k_founders"))}${kpi(o.invited, T("k_inv"))}${kpi(o.invited_active, T("k_inv_act"))}${kpi(o.reports, T("k_reports"))}${kpi(o.syn_reports, T("k_syn_reports"))}</div>
       <section class="card"><h3>${T("k_newusers")} · ${T("k_series")}</h3>${seriesChart(o.series)}</section>
       <section class="card"><h3>${T("k_ads")}</h3><p class="muted small">${T("k_req")}: <span class="num">${o.ads_requested}</span></p>${adTable}</section>
       <section class="card"><h3>${T("k_geo")}</h3><p class="muted small">${T("geo_note")}</p>${listBars(o.countries, "country", countryName)}</section>
