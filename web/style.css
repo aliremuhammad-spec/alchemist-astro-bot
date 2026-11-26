@@ -346,3 +346,8 @@ details.ent .adv { background: var(--verd-soft); border-radius: var(--r-s); padd
 .card.founders .tbar span { background: var(--brass); }
 .fd-left { color: var(--brass); font-weight: 600; font-size: 13px; }
 .pill.gold { background: var(--brass-soft); color: var(--brass); display: inline-block; margin-top: 8px; }
+
+/* "My chart" */
+.chip.mine { border-color: var(--brass); }
+.mine-badge { color: var(--brass); font-weight: 600; font-size: 13px; margin: 2px 0 6px; }
+.mine-set { margin: 2px 0 8px; }

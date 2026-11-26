@@ -8,7 +8,9 @@
   const I18N = {
     ar: {
       brand: "الخيميائي", beta: "<b>نسخة تجريبية</b> · من تطوير الخيميائي", premium_btn: "✨ مميز",
-      tab_chart: "خارطتي", tab_syn: "التوافق", tab_daily: "اليوم", tab_channels: "قنواتي", tab_about: "حول", tab_admin: "الإدارة",
+      tab_chart: "الخرائط", my_chart: "خارطتي", make_main: "هاي خارطتي أنا",
+      is_mine: "هاي خارطتي أنا", is_mine_note: "«خارطتي» هي الخارطة اللي بتنبعتلك على أساسها الأبراج اليومية والعبورات والتوقعات الشخصية. باقي الخرائط للعيلة والأصدقاء والتوافق.",
+      main_set: "⭐ صارت هاي «خارطتي»: الأبراج اليومية والمزايا الشخصية بتتبعها", tab_syn: "التوافق", tab_daily: "اليوم", tab_channels: "قنواتي", tab_about: "حول", tab_admin: "الإدارة",
       hero_title: "خارطتك كما كانت السماء لحظة ولادتك",
       hero_sub: "بالنظامين الغربي والفيدي، مع الرسم الهندي الشمالي أو الجنوبي.",
       new_chart: "خارطة جديدة", name: "الاسم", name_ph: "اسمك أو اسم صاحب الخارطة",
@@ -69,7 +71,7 @@
       week_title: "الاختيارات الفلكية الأسبوعية", week_sub: "أفضل الأوقات للبدايات والعقود والسفر، بتوقيتك", week_none: "ما في اختيارات منشورة لهالأسبوع لسا.",
       week_locked: "الاختيارات الأسبوعية للمشتركين المميزين: أفضل نوافذ الأسبوع للبدايات والعقود والسفر، وأوقات يُفضّل تجنّبها، محوّلة لتوقيتك.",
       week_tz: "الأوقات محوّلة لتوقيت: ", go_premium: "اشترك بالمميز", send_time: "وقت الإرسال", tz: "المنطقة الزمنية", sign_pick: "البرج",
-      sign_auto: "تلقائي من خارطتي", save: "احفظ", saved: "انحفظت الإعدادات",
+      sign_auto: "حسب «خارطتي»", save: "احفظ", saved: "انحفظت الإعدادات",
       ch_title: "الأبراج اليومية لقناتك أو مجموعتك",
       ch_sub: "ضيف البوت، وكل يوم بينشر أبراج الـ12 برج كاملة بالوقت اللي بتختاره. مجاناً بالكامل.",
       add_channel: "أضف لقناة", add_group: "أضف لمجموعة",
@@ -110,7 +112,9 @@
     },
     en: {
       brand: "The Alchemist", beta: "<b>Beta</b> · developed by The Alchemist", premium_btn: "✨ Premium",
-      tab_chart: "My chart", tab_syn: "Match", tab_daily: "Today", tab_channels: "Channels", tab_about: "About", tab_admin: "Admin",
+      tab_chart: "Charts", my_chart: "My chart", make_main: "This is my chart",
+      is_mine: "This is my own chart", is_mine_note: "“My chart” is the one your daily horoscope, transits and personal forecasts follow. Other charts are for family, friends and compatibility.",
+      main_set: "⭐ This is now “My chart”: your daily horoscope and personal features follow it", tab_syn: "Match", tab_daily: "Today", tab_channels: "Channels", tab_about: "About", tab_admin: "Admin",
       hero_title: "Your chart: the sky at the moment you were born", hero_sub: "Western and Vedic, with a North or South Indian chart.",
       new_chart: "New chart", name: "Name", name_ph: "Your name or the chart owner's",
       date: "Birth date", day: "Day", month: "Month", year: "Year",
@@ -170,7 +174,7 @@
       week_title: "Weekly electional picks", week_sub: "Best windows for beginnings, contracts and travel, in your time", week_none: "No picks published for this week yet.",
       week_locked: "Weekly picks are for Premium members: the week's best windows for beginnings, contracts and travel, plus times to avoid, in your time zone.",
       week_tz: "Times shown in: ", go_premium: "Go Premium", send_time: "Send at", tz: "Time zone", sign_pick: "Sign",
-      sign_auto: "From my chart", save: "Save", saved: "Settings saved",
+      sign_auto: "From “My chart”", save: "Save", saved: "Settings saved",
       ch_title: "Daily horoscopes for your channel or group",
       ch_sub: "Add the bot and it posts all 12 signs every day at the time you choose. Completely free.",
       add_channel: "Add to a channel", add_group: "Add to a group",
@@ -301,7 +305,7 @@
     const ps = S.session.profiles;
     if (!ps.length) return "";
     return `<div class="chips">${ps.map((p) =>
-      `<button class="chip" data-pid="${p.id}" aria-pressed="${p.id === S.profileId && !S.editing}">${esc(p.name)}</button>`).join("")}
+      `<button class="chip ${p.is_main ? "mine" : ""}" data-pid="${p.id}" aria-pressed="${p.id === S.profileId && !S.editing}">${p.is_main ? `<span aria-label="${T("my_chart")}">⭐</span> ` : ""}${esc(p.name)}</button>`).join("")}
       <button class="chip add" data-new aria-pressed="${S.editing}">+ ${T("new_chart")}</button></div>`;
   }
 
@@ -317,6 +321,8 @@
     if (showForm) bindForm(); else bindChart();
     bindFounders();
   };
+
+  function mainName() { const p = S.session.profiles.find((x) => x.is_main); return p ? p.name : ""; }
 
   /* ───────────── founding members ───────────── */
   function foundersBanner() {
@@ -405,6 +411,8 @@
       <div class="cities" id="cities" role="listbox"></div>
       <label>${T("indian_style")}</label>
       <div class="seg" id="f-style"><button type="button" data-v="north" aria-pressed="${S.style === "north"}">${T("north")}</button><button type="button" data-v="south" aria-pressed="${S.style === "south"}">${T("south")}</button></div>
+      <label class="switch mt8"><input type="checkbox" id="f-mine" ${S.session.profiles.some((p) => p.is_main) ? "" : "checked"}> ${T("is_mine")}</label>
+      <p class="muted small">${T("is_mine_note")}</p>
       <button class="btn block" id="f-go">${T("calc")}</button>
     </form>`;
   }
@@ -456,15 +464,25 @@
       const go = $("#f-go"); go.disabled = true; go.innerHTML = `<span class="spinner"></span> ${T("calculating")}`;
       try {
         const res = await post("/api/chart", { name: f.name, day: f.day, month: f.month, year: f.year, hour: f.hour, minute: f.minute,
-          time_known: !f.unknown, country: f.country, city_id: f.city_id, indian_style: S.style, theme: S.theme, lang: S.lang, save: true });
+          time_known: !f.unknown, country: f.country, city_id: f.city_id, indian_style: S.style, theme: S.theme, lang: S.lang, save: true,
+          is_mine: $("#f-mine").checked });
         if (S.session.meta.chart_ad && !isPrem() && window.Ads) {
           try { await window.Ads.watch("chart", S.session.meta.ads || {}, api); } catch (e) { /* the chart is free either way */ }
         }
         S.chart = res; S.profileId = res.profile_id; S.editing = false; S.system = "western"; S.varga = 1; S.vargaSvg = null; S.form = {};
         if (res.profile_limit_hit) toast(T("limit").replace("{n}", S.session.meta.free_profiles));
         await refreshSession(); haptic("medium"); VIEWS.chart();
+        if (res.profile_id && (S.session.profiles.find((p) => p.id === res.profile_id) || {}).is_main) toast(T("main_set"));
       } catch (err) { toast(T("err") + err.message); go.disabled = false; go.textContent = T("calc"); }
     };
+  }
+
+  function mainBadge() {
+    if (!S.profileId) return "";
+    const p = S.session.profiles.find((x) => x.id === S.profileId);
+    if (!p) return "";
+    return p.is_main ? `<p class="mine-badge">⭐ ${T("my_chart")}</p>`
+      : `<button class="btn small ghost mine-set" id="set-main">⭐ ${T("make_main")}</button>`;
   }
 
   function bigThree(c) {
@@ -516,6 +534,7 @@
     const ved = S.system === "vedic";
     return `<section class="stage">
       <p class="name">${esc(m.name)}</p><p class="when"><span class="num">${esc(m.local)}</span> · ${esc(place)}</p>
+      ${mainBadge()}
       ${bigThree(c)}
       <div class="row between">
         <div class="seg" id="sys"><button data-v="western" aria-pressed="${!ved}">${T("western")}</button><button data-v="vedic" aria-pressed="${ved}">${T("vedic")}</button></div>
@@ -587,6 +606,12 @@
       rep.disabled = false; rep.textContent = T("report");
     };
     document.querySelectorAll("[data-invite]").forEach((b) => b.onclick = () => setTab("invite"));
+    const sm = $("#set-main");
+    if (sm) sm.onclick = async () => {
+      sm.disabled = true;
+      try { await post(`/api/profiles/${S.profileId}/main`); await refreshSession(); haptic("medium"); toast(T("main_set")); VIEWS.chart(); }
+      catch (e) { toast(T("err") + e.message); sm.disabled = false; }
+    };
     $("#share").onclick = () => {
       const url = `https://t.me/${S.session.meta.bot}`;
       const text = S.lang === "ar" ? "احسب خارطتك الفلكية الغربية والفيدية مجاناً مع بوت الخيميائي ✨" : "Cast your Western & Vedic birth chart for free ✨";
@@ -817,8 +842,8 @@
     $("#view").innerHTML = `${sky}<h2>${T("daily_title")}</h2><p class="muted">${T("daily_sub")}</p>
       <div class="card form"><label class="switch"><input type="checkbox" id="d-on" ${d.subscribed !== false ? "checked" : ""}> ${T("daily_on")}</label>
       <div class="grid2"><div><label for="d-time">${T("send_time")}</label><input type="time" id="d-time" value="${d.send_time || "08:00"}"></div>
-      <div><label for="d-sign">${T("sign_pick")}</label><select id="d-sign">${hasProfile ? `<option value="">${T("sign_auto")}</option>` : ""}
-        ${T("signs").map((s, i) => `<option value="${i}" ${d.sign === i ? "selected" : ""}>${GLYPHS[i]} ${s}</option>`).join("")}</select></div></div>
+      <div><label for="d-sign">${T("sign_pick")}</label><select id="d-sign">${hasProfile ? `<option value="" ${d.follow_main ? "selected" : ""}>${T("sign_auto")}${mainName() ? ` (⭐ ${esc(mainName())})` : ""}</option>` : ""}
+        ${T("signs").map((s, i) => `<option value="${i}" ${d.sign === i && !d.follow_main ? "selected" : ""}>${GLYPHS[i]} ${s}</option>`).join("")}</select></div></div>
       <label for="d-tz">${T("tz")}</label><select id="d-tz">${tzs.map((z) => `<option ${z === tzOk ? "selected" : ""}>${z}</option>`).join("")}</select>
       <button class="btn block" id="d-save">${T("save")}</button></div>
       <button class="card week-link" id="go-week"><span class="wl-ic" aria-hidden="true">🗓</span><span><b>${T("week_title")}</b><small class="muted">${T("week_sub")}</small></span><span aria-hidden="true">‹</span></button>

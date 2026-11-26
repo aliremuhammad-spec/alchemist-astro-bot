@@ -159,3 +159,9 @@ CREATE TABLE IF NOT EXISTS notices (
   user_id BIGINT NOT NULL, kind TEXT NOT NULL, ref TEXT NOT NULL, sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, kind, ref)
 );
+
+-- "My chart": the one profile that personal features (daily sign, transits, personal forecasts) follow
+ALTER TABLE daily_prefs ADD COLUMN IF NOT EXISTS follow_main BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_one_main ON profiles(user_id) WHERE is_main;
+UPDATE profiles SET is_main=TRUE WHERE id IN (
+  SELECT min(id) FROM profiles GROUP BY user_id HAVING NOT bool_or(is_main));

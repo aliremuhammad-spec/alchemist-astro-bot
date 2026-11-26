@@ -133,6 +133,7 @@ class ChartIn(BaseModel):
     theme: str = "dark"
     lang: str | None = None
     save: bool = True
+    is_mine: bool | None = None   # "this is my own chart"; None = only if the user has no "My chart" yet
 
 
 def _birth(name, d: date, tm: time | None, city: dict, country: str) -> BirthInput:
@@ -171,11 +172,15 @@ async def chart(body: ChartIn, user: dict = Depends(current_user)):
         limit_hit = (n >= settings.free_profiles and user["id"] not in settings.admin_ids
                      and not await db.is_premium(user["id"]))
         if not limit_hit:
+            has_main = await db.pool().fetchval("SELECT 1 FROM profiles WHERE user_id=$1 AND is_main", user["id"])
+            mine = body.is_mine if body.is_mine is not None else not has_main
             profile_id = await db.pool().fetchval(
                 """INSERT INTO profiles(user_id,name,birth_date,birth_time,city_id,city,country,lat,lng,tz,
-                     indian_style,is_main) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id""",
+                     indian_style,is_main) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,FALSE) RETURNING id""",
                 user["id"], b.name or (user["first_name"] or "—"), d, tm, body.city_id, b.city, b.country,
-                b.lat, b.lng, b.tz, style, n == 0)
+                b.lat, b.lng, b.tz, style)
+            if mine:
+                await set_main(user["id"], profile_id)
     await db.event(user["id"], "chart")
     out = await run_in_threadpool(_chart_out, c, style, lang, body.theme)
     out["profile_id"] = profile_id
@@ -209,7 +214,33 @@ async def profile_chart(pid: int, style: str | None = None, theme: str = "dark",
 
 @router.delete("/profiles/{pid}")
 async def delete_profile(pid: int, user: dict = Depends(current_user)):
-    await db.pool().execute("DELETE FROM profiles WHERE id=$1 AND user_id=$2", pid, user["id"])
+    was_main = await db.pool().fetchval(
+        "DELETE FROM profiles WHERE id=$1 AND user_id=$2 RETURNING is_main", pid, user["id"])
+    if was_main:  # "My chart" passes to the oldest remaining chart, so personal features keep working
+        nxt = await db.pool().fetchval("SELECT id FROM profiles WHERE user_id=$1 ORDER BY id LIMIT 1", user["id"])
+        if nxt:
+            await set_main(user["id"], nxt)
+    return {"ok": True}
+
+
+async def set_main(uid: int, pid: int) -> None:
+    """Make one profile "My chart" and re-point everything that follows it (daily sign, later transits)."""
+    async with db.pool().acquire() as c, c.transaction():
+        await c.execute("UPDATE profiles SET is_main=FALSE WHERE user_id=$1 AND is_main AND id<>$2", uid, pid)
+        bd = await c.fetchval("UPDATE profiles SET is_main=TRUE WHERE id=$1 AND user_id=$2 RETURNING birth_date", pid, uid)
+    if bd is None:
+        raise HTTPException(404, "profile")
+    sign = await run_in_threadpool(sun_sign, bd.year, bd.month, bd.day)
+    r = await db.pool().execute("UPDATE daily_prefs SET sign=$2 WHERE user_id=$1 AND follow_main", uid, sign)
+    if not r.endswith(" 0"):
+        from . import scheduler
+        scheduler.invalidate()
+
+
+@router.post("/profiles/{pid}/main")
+async def make_main(pid: int, user: dict = Depends(current_user)):
+    await set_main(user["id"], pid)
+    await db.event(user["id"], "main_chart_set")
     return {"ok": True}
 
 
@@ -239,7 +270,8 @@ async def send_profile(pid: int, request: Request, body: dict | None = None, use
 def _daily_out(row) -> dict | None:
     if not row:
         return None
-    return {"subscribed": row["subscribed"], "send_time": row["send_time"], "tz": row["tz"], "sign": row["sign"]}
+    return {"subscribed": row["subscribed"], "send_time": row["send_time"], "tz": row["tz"], "sign": row["sign"],
+            "follow_main": row["follow_main"]}
 
 
 class DailyIn(BaseModel):
@@ -256,6 +288,7 @@ async def set_daily(body: DailyIn, user: dict = Depends(current_user)):
     if body.tz not in _TZS:
         raise HTTPException(400, "unknown timezone")
     sign = body.sign
+    follow = sign is None
     if sign is None:
         main = await db.pool().fetchrow(
             "SELECT birth_date FROM profiles WHERE user_id=$1 ORDER BY is_main DESC, id LIMIT 1", user["id"])
@@ -264,9 +297,9 @@ async def set_daily(body: DailyIn, user: dict = Depends(current_user)):
         bd = main["birth_date"]
         sign = await run_in_threadpool(sun_sign, bd.year, bd.month, bd.day)
     await db.pool().execute(
-        """INSERT INTO daily_prefs(user_id,subscribed,send_time,tz,sign) VALUES($1,$2,$3,$4,$5)
-           ON CONFLICT(user_id) DO UPDATE SET subscribed=$2, send_time=$3, tz=$4, sign=$5""",
-        user["id"], body.subscribed, body.send_time, body.tz, sign)
+        """INSERT INTO daily_prefs(user_id,subscribed,send_time,tz,sign,follow_main) VALUES($1,$2,$3,$4,$5,$6)
+           ON CONFLICT(user_id) DO UPDATE SET subscribed=$2, send_time=$3, tz=$4, sign=$5, follow_main=$6""",
+        user["id"], body.subscribed, body.send_time, body.tz, sign, follow)
     await db.pool().execute("UPDATE users SET tz=$2 WHERE id=$1", user["id"], body.tz)
     await db.event(user["id"], "daily_on" if body.subscribed else "daily_off")
     row = await db.pool().fetchrow("SELECT * FROM daily_prefs WHERE user_id=$1", user["id"])
