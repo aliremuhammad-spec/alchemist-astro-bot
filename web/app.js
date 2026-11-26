@@ -17,7 +17,7 @@
       unknown_note: "بنحسب الخارطة على الظهر، وبدون طالع وبيوت لأنها بتعتمد على الوقت بالدقيقة.",
       place: "مكان الولادة", continent: "القارة", country: "الدولة", city_ph: "ابحث عن مدينتك…",
       indian_style: "شكل الخارطة الهندية", north: "شمالي", south: "جنوبي", calc: "احسب الخارطة", calculating: "عم نحسب…",
-      western: "غربية", vedic: "فيدية", report: "📄 تقرير فلكي PDF", report_gift: "🎁 تقرير فلكي مجاني", report_wait: "عم نجهّز التقرير الفلكي… بياخد شي دقيقة", report_sent: "وصلك التقرير الفلكي عالمحادثة مع البوت", report_lock: "التقرير الفلكي المفصّل للمشتركين المميزين، أو هدية لما حدا يدعيك",
+      western: "غربية", vedic: "فيدية", cancel: "إلغاء", rl_title: "بأي لغة بدك التقرير؟", rl_sub: "اختار لغة التقرير قبل ما نجهّزه.", report: "📄 تقرير فلكي PDF", report_gift: "🎁 تقرير فلكي مجاني", report_wait: "عم نجهّز التقرير الفلكي… بياخد شي دقيقة", report_sent: "وصلك التقرير الفلكي عالمحادثة مع البوت", report_lock: "التقرير الفلكي المفصّل للمشتركين المميزين، أو هدية لما حدا يدعيك",
       inv_title: "ادعُ أصحابك", inv_sub: "صديقك بياخد تقرير فلكي مجاني لخارطته، وإنت بتاخد 3 أيام مميز عن كل صديق بيصير نشط.",
       inv_how: "النشط = حفظ خارطته ورجع للبوت بيوم تاني.", inv_link: "رابطك الخاص", inv_copy: "انسخ", inv_copied: "انتسخ الرابط", inv_share: "📤 شارك مع صديق",
       inv_invited: "دعوات", inv_active: "نشطين", inv_days: "يوم مميز ربحته", inv_cta: "🎁 ادعُ صديق: هو بياخد تقرير فلكي مجاني، وإنت 3 أيام مميز",
@@ -110,7 +110,7 @@
       unknown_note: "We'll cast it for noon, without Ascendant and houses, which need the exact time.",
       place: "Birthplace", continent: "Continent", country: "Country", city_ph: "Search your city…",
       indian_style: "Indian chart style", north: "North", south: "South", calc: "Calculate chart", calculating: "Calculating…",
-      western: "Western", vedic: "Vedic", report: "📄 Astrological report PDF", report_gift: "🎁 Free astrological report", report_wait: "Preparing your astrological report… about a minute", report_sent: "Astrological report sent to your chat with the bot", report_lock: "The detailed astrological report is for Premium members, or a gift when someone invites you",
+      western: "Western", vedic: "Vedic", cancel: "Cancel", rl_title: "Which language for the report?", rl_sub: "Choose the report language before we prepare it.", report: "📄 Astrological report PDF", report_gift: "🎁 Free astrological report", report_wait: "Preparing your astrological report… about a minute", report_sent: "Astrological report sent to your chat with the bot", report_lock: "The detailed astrological report is for Premium members, or a gift when someone invites you",
       inv_title: "Invite friends", inv_sub: "Your friend gets a free astrological report; you get 3 Premium days for every friend who becomes active.",
       inv_how: "Active = saved a chart and came back another day.", inv_link: "Your link", inv_copy: "Copy", inv_copied: "Link copied", inv_share: "📤 Share with a friend",
       inv_invited: "Invited", inv_active: "Active", inv_days: "Premium days earned", inv_cta: "🎁 Invite a friend: they get a free astrological report, you get 3 Premium days",
@@ -494,9 +494,12 @@
     const rep = $("#report");
     if (rep) rep.onclick = async () => {
       if (!isPrem() && !(S.session.report_credits > 0)) { toast(T("report_lock")); return setTab("premium"); }
+      const lang = await pickReportLang(); if (!lang) return;
       rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
       try {
-        await post(`/api/profiles/${S.profileId}/report`, { lang: S.lang, style: S.style }); toast(T("report_sent")); haptic("heavy");
+        const pr = S.session.profiles.find((x) => x.id === S.profileId) || {};
+        let country_name = null; try { country_name = new Intl.DisplayNames([lang], { type: "region" }).of(pr.country); } catch (e) {}
+        await post(`/api/profiles/${S.profileId}/report`, { lang, style: S.style, country_name }); toast(T("report_sent")); haptic("heavy");
         if (!isPrem() && S.session.report_credits > 0) { S.session.report_credits--; VIEWS.chart(); return; }
       }
       catch (e) { toast(e.message === "premium_required" ? T("report_lock") : T("err") + e.message); }
@@ -611,6 +614,23 @@
       ${body}<div class="mt16">${repBtn}</div>${c.footer ? `<p class="footer-note">${esc(c.footer)}</p>` : ""}</section>`;
   }
 
+  /* Report language is always the reader's explicit choice, never inferred. */
+  function pickReportLang() {
+    return new Promise((resolve) => {
+      const box = document.createElement("div");
+      box.className = "sheet-back";
+      box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rl-h">
+        <h3 id="rl-h">${T("rl_title")}</h3><p class="muted small">${T("rl_sub")}</p>
+        <div class="grid2"><button class="btn" data-l="ar" lang="ar">العربية</button><button class="btn" data-l="en" lang="en">English</button></div>
+        <button class="btn ghost block" data-l="">${T("cancel")}</button></div>`;
+      const done = (v) => { box.remove(); resolve(v || null); };
+      box.addEventListener("click", (e) => { const b = e.target.closest("[data-l]"); if (b) { haptic(); done(b.dataset.l); } else if (e.target === box) done(null); });
+      document.addEventListener("keydown", function esc(e) { if (e.key === "Escape") { document.removeEventListener("keydown", esc); done(null); } });
+      document.body.appendChild(box);
+      box.querySelector("[data-l]").focus();
+    });
+  }
+
   function synLocked() {
     return `<section class="card locked"><h3>✨ ${T("syn_locked_h")}</h3><p class="muted">${T("syn_locked")}</p>
       <ul class="plain checks">${T("syn_locked_list").map((x) => `<li>${x}</li>`).join("")}</ul>
@@ -647,9 +667,10 @@
     document.querySelectorAll("[data-go-prem]").forEach((b) => b.onclick = () => setTab("premium"));
     const rep = $("#syn-rep");
     if (rep) rep.onclick = async () => {
+      const lang = await pickReportLang(); if (!lang) return;
       rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
       try {
-        const r = await post("/api/synastry/report", { a: S.synResult.a, b: S.synResult.b, lang: S.lang });
+        const r = await post("/api/synastry/report", { a: S.synResult.a, b: S.synResult.b, lang });
         S.synResult.report_quota = r.quota; toast(T("syn_report_sent")); haptic("heavy"); VIEWS.synastry();
       } catch (e) {
         if (e.message === "report_quota") { S.synResult.report_quota.used = S.synResult.report_quota.limit; S.synResult.report_quota.credits = 0; VIEWS.synastry(); toast(T("syn_report_quota")); }

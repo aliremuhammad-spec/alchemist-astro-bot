@@ -256,6 +256,17 @@ async def record_payment(uid: int, sp) -> None:
 _report_busy: set[int] = set()
 
 
+def _place(p: dict, lang: str, country_name: str | None) -> tuple[str, str]:
+    """City and country written in the report's language (not the language the profile was saved in)."""
+    from .astro import geo
+    row = geo.city_by_id(p["country"], p["city_id"]) if p.get("city_id") else None
+    city = ((row.get("ar") if lang == "ar" else None) or row["name"]) if row else p["city"]
+    cn = (country_name or "").strip()
+    if not cn or len(cn) > 60 or any(ch in cn for ch in "<>{}"):
+        cn = next((x["name"] for x in geo.countries() if x["iso"] == p["country"]), p["country"]) if lang == "en" else p["country"]
+    return city, cn
+
+
 @router.post("/profiles/{pid}/report")
 async def profile_report(pid: int, request: Request, body: dict | None = None, user: dict = Depends(current_user)):
     """Build the automated natal report as a PDF and send it to the user's chat with the bot."""
@@ -283,6 +294,7 @@ async def profile_report(pid: int, request: Request, body: dict | None = None, u
     _report_busy.add(uid)
     try:
         c = await run_in_threadpool(compute, _profile_birth(p))
+        c["meta"]["city"], c["meta"]["country"] = _place(p, lang, (body or {}).get("country_name"))
         pdf = await run_in_threadpool(build_pdf, c, lang, style)
     finally:
         _report_busy.discard(uid)

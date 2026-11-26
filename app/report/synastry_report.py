@@ -326,7 +326,7 @@ class CompatReport(SynReport):
 
     def summary(self) -> str:
         c, r = self.c, self.r
-        out = ['<section class="part">', self.ent(r.get("overall_entry")), f'<p class="note">{e(c["pct_note"])}</p>',
+        out = ['<section class="part">', self.ent(r.get("overall_entry")),
                f'<h2 class="sh">{c["dims_h"]}</h2>']
         for d in r["dimensions"]:
             fill = "fire" if d["key"] == "friction" else "water"
