@@ -79,7 +79,8 @@ async def check_activations(bot: Bot | None = None) -> int:
             n += 1
             if bot:
                 lang = await p.fetchval("SELECT lang FROM users WHERE id=$1", r["inviter_id"])
-                name = r["first_name"] or ("صديقك" if lang == "ar" else "your friend")
+                from html import escape
+                name = escape(r["first_name"] or ("صديقك" if lang == "ar" else "your friend"))
                 txt = (f"🎉 <b>{name}</b> صار مستخدم نشط بالخيميائي، وربحت <b>{days} أيام مميز</b>! "
                        f"كمّل دعوات وكل صديق نشط بيزيدلك 3 أيام."
                        if lang == "ar" else

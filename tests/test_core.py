@@ -218,3 +218,35 @@ def test_compat_engine_with_private_db():
     assert r["footer"].endswith("(@x).") and "{BOT_BOOKING_COMMAND}" not in r["footer"]
     same = compat.ashtakoota({"sign": 0, "nak": 0, "deg": 5, "pada": 2}, {"sign": 0, "nak": 0, "deg": 5, "pada": 2})
     assert same["points"]["nadi"] == 0 and "nadi" in same["dosha_keys"]
+
+
+def test_rate_limit_blocks_bursts():
+    import pytest
+    from fastapi import HTTPException
+
+    from app import ratelimit
+    for _ in range(ratelimit.LIMITS["chart"][0]):
+        ratelimit.check(777001, "chart")
+    with pytest.raises(HTTPException):
+        ratelimit.check(777001, "chart")
+
+
+def test_init_data_rejects_tampering():
+    import hashlib
+    import hmac
+    import json
+    import time
+    from urllib.parse import urlencode
+
+    import pytest
+
+    from app.auth import validate_init_data
+    token = "123:abc"
+    fields = {"auth_date": str(int(time.time())), "user": json.dumps({"id": 42, "first_name": "A"})}
+    check = "\n".join(f"{k}={v}" for k, v in sorted(fields.items()))
+    secret = hmac.new(b"WebAppData", token.encode(), hashlib.sha256).digest()
+    good = urlencode({**fields, "hash": hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()})
+    assert validate_init_data(good, token)["user"]["id"] == 42
+    forged = good.replace("%22id%22%3A+42", "%22id%22%3A+8449364055")
+    with pytest.raises(ValueError):
+        validate_init_data(forged, token)

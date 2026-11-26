@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import hashlib
+import hmac
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -83,6 +84,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="The Alchemist Astro", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    h = resp.headers
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    h.setdefault("Strict-Transport-Security", "max-age=31536000")
+    h.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    # the Mini App may only be framed by Telegram's web clients
+    h.setdefault("Content-Security-Policy", "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org")
+    return resp
 app.include_router(api_router)
 app.include_router(monetize_router)
 app.include_router(admin_router)
@@ -95,7 +109,7 @@ async def health():
 
 @app.post("/tg/webhook")
 async def webhook(request: Request, x_telegram_bot_api_secret_token: str = Header(default="")):
-    if x_telegram_bot_api_secret_token != WEBHOOK_SECRET:
+    if not hmac.compare_digest(x_telegram_bot_api_secret_token.encode(), WEBHOOK_SECRET.encode()):
         raise HTTPException(403)
     update = Update.model_validate(await request.json(), context={"bot": request.app.state.bot})
     await request.app.state.dp.feed_update(request.app.state.bot, update)

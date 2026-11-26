@@ -709,7 +709,7 @@
         <p class="muted small">${T("syn_policy")}</p>
         ${v.doshas.length || v.yoni_pair ? `<h3>${T("syn_dosha_h")}</h3>${v.doshas.map((d) => ent(d)).join("")}${ent(v.yoni_pair)}${v.cancels.map((x) => ent(x)).join("")}` : ""}
         <h3>${T("syn_moon_h")}</h3>${ent(v.moon_relation)}${v.tara.map((x) => ent(x)).join("")}
-        <h3>${T("syn_manglik")}</h3>${ent(v.manglik.entry)}${v.manglik.people.map((p, i) => p.is && p.entry ? ent({ ...p.entry, title: `${[A, B][i]}: ${p.entry.title}` }) : "").join("")}`;
+        <h3>${T("syn_manglik")}</h3>${ent(v.manglik.entry)}${v.manglik.people.map((p, i) => p.is && p.entry ? ent({ ...p.entry, title: `${c.names[i]}: ${p.entry.title}` }) : "").join("")}`;
     }
     const q = r.report_quota, left = q ? (q.left ?? Math.max(0, q.limit - q.used)) : 0;
     const repBtn = q ? (left > 0 || q.credits > 0 || S.session.is_admin

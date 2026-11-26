@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from html import escape
 from datetime import date, time
 from zoneinfo import ZoneInfo, available_timezones
 
@@ -154,6 +155,8 @@ def _chart_out(chart: dict, style: str, lang: str, theme: str) -> dict:
 
 @router.post("/chart")
 async def chart(body: ChartIn, user: dict = Depends(current_user)):
+    from .ratelimit import check
+    check(user["id"], "chart")
     lang = _lang(body.lang, user)
     try:
         d = date(body.year, body.month, body.day)
@@ -204,6 +207,8 @@ def _profile_birth(p: dict) -> BirthInput:
 @router.get("/profiles/{pid}/chart")
 async def profile_chart(pid: int, style: str | None = None, theme: str = "dark", lang: str | None = None,
                         user: dict = Depends(current_user)):
+    from .ratelimit import check
+    check(user["id"], "view")
     p = await _load_profile(pid, user["id"])
     style = style if style in ("north", "south") else p["indian_style"]
     c = await run_in_threadpool(compute, _profile_birth(p))
@@ -254,7 +259,7 @@ async def send_profile(pid: int, request: Request, body: dict | None = None, use
     c = await run_in_threadpool(compute, _profile_birth(p))
     wpng = await run_in_threadpool(svg_to_png, western_wheel_svg(c, "dark"), 1100)
     ipng = await run_in_threadpool(svg_to_png, indian_svg(c, style, lang, "dark"), 900)
-    caption = t(lang, "chart_caption", name=p["name"])
+    caption = t(lang, "chart_caption", name=escape(p["name"]))
     if wpng and ipng:
         await bot.send_media_group(user["id"], [
             InputMediaPhoto(media=BufferedInputFile(wpng, "western.png"), caption=caption),

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import secrets
+from html import escape
 from datetime import datetime, timezone
 
 from aiogram import Bot
@@ -107,6 +108,8 @@ class SynIn(BaseModel):
 
 @router.post("/synastry")
 async def synastry(body: SynIn, user: dict = Depends(current_user)):
+    from .ratelimit import check
+    check(user["id"], "synastry")
     if body.a == body.b:
         raise HTTPException(400, "same_profile")
     pa = await _load_profile(body.a, user["id"])
@@ -188,6 +191,8 @@ async def vargas_list(lang: str = "ar"):
 @router.get("/profiles/{pid}/varga/{n}")
 async def profile_varga(pid: int, n: int, style: str = "north", theme: str = "dark", lang: str | None = None,
                         user: dict = Depends(current_user)):
+    from .ratelimit import check
+    check(user["id"], "view")
     if n not in VARGAS:
         raise HTTPException(400, "varga")
     if n not in (1, 9) and not await db.is_premium(user["id"]):  # D9 is a free taste
@@ -281,8 +286,8 @@ async def profile_report(pid: int, request: Request, body: dict | None = None, u
     style = (body or {}).get("style") or p["indian_style"]
     birth, place = _profile_birth(p), _place(p, lang, (body or {}).get("country_name"))
     safe = "".join(ch for ch in p["name"] if ch.isalnum() or ch in " _-").strip().replace(" ", "_") or "chart"
-    caption = (f"📄 التقرير الفلكي لخارطة <b>{p['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
-               else f"📄 Astrological report: <b>{p['name']}</b>\nfrom The Alchemist 🜍")
+    caption = (f"📄 التقرير الفلكي لخارطة <b>{escape(p['name'])}</b>\nمن الخيميائي 🜍" if lang == "ar"
+               else f"📄 Astrological report: <b>{escape(p['name'])}</b>\nfrom The Alchemist 🜍")
 
     def build():
         c = compute(birth)
@@ -367,8 +372,8 @@ async def synastry_report(body: SynReportIn, request: Request, user: dict = Depe
     ba, bb, names = _profile_birth(pa), _profile_birth(pb), [pa["name"], pb["name"]]
     fctx = await footer_ctx()
     safe = "_".join("".join(ch for ch in n if ch.isalnum()) or "x" for n in names)
-    cap = (f"💞 تقرير التوافق الفلكي: <b>{names[0]}</b> و<b>{names[1]}</b>\nمن الخيميائي 🜍" if lang == "ar"
-           else f"💞 Compatibility report: <b>{names[0]}</b> & <b>{names[1]}</b>\nfrom The Alchemist 🜍")
+    cap = (f"💞 تقرير التوافق الفلكي: <b>{escape(names[0])}</b> و<b>{escape(names[1])}</b>\nمن الخيميائي 🜍" if lang == "ar"
+           else f"💞 Compatibility report: <b>{escape(names[0])}</b> &amp; <b>{escape(names[1])}</b>\nfrom The Alchemist 🜍")
 
     def build():
         s = compute_synastry(ba, bb)
