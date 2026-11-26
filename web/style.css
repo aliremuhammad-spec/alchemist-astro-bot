@@ -126,6 +126,9 @@ textarea { min-height: 110px; resize: vertical; }
 }
 .btn:active { transform: scale(.98); }
 html.light .btn { color: #fff; }
+html.light .btn.ghost { color: var(--parchment); }
+html.light .btn.ghost.danger { color: var(--danger); }
+html.light .btn.gift { color: #1a1406; }
 .btn.block { width: 100%; margin-top: 18px; }
 .btn.big { min-height: 52px; font-size: 16px; }
 .btn.ghost { background: none; color: var(--parchment); border: 1px solid color-mix(in srgb, var(--brass) 50%, transparent); }
