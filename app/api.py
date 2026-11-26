@@ -146,7 +146,8 @@ async def chart(body: ChartIn, user: dict = Depends(current_user)):
     profile_id = None
     if body.save:
         n = await db.pool().fetchval("SELECT count(*) FROM profiles WHERE user_id=$1", user["id"])
-        limit_hit = n >= settings.free_profiles and not await db.is_premium(user["id"])
+        limit_hit = (n >= settings.free_profiles and user["id"] not in settings.admin_ids
+                     and not await db.is_premium(user["id"]))
         if not limit_hit:
             profile_id = await db.pool().fetchval(
                 """INSERT INTO profiles(user_id,name,birth_date,birth_time,city_id,city,country,lat,lng,tz,
