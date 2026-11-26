@@ -186,3 +186,41 @@ async def record_payment(uid: int, sp) -> None:
     await db.pool().execute(
         "INSERT INTO subscriptions(user_id,source,ends_at,charge_id) VALUES($1,'stars',$2,$3)",
         uid, expires, sp.telegram_payment_charge_id)
+
+
+# ───────────── PDF report (premium) ─────────────
+
+_report_busy: set[int] = set()
+
+
+@router.post("/profiles/{pid}/report")
+async def profile_report(pid: int, request: Request, body: dict | None = None, user: dict = Depends(current_user)):
+    """Build the automated natal report as a PDF and send it to the user's chat with the bot."""
+    from aiogram.types import BufferedInputFile
+
+    from . import interp
+    from .report.builder import build_pdf
+
+    uid = user["id"]
+    if uid not in settings.admin_ids and not await db.is_premium(uid):
+        raise HTTPException(402, "premium_required")
+    if not interp.ready():
+        raise HTTPException(503, "report_unavailable")
+    if uid in _report_busy:
+        raise HTTPException(429, "report_in_progress")
+    p = await _load_profile(pid, uid)
+    lang = _lang((body or {}).get("lang"), user)
+    style = (body or {}).get("style") or p["indian_style"]
+    _report_busy.add(uid)
+    try:
+        c = await run_in_threadpool(compute, _profile_birth(p))
+        pdf = await run_in_threadpool(build_pdf, c, lang, style)
+    finally:
+        _report_busy.discard(uid)
+    bot: Bot = request.app.state.bot
+    safe = "".join(ch for ch in p["name"] if ch.isalnum() or ch in " _-").strip().replace(" ", "_") or "chart"
+    caption = (f"📄 تقرير الخارطة الفلكية: <b>{p['name']}</b>\nمن الخيميائي 🜍" if lang == "ar"
+               else f"📄 Natal chart report: <b>{p['name']}</b>\nfrom The Alchemist 🜍")
+    await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_report_{safe}.pdf"), caption=caption)
+    await db.event(uid, "report_sent")
+    return {"ok": True, "pages_bytes": len(pdf)}

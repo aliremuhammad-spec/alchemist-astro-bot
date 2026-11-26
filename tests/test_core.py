@@ -113,3 +113,27 @@ def test_synastry_score():
     assert s["score"]["value"] >= 0 and s["aspects"]
     assert all(x["b"] not in ("ascendant", "medium_coeli") for x in s["aspects"])  # B has no birth time
     assert "التوافق" in synastry_text(s, "ar")
+
+
+def test_yoga_detection_basic():
+    from app.report.yogas import detect
+    # Cancer lagna; Sun+Mercury+Saturn in Aries (10th), Mars in Libra (4th), Jupiter in Pisces (9th)
+    signs = {"sun": 0, "moon": 10, "mars": 6, "mercury": 0, "jupiter": 11, "venus": 2,
+             "saturn": 0, "rahu": 3, "ketu": 9}
+    keys = {k for k, _ in detect(signs, 3)}
+    assert {"budha_aditya", "yogakaraka", "neecha_bhanga", "kuja_dosha"} <= keys
+    assert "gajakesari" not in keys
+
+
+def test_report_html_without_db():
+    from app import interp
+    from app.astro.engine import BirthInput, compute
+    from app.report.builder import Report
+    interp.load_for_tests({"meta": {}, "entries": [
+        {"id": "W.planet_in_sign.sun.taurus", "system": "western", "category": "planet_in_sign", "k1": "sun",
+         "k2": "taurus", "k3": None, "tone": "neutral", "ar_title": "الشمس في الثور", "ar_summary": "ثبات",
+         "ar_text": "نص", "ar_advice": None, "en_title": "Sun in Taurus", "en_summary": "s", "en_text": "t",
+         "en_advice": None, "extra": {}}]})
+    c = compute(BirthInput("T", 1999, 5, 11, 10, 45, True, 33.51, 36.29, "Asia/Damascus"))
+    h = Report(c, "ar").html()
+    assert "الشمس في الثور" in h and 'dir="rtl"' in h

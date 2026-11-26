@@ -13,7 +13,7 @@ from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import db, scheduler
+from . import db, interp, scheduler
 from .api import router as api_router
 from .monetize import router as monetize_router
 from .admin import router as admin_router
@@ -59,6 +59,10 @@ async def configure_bot(bot: Bot) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await db.init()
+    try:
+        await interp.load()
+    except Exception:
+        log.exception("interpretations not loaded")
     bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
     dp.include_router(bot_router)

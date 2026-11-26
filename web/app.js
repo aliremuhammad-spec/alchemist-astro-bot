@@ -17,7 +17,7 @@
       unknown_note: "بنحسب الخارطة على الظهر، وبدون طالع وبيوت لأنها بتعتمد على الوقت بالدقيقة.",
       place: "مكان الولادة", continent: "القارة", country: "الدولة", city_ph: "ابحث عن مدينتك…",
       indian_style: "شكل الخارطة الهندية", north: "شمالي", south: "جنوبي", calc: "احسب الخارطة", calculating: "عم نحسب…",
-      western: "غربية", vedic: "فيدية", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
+      western: "غربية", vedic: "فيدية", report: "📄 تقرير PDF", report_wait: "عم نجهّز التقرير… بياخد شي دقيقة", report_sent: "وصلك التقرير عالمحادثة مع البوت", report_lock: "التقرير المفصّل للمشتركين المميزين", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف القاعدة (.sqlite أو .json أو .json.gz)", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
       share: "شارك", del: "حذف", deleted: "انحذفت الخارطة", saved_charts: "خرائطك",
       limit: "الخطة المجانية بتحفظ {n} خرائط. الخارطة انحسبت بس ما انحفظت.",
       need_city: "اختار المدينة من القائمة", need_date: "التاريخ غير صحيح",
@@ -53,7 +53,8 @@
       prem_perks: [["الخرائط الفرعية D2 لـ D60", "الهورا، الدريكانا، النافامشا، الداشامشا وكل الشودشافارغا"],
         ["التوافق بلا إعلانات", "احسب توافق ما بدك مع أي خارطة محفوظة"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
-        ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الاختيارات الأسبوعية، التوافق الفيدي (36 نقطة)، تقرير PDF"]],
+        ["تقرير PDF مفصّل", "تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا، بيوصلك عالمحادثة"],
+        ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الاختيارات الأسبوعية، التوافق الفيدي (36 نقطة)"]],
       prem_manual: "ما عندك نجوم تلغرام؟ راسلنا على إنستغرام لطرق دفع تانية.",
       err: "صار خطأ: ", open_in_tg: "افتح التطبيق من داخل تلغرام عبر البوت.",
       months: ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"],
@@ -83,7 +84,7 @@
       unknown_note: "We'll cast it for noon, without Ascendant and houses, which need the exact time.",
       place: "Birthplace", continent: "Continent", country: "Country", city_ph: "Search your city…",
       indian_style: "Indian chart style", north: "North", south: "South", calc: "Calculate chart", calculating: "Calculating…",
-      western: "Western", vedic: "Vedic", send: "Send to chat", sent: "Chart sent to your chat with the bot",
+      western: "Western", vedic: "Vedic", report: "📄 PDF report", report_wait: "Preparing your report… about a minute", report_sent: "Report sent to your chat with the bot", report_lock: "The detailed report is for Premium members", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload database file (.sqlite, .json or .json.gz)", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
       share: "Share", del: "Delete", deleted: "Chart deleted", saved_charts: "Your charts",
       limit: "Free plan keeps {n} charts. This one was calculated but not saved.",
       need_city: "Choose a city from the list", need_date: "Invalid date",
@@ -119,7 +120,8 @@
       prem_perks: [["Divisional charts D2–D60", "Hora, Drekkana, Navamsha, Dashamsha and the full Shodashavarga"],
         ["Ad-free compatibility", "Compare any saved charts, as often as you like"],
         ["Unlimited profiles", "Save family and friends without a limit"],
-        ["Coming for members", "Personal daily transits, transit alerts, weekly electional dates, Vedic 36-point matching, PDF report"]],
+        ["Detailed PDF report", "Full Western and Vedic interpretation with yogas and dashas, sent to your chat"],
+        ["Coming for members", "Personal daily transits, transit alerts, weekly electional dates, Vedic 36-point matching"]],
       prem_manual: "No Telegram Stars? Message us on Instagram for other payment options.",
       err: "Error: ", open_in_tg: "Open the app from inside Telegram via the bot.",
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -395,6 +397,7 @@
     <details class="card"><summary>${T("full_text")}</summary><div class="report">${ved ? c.text.vedic : c.text.western}</div></details>
     <div class="actions">
       ${S.profileId ? `<button class="btn" id="send">${T("send")}</button>` : ""}
+      ${S.profileId ? `<button class="btn ${S.session.premium || S.session.is_admin ? "" : "ghost"}" id="report">${S.session.premium || S.session.is_admin ? "" : "🔒 "}${T("report")}</button>` : ""}
       <button class="btn ghost" id="share">${T("share")}</button>
       ${S.profileId ? `<button class="btn ghost danger" id="del">${T("del")}</button>` : ""}
     </div>`;
@@ -428,6 +431,14 @@
       try { await post(`/api/profiles/${S.profileId}/send`, { lang: S.lang, style: S.style }); toast(T("sent")); haptic("medium"); }
       catch (e) { toast(T("err") + e.message); }
       send.disabled = false; send.textContent = T("send");
+    };
+    const rep = $("#report");
+    if (rep) rep.onclick = async () => {
+      if (!S.session.premium && !S.session.is_admin) { toast(T("report_lock")); return setTab("premium"); }
+      rep.disabled = true; rep.innerHTML = `<span class="spinner"></span>`; toast(T("report_wait"));
+      try { await post(`/api/profiles/${S.profileId}/report`, { lang: S.lang, style: S.style }); toast(T("report_sent")); haptic("heavy"); }
+      catch (e) { toast(e.message === "premium_required" ? T("report_lock") : T("err") + e.message); }
+      rep.disabled = false; rep.textContent = T("report");
     };
     $("#share").onclick = () => {
       const url = `https://t.me/${S.session.meta.bot}`;
@@ -609,7 +620,7 @@
     $("#view").innerHTML = skeleton(4);
     const info = await api("/api/premium");
     if (S.tab !== "premium") return;
-    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 3 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
+    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 4 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
     $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p></section>
       <ul class="perks">${perks}</ul>
       ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`
@@ -723,7 +734,12 @@
 
   async function adContent() {
     const c = await api("/api/admin/content");
-    $("#admin").innerHTML = `<p class="warn ${c.has_today ? "ok" : ""}">${c.has_today ? "✅ " + T("today_ok") : "⚠️ " + T("today_missing")}</p>
+    const ip = await api("/api/admin/interp").catch(() => ({ entries: 0 }));
+    $("#admin").innerHTML = `<section class="card form"><h3>${T("interp_h")}</h3>
+      <p class="${ip.entries ? "" : "warn"}"><b class="num">${ip.entries}</b> ${T("interp_n")}${ip.version ? ` · <span class="num">v${esc(ip.version)}</span>` : ""}</p>
+      <label for="ipf">${T("interp_up")}</label><input id="ipf" type="file" accept=".sqlite,.db,.json,.gz">
+      <button class="btn mt8" id="ipu">${T("save")}</button></section>
+      <p class="warn ${c.has_today ? "ok" : ""}">${c.has_today ? "✅ " + T("today_ok") : "⚠️ " + T("today_missing")}</p>
       <div class="card form"><label for="du">${T("daily_url")}</label><input id="du" dir="ltr" value="${esc(c.daily_url)}">
       <label for="wu">${T("weekly_url")}</label><input id="wu" dir="ltr" value="${esc(c.weekly_url)}">
       <label for="pr">${T("price")}</label><input id="pr" type="number" min="1" max="10000" value="${c.premium_stars}">
@@ -732,6 +748,17 @@
     $("#cs").onclick = async () => {
       try { await post("/api/admin/settings", { daily_url: $("#du").value, weekly_url: $("#wu").value, premium_stars: +$("#pr").value }); toast(T("saved")); }
       catch (e) { toast(T("err") + e.message); }
+    };
+    $("#ipu").onclick = async () => {
+      const f = $("#ipf").files[0]; if (!f) return;
+      const b = $("#ipu"); b.disabled = true; b.innerHTML = `<span class="spinner"></span>`;
+      const fd = new FormData(); fd.append("file", f, f.name);
+      const headers = {}; if (DEV) headers.Authorization = "dev " + DEV; else if (tg && tg.initData) headers.Authorization = "tma " + tg.initData;
+      try {
+        const r = await fetch("/api/admin/interp/upload", { method: "POST", body: fd, headers });
+        const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.status);
+        toast(T("interp_ok").replace("{n}", d.imported)); adContent();
+      } catch (e) { toast(T("err") + e.message); b.disabled = false; b.textContent = T("save"); }
     };
     $("#cf2").onclick = async () => { const r = await post("/api/admin/fetch"); toast(`daily: ${r.daily} · weekly: ${r.weekly}`); adContent(); };
   }

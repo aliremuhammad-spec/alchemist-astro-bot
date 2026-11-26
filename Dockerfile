@@ -1,8 +1,10 @@
 FROM python:3.13-slim
 
 # librsvg: SVG -> PNG for charts sent in chat. Noto fonts: Arabic shaping + astrology glyphs.
+# Pango/HarfBuzz: WeasyPrint for the PDF report.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       librsvg2-bin fonts-noto-core fonts-dejavu-core tzdata \
+      libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libharfbuzz-subset0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /srv

@@ -1,0 +1,155 @@
+/* The Alchemist — natal report. Indigo night, brass, verdigris. A4, RTL-first. */
+@font-face { font-family: "PlexLat"; font-weight: 400; src: url(fonts/plex-lat-400.woff); }
+@font-face { font-family: "PlexLat"; font-weight: 500; src: url(fonts/plex-lat-500.woff); }
+@font-face { font-family: "PlexLat"; font-weight: 600; src: url(fonts/plex-lat-600.woff); }
+@font-face { font-family: "PlexLat"; font-weight: 700; src: url(fonts/plex-lat-700.woff); }
+@font-face { font-family: "PlexAr"; font-weight: 400; src: url(fonts/plex-ar-400.woff); }
+@font-face { font-family: "PlexAr"; font-weight: 500; src: url(fonts/plex-ar-500.woff); }
+@font-face { font-family: "PlexAr"; font-weight: 600; src: url(fonts/plex-ar-600.woff); }
+@font-face { font-family: "PlexAr"; font-weight: 700; src: url(fonts/plex-ar-700.woff); }
+@font-face { font-family: "KufiLat"; font-weight: 500; src: url(fonts/kufi-lat-500.woff); }
+@font-face { font-family: "KufiLat"; font-weight: 700; src: url(fonts/kufi-lat-700.woff); }
+@font-face { font-family: "KufiAr"; font-weight: 500; src: url(fonts/kufi-ar-500.woff); }
+@font-face { font-family: "KufiAr"; font-weight: 700; src: url(fonts/kufi-ar-700.woff); }
+
+:root {
+  --night: #1f1c3f; --night-2: #2b2756; --brass: #b08a4a; --brass-lt: #c9a464;
+  --verd: #2f7468; --verd-lt: #e3efec; --ink: #25233b; --mute: #6c6a80; --paper: #fdfdfb;
+  --mist: #f1f0f6; --rust: #a5523a; --rust-lt: #f6e9e4; --gold-lt: #f5eedf;
+}
+
+@page {
+  size: A4; margin: 22mm 19mm 20mm 19mm; background: var(--paper);
+  @top-center { content: element(hdr); width: 100%; }
+  @bottom-center { content: counter(page); font: 500 8.5pt "PlexLat", "PlexAr"; color: var(--brass); }
+}
+@page cover { margin: 0; background: var(--night); @top-center { content: none; } @bottom-center { content: none; } }
+@page opener { margin: 0; background: var(--night); @top-center { content: none; } @bottom-center { content: none; } }
+
+html { font-family: "PlexLat", "PlexAr", "DejaVu Sans", sans-serif; font-size: 10.4pt; color: var(--ink); line-height: 1.75; }
+body { margin: 0; }
+.ltr { white-space: nowrap; }
+h1, h2, h3, h4 { font-family: "PlexLat", "PlexAr", sans-serif; font-weight: 700; line-height: 1.35; margin: 0; }
+p { margin: 0 0 0.55em; }
+
+.running { position: running(hdr); display: flex; justify-content: space-between; font: 500 8pt "KufiLat", "KufiAr";
+  color: var(--mute); border-bottom: 0.6pt solid var(--brass); padding-bottom: 2mm; }
+.pageno-label { display: none; }
+.stamp { font-size: 7.5pt; color: var(--mute); text-align: center; margin-top: 6mm; }
+
+/* cover */
+.cover { page: cover; height: 297mm; color: #ece9f7; text-align: center; padding: 22mm 20mm 0; box-sizing: border-box;
+  page-break-after: always; }
+.cv-brand { font: 700 13pt "KufiLat", "KufiAr"; color: var(--brass-lt); letter-spacing: 0.04em; }
+.sigil { width: 92mm; height: 92mm; margin: 14mm auto 10mm; display: block; }
+.cv-kicker { font: 500 12pt "KufiLat", "KufiAr"; color: var(--brass-lt); }
+.cv-name { font-family: "KufiLat", "KufiAr"; font-size: 46pt; color: #fff; margin: 3mm 0 5mm; }
+.cv-data { display: flex; justify-content: center; gap: 9mm; font-size: 10.5pt; color: #cbc6e6; }
+.cv-warn { color: #f0c9a8; font-size: 9.5pt; margin-top: 3mm; }
+.bigthree { display: flex; justify-content: center; margin-top: 16mm; border-top: 0.6pt solid rgba(201,164,100,.55);
+  border-bottom: 0.6pt solid rgba(201,164,100,.55); padding: 6mm 0; }
+.bt { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 2mm; border-inline-start: 0.4pt solid rgba(201,164,100,.3); }
+.bt:first-child { border-inline-start: none; }
+.btg { font: 18pt "DejaVu Sans"; color: var(--brass-lt); line-height: 1.2; }
+.btl { font-size: 8pt; color: #a9a3cc; margin-top: 1.5mm; }
+.btv { font: 700 11.5pt "KufiLat", "KufiAr"; color: #fff; }
+
+/* contents */
+.contents { page-break-after: always; }
+.ch { font-size: 22pt; color: var(--night); margin-bottom: 4mm; }
+.wheel { width: 128mm; display: block; margin: 2mm auto 8mm; }
+.toc { display: flex; gap: 10mm; }
+.toc > div { flex: 1; border-top: 2pt solid var(--brass); padding-top: 3mm; }
+.toc h3 { font-size: 12pt; color: var(--verd); margin-bottom: 2mm; }
+.toc ul { margin: 0; padding-inline-start: 5mm; }
+.toc li { margin-bottom: 1mm; }
+
+/* part openers */
+.opener { page: opener; height: 297mm; box-sizing: border-box; padding-top: 100mm; color: #fff; text-align: center; page-break-after: always; }
+.op-num { font: 700 64pt "KufiLat"; color: var(--brass-lt); line-height: 1; margin-bottom: 8mm;
+  border: 0.8pt solid var(--brass-lt); border-radius: 50%; width: 40mm; height: 40mm; line-height: 40mm; margin: 0 auto 8mm; font-size: 40pt; }
+.opener h2 { font-family: "KufiLat", "KufiAr"; font-size: 32pt; }
+.opener p { color: #cbc6e6; font-size: 11pt; margin-top: 3mm; }
+.part { page-break-after: always; }
+
+/* section headings */
+.sh { font-size: 15pt; color: var(--night); margin: 7mm 0 4mm; padding-bottom: 1.6mm; border-bottom: 0.6pt solid var(--brass);
+  break-after: avoid; }
+.part > .sh:first-child { margin-top: 0; }
+.note { background: var(--gold-lt); border-inline-start: 2.5pt solid var(--brass); padding: 2.5mm 4mm; font-size: 9.5pt; }
+
+/* entries */
+.entry { margin: 0 0 5mm; break-inside: auto; }
+.eh { display: flex; align-items: center; gap: 2.6mm; break-after: avoid; }
+.glyph { font: 11pt "DejaVu Sans"; color: var(--brass); border: 0.7pt solid var(--brass); border-radius: 50%;
+  min-width: 7.2mm; height: 7.2mm; display: inline-flex; align-items: center; justify-content: center; line-height: 1; white-space: nowrap; padding: 0 0.8mm; box-sizing: border-box; }
+.eh h4 { font-size: 11.5pt; color: var(--night); flex: 1; }
+.meta { font-size: 8.6pt; color: var(--mute); margin: 0.6mm 0 1mm; padding-inline-start: 9.8mm; break-after: avoid; }
+.retro { color: var(--rust); }
+.summary { font-weight: 600; color: var(--verd); margin: 1mm 0 1.4mm; break-after: avoid; }
+.body p { text-align: justify; }
+.advice { background: var(--mist); border-inline-start: 2.5pt solid var(--verd); padding: 2mm 3.5mm; font-size: 9.4pt; margin-top: 1.5mm;
+  break-inside: avoid; }
+.advice b { color: var(--verd); font-weight: 600; margin-inline-end: 1mm; }
+.advice.pada { background: var(--gold-lt); border-color: var(--brass); margin: -2mm 0 5mm; }
+
+.pill { font: 500 7.6pt "PlexLat", "PlexAr"; border-radius: 3mm; padding: 0.3mm 2.4mm; white-space: nowrap; }
+.pill.good { background: var(--verd-lt); color: var(--verd); }
+.pill.calm { background: var(--mist); color: var(--mute); }
+.pill.mixed { background: var(--gold-lt); color: #85642c; }
+.pill.hard { background: var(--rust-lt); color: var(--rust); }
+
+.planet { border-top: 0.4pt solid #dcdae6; padding-top: 4mm; margin-top: 1mm; }
+.planet:first-of-type { border-top: none; padding-top: 0; }
+.entry.sub { margin-inline-start: 9.8mm; padding-inline-start: 3.5mm; border-inline-start: 0.6pt dashed var(--brass); }
+.entry.sub h4 { font-size: 10.5pt; color: var(--verd); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7mm; }
+.entry.compact { break-inside: avoid; font-size: 9.4pt; margin-bottom: 4mm; }
+.entry.compact h4 { font-size: 10pt; }
+.entry.compact .glyph { font-size: 8.5pt; min-width: 6.4mm; height: 6.4mm; }
+.entry.compact .meta { padding-inline-start: 0; }
+
+.facets { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; margin: -1mm 0 4mm; }
+.facet { box-sizing: border-box; background: var(--mist); padding: 2mm 3mm; font-size: 9pt; break-inside: avoid; }
+.facet b { display: block; color: var(--night); font: 700 9pt "KufiLat", "KufiAr"; }
+
+.balance { display: flex; gap: 10mm; }
+.bars { flex: 1; }
+.bar { display: flex; align-items: center; gap: 2.5mm; margin-bottom: 2mm; font-size: 9.2pt; }
+.bl { width: 18mm; }
+.bv { width: 11mm; color: var(--mute); }
+.track { flex: 1; height: 3.2mm; background: var(--mist); border-radius: 1.6mm; overflow: hidden; }
+.fill { display: block; height: 100%; border-radius: 1.6mm; background: var(--verd); }
+.fill.fire { background: #b45a3c; } .fill.earth { background: #7d7a3e; } .fill.air { background: #8f8bbf; } .fill.water { background: #2f7468; }
+.fill.cardinal { background: var(--brass); } .fill.fixed { background: var(--night-2); } .fill.mutable { background: var(--verd); }
+
+/* tables */
+.d1 { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
+.d1 img { width: 70mm; }
+table.pos { border-collapse: collapse; width: 100%; font-size: 8.8pt; }
+table.pos th { font: 700 8.4pt "KufiLat", "KufiAr"; color: var(--brass); text-align: start; border-bottom: 0.8pt solid var(--brass); padding: 1.2mm 1.5mm; }
+table.pos td { padding: 1.1mm 1.5mm; border-bottom: 0.3pt solid #e4e2ec; }
+table.pos tr.cur td { background: var(--verd-lt); font-weight: 600; }
+table.drishti { border-collapse: collapse; width: 100%; font-size: 8.6pt; }
+table.drishti td { padding: 1.4mm 1.5mm; border-bottom: 0.3pt solid #e4e2ec; vertical-align: top; }
+table.drishti td:first-child { font-family: "DejaVu Sans"; color: var(--brass); white-space: nowrap; }
+table.drishti td:nth-child(2) { font-weight: 600; width: 34%; }
+table.drishti tr { break-inside: avoid; }
+
+.varga { margin-bottom: 6mm; break-before: page; }
+.dasha { break-inside: avoid; }
+.vimg { width: 62mm; display: block; margin: 0 auto 4mm; }
+.entry.varga-intro .glyph { font: 700 8pt "PlexLat"; min-width: 9mm; border-radius: 3.6mm; }
+
+.dasha .now { display: flex; gap: 5mm; margin-bottom: 4mm; }
+.dasha .now > div { flex: 1; background: var(--night); color: #fff; padding: 3.5mm 4.5mm; border-radius: 1.5mm; }
+.dasha .now span { display: block; font-size: 8.4pt; color: var(--brass-lt); }
+.dasha .now b { display: block; font: 700 15pt "KufiLat", "KufiAr"; }
+.dasha .now .ltr { font-size: 8.4pt; color: #cbc6e6; }
+
+.closing .lead { font-size: 11.5pt; color: var(--night); }
+.closing h3 { font-size: 11pt; color: var(--verd); margin: 5mm 0 1.5mm; }
+.disc { font-size: 8.6pt; color: var(--mute); border-top: 0.4pt solid #dcdae6; padding-top: 2mm; margin-top: 5mm; }
+.follow { margin-top: 6mm; font-size: 9.5pt; }
+.follow b { color: var(--brass); margin-inline-end: 2mm; }

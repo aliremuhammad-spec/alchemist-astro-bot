@@ -7,10 +7,10 @@ from html import escape
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
-from . import content, db
+from . import content, db, interp
 from .api import current_user
 from .config import settings
 
@@ -234,3 +234,23 @@ async def fetch_now(_: dict = Depends(admin_user)):
         except Exception as e:
             out[kind] = f"error: {escape(str(e))[:200]}"
     return out
+
+
+# ───────────── interpretation database (private, uploaded once) ─────────────
+
+@router.get("/interp")
+async def interp_status(_: dict = Depends(admin_user)):
+    return interp.status()
+
+
+@router.post("/interp/upload")
+async def interp_upload(file: UploadFile = File(...), _: dict = Depends(admin_user)):
+    raw = await file.read()
+    if len(raw) > 40 * 1024 * 1024:
+        raise HTTPException(413, "file too large")
+    try:
+        payload = interp.parse_upload(raw, file.filename or "")
+    except Exception as ex:
+        raise HTTPException(400, f"cannot read file: {ex}")
+    n = await interp.import_payload(payload)
+    return {"ok": True, "imported": n, **interp.status()}
