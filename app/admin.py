@@ -194,8 +194,8 @@ async def content_status(_: dict = Depends(admin_user)):
     weeks = await db.pool().fetch("SELECT week_start, fetched_at FROM content_weekly ORDER BY week_start DESC LIMIT 3")
     today = datetime.now(timezone.utc).date()
     return {
-        "daily_url": await db.kv_get("daily_url", settings.daily_url),
-        "weekly_url": await db.kv_get("weekly_url", settings.weekly_url),
+        "daily_url": (await db.kv_get("daily_url", settings.daily_url) or settings.daily_url),
+        "weekly_url": (await db.kv_get("weekly_url", settings.weekly_url) or settings.weekly_url),
         "premium_stars": int(await db.kv_get("premium_stars", str(settings.premium_stars))),
         "days": [{"day": r["day"].isoformat(), "fetched_at": r["fetched_at"].isoformat()} for r in days],
         "weeks": [{"week_start": r["week_start"].isoformat(), "fetched_at": r["fetched_at"].isoformat()} for r in weeks],
@@ -225,7 +225,7 @@ async def fetch_now(_: dict = Depends(admin_user)):
     out = {}
     for kind, fn, key, default in (("daily", content.fetch_daily, "daily_url", settings.daily_url),
                                     ("weekly", content.fetch_weekly, "weekly_url", settings.weekly_url)):
-        url = await db.kv_get(key, default)
+        url = await db.kv_get(key, default) or default
         if not url:
             out[kind] = "no url"
             continue

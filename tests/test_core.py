@@ -137,3 +137,40 @@ def test_report_html_without_db():
     c = compute(BirthInput("T", 1999, 5, 11, 10, 45, True, 33.51, 36.29, "Asia/Damascus"))
     h = Report(c, "ar").html()
     assert "الشمس في الثور" in h and 'dir="rtl"' in h
+
+
+def test_daily_markdown_localised():
+    from pathlib import Path
+
+    from app import forecasts as F
+    from app.scheduler import digest_messages, user_messages
+    md = (Path(__file__).parent / "fixtures" / "daily-forecast.md").read_text(encoding="utf-8")
+    days = F.parse_daily_md(md)
+    (day, data), = days.items()
+    assert len(data["signs"]) == 12
+    damascus = F.daily_sign_html(data, "aries", "ar", "Asia/Damascus")
+    assert "17:29 بتوقيتك" in damascus and "دبي" not in damascus      # Dubai 18:29 -> Damascus (UTC+3)
+    assert "نصيحة اليوم: نصيحة" not in damascus                        # duplicated label removed
+    assert all(len(x) <= 4096 for x in user_messages("ar", 0, day, data, "Asia/Damascus"))
+    assert all(len(x) <= 4096 for x in digest_messages("ar", day, data, "Europe/Berlin"))
+
+
+def test_weekly_markdown_localised():
+    from pathlib import Path
+
+    from app import forecasts as F
+    md = (Path(__file__).parent / "fixtures" / "weekly-elections.md").read_text(encoding="utf-8")
+    w = F.parse_weekly_md(md)
+    assert w["week_start"] == "2026-11-27" and w["events"]
+    for tz in ("Asia/Damascus", "America/New_York", "Asia/Tokyo"):
+        v = str(F.weekly_view(w, tz))
+        assert "دبي" not in v and "UTC" not in v and "`" not in v
+    top = next(s for s in F.weekly_view(w, "Asia/Damascus")["sections"] if s["title"].startswith("أهم"))
+    assert "14:21 (السبت 28/11)" in top["html"]                        # 11:21Z -> Damascus 14:21
+
+
+def test_github_urls():
+    from app import forecasts as F
+    u = "https://github.com/the-alchemist-astro/astro-forecasts/blob/main/daily-forecast.md"
+    assert F.gh_raw(u) == "https://raw.githubusercontent.com/the-alchemist-astro/astro-forecasts/main/daily-forecast.md"
+    assert F.gh_api(u) == "https://api.github.com/repos/the-alchemist-astro/astro-forecasts/contents/daily-forecast.md?ref=main"

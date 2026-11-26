@@ -11,7 +11,7 @@ from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter, Teleg
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from . import content, db
+from . import content, db, forecasts
 from .astro.names import SIGN_GLYPH, SIGN_KEYS, sign_name
 from .bot.handlers import app_button
 from .bot.texts import add_channel_link, t
@@ -32,17 +32,38 @@ def daily_keyboard(lang: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text=t(lang, "add_channel"), url=add_channel_link())]])
 
 
-def user_message(lang: str, sign: int, day, entry: dict) -> str:
-    text = entry.get(lang) or entry.get("ar") or ""
-    return (t(lang, "daily_title", sign=sign_name(sign, lang), glyph=SIGN_GLYPH[sign], date=day.isoformat())
-            + f"\n\n{text}\n\n<i>{t(lang, 'daily_footer')}</i>")
+def split_text(text: str, limit: int = 4000) -> list[str]:
+    """Split on paragraph boundaries so each piece fits a Telegram message."""
+    out, cur = [], ""
+    for para in text.split("\n\n"):
+        while len(para) > limit:
+            out.append(para[:limit])
+            para = para[limit:]
+        if cur and len(cur) + len(para) + 2 > limit:
+            out.append(cur)
+            cur = ""
+        cur = f"{cur}\n\n{para}" if cur else para
+    if cur:
+        out.append(cur)
+    return out
 
 
-def digest_messages(lang: str, day, data: dict, limit: int = 3900) -> list[str]:
+def user_messages(lang: str, sign: int, day, data: dict, tz: str) -> list[str]:
+    body = forecasts.daily_sign_html(data, SIGN_KEYS[sign], lang, tz)
+    text = (t(lang, "daily_title", sign=sign_name(sign, lang), glyph=SIGN_GLYPH[sign], date=day.isoformat())
+            + f"\n\n{body}\n\n<i>{t(lang, 'daily_footer')}</i>")
+    return split_text(text)
+
+
+def digest_messages(lang: str, day, data: dict, tz: str = "Asia/Damascus", limit: int = 3900) -> list[str]:
     parts = [t(lang, "digest_title", date=day.isoformat())]
+    ov = forecasts.daily_overview_html(data, lang, tz)
+    if ov:
+        parts.append(ov)
     for i, key in enumerate(SIGN_KEYS):
-        e = data["signs"].get(key, {})
-        parts.append(f"{SIGN_GLYPH[i]} <b>{sign_name(i, lang)}</b>\n{e.get(lang) or e.get('ar', '')}")
+        parts.append(f"{SIGN_GLYPH[i]} <b>{sign_name(i, lang)}</b>\n{forecasts.daily_sign_short(data, key, lang, tz)}")
+    if data.get("format") == "md":
+        parts.append(t(lang, "digest_more", link=f"https://t.me/{settings.bot_username}?start=daily"))
     parts.append(t(lang, "digest_footer", link=f"https://t.me/{settings.bot_username}?start=channel"))
     msgs, cur = [], ""
     for p in parts:
@@ -101,8 +122,12 @@ async def dispatch_users(bot: Bot) -> None:
         if not data:
             await _alert_missing(bot, day)
             continue
-        entry = data["signs"].get(SIGN_KEYS[r["sign"]], {})
-        ok = await _send(bot, r["user_id"], user_message(r["lang"], r["sign"], day, entry), daily_keyboard(r["lang"]))
+        msgs = user_messages(r["lang"], r["sign"], day, data, r["tz"])
+        ok = True
+        for i, m in enumerate(msgs):
+            ok = await _send(bot, r["user_id"], m, daily_keyboard(r["lang"]) if i == len(msgs) - 1 else None)
+            if not ok:
+                break
         if ok:
             await db.pool().execute("UPDATE daily_prefs SET last_sent=$2 WHERE user_id=$1", r["user_id"], day)
         elif ok is False:
@@ -122,7 +147,7 @@ async def dispatch_chats(bot: Bot) -> None:
             await _alert_missing(bot, day)
             continue
         okall = True
-        for msg in digest_messages(r["lang"], day, data):
+        for msg in digest_messages(r["lang"], day, data, r["tz"]):
             ok = await _send(bot, r["chat_id"], msg)
             if ok is False:
                 await db.pool().execute("UPDATE broadcast_chats SET active=FALSE WHERE chat_id=$1", r["chat_id"])
@@ -144,12 +169,12 @@ async def tick(bot: Bot) -> None:
 
 
 async def pull_content() -> None:
-    url = await db.kv_get("daily_url", settings.daily_url)
+    url = (await db.kv_get("daily_url", settings.daily_url) or settings.daily_url)
     try:
         await content.fetch_daily(url)
     except Exception as e:
         log.warning("daily fetch failed: %s", e)
-    wurl = await db.kv_get("weekly_url", settings.weekly_url)
+    wurl = (await db.kv_get("weekly_url", settings.weekly_url) or settings.weekly_url)
     try:
         await content.fetch_weekly(wurl)
     except Exception as e:

@@ -273,3 +273,21 @@ details[open] summary::after { content: "−"; }
 }
 #toast.show { opacity: 1; transform: none; }
 .spinner { width: 18px; height: 18px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: turn .8s linear infinite; display: inline-block; }
+
+/* today's reading + weekly picks */
+.reading { font-size: 14px; line-height: 1.9; }
+.reading b { color: var(--brass); font-weight: 600; }
+.week-link { display: flex; align-items: center; gap: 12px; width: 100%; text-align: start; cursor: pointer; color: inherit; font: inherit; }
+.week-link > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.week-link .wl-ic { font-size: 24px; }
+.link.back { background: none; border: 0; color: var(--brass); padding: 0; margin-bottom: 8px; cursor: pointer; font: inherit; }
+.protected { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.protected ul { margin: 6px 0 4px; padding-inline-start: 18px; }
+.protected li { margin-bottom: 6px; line-height: 1.8; }
+.protected p { line-height: 1.85; margin: 6px 0; }
+.protected b.t { color: var(--brass); font-weight: 600; white-space: nowrap; }
+.protected .note { color: var(--muted, #9aa); font-size: 13px; }
+.wk-h { margin: 18px 0 8px; }
+.wk-day summary { cursor: pointer; font-weight: 600; padding: 2px 0; }
+.wk-day[open] summary { margin-bottom: 6px; color: var(--brass); }
+.locked p { line-height: 1.8; }

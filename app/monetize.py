@@ -224,3 +224,21 @@ async def profile_report(pid: int, request: Request, body: dict | None = None, u
     await bot.send_document(uid, BufferedInputFile(pdf, f"Alchemist_report_{safe}.pdf"), caption=caption)
     await db.event(uid, "report_sent")
     return {"ok": True, "pages_bytes": len(pdf)}
+
+
+# ───────────── weekly electional picks (premium) ─────────────
+
+@router.get("/weekly")
+async def weekly(tz: str = "Asia/Damascus", lang: str | None = None, user: dict = Depends(current_user)):
+    from zoneinfo import available_timezones
+
+    from . import content, forecasts
+    data = await content.weekly_current()
+    if not data:
+        return {"available": False}
+    head = {"available": True, "week_start": data["week_start"], "week_end": data.get("week_end")}
+    if user["id"] not in settings.admin_ids and not await db.is_premium(user["id"]):
+        return {**head, "locked": True}
+    tz = tz if tz in available_timezones() else "Asia/Damascus"
+    await db.event(user["id"], "weekly_view")
+    return {**head, "locked": False, **forecasts.weekly_view(data, tz, _lang(lang, user))}

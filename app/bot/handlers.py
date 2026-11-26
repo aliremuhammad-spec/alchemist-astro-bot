@@ -64,6 +64,10 @@ async def start(m: Message, command: CommandObject):
     if command.args == "channel":
         await m.answer(t(lang, "channel_info"), reply_markup=channel_keyboard(lang))
         return
+    if command.args in ("daily", "weekly"):
+        await m.answer(t(lang, f"start_{command.args}"),
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, f"#{command.args}")]]))
+        return
     await m.answer(t(lang, "welcome", name=escape(u.first_name or "")), reply_markup=main_keyboard(lang),
                    disable_web_page_preview=True)
 
@@ -236,13 +240,19 @@ async def cmd_setdaily(m: Message, command: CommandObject):
 
 @router.message(Command("fetch"), F.chat.type == ChatType.PRIVATE)
 async def cmd_fetch(m: Message):
+    """Pull both forecast files now (after editing them on GitHub)."""
     if not is_admin(m.from_user.id):
         return
-    url = await db.kv_get("daily_url", settings.daily_url)
-    try:
-        await m.answer(f"✅ سحبت {await content.fetch_daily(url)} يوم من {url or '(لا يوجد رابط)'}")
-    except Exception as e:
-        await m.answer(f"❌ {e}")
+    lines = []
+    for kind, fn, key, default, label in (
+            ("daily", content.fetch_daily, "daily_url", settings.daily_url, "التوقعات اليومية"),
+            ("weekly", content.fetch_weekly, "weekly_url", settings.weekly_url, "الاختيارات الأسبوعية")):
+        url = await db.kv_get(key, default) or default
+        try:
+            lines.append(f"✅ {label}: {await fn(url)}")
+        except Exception as e:
+            lines.append(f"❌ {label}: {escape(str(e))[:200]}")
+    await m.answer("\n".join(lines))
 
 
 @router.message(Command("grant"), F.chat.type == ChatType.PRIVATE)

@@ -15,7 +15,7 @@ from datetime import date
 
 import httpx
 
-from . import db
+from . import db, forecasts
 from .astro.names import SIGN_KEYS, SIGNS
 
 log = logging.getLogger(__name__)
@@ -73,14 +73,31 @@ def parse_daily(payload) -> dict[date, dict]:
     return days
 
 
+async def fetch_text(url: str) -> str:
+    """GitHub files: try the contents API first (no CDN cache, edits show up at once), then raw."""
+    api = forecasts.gh_api(url)
+    async with httpx.AsyncClient(timeout=20, follow_redirects=True,
+                                 headers={"User-Agent": "alchemist-astro-bot", "Cache-Control": "no-cache"}) as c:
+        if api:
+            try:
+                r = await c.get(api, headers={"Accept": "application/vnd.github.raw"})
+                if r.status_code == 200:
+                    return r.text
+                log.info("github api %s -> %s, falling back to raw", api, r.status_code)
+            except httpx.HTTPError as e:
+                log.info("github api failed: %s", e)
+        r = await c.get(forecasts.gh_raw(url))
+        r.raise_for_status()
+        return r.text
+
+
 async def fetch_daily(url: str) -> int:
     if not url:
         return 0
-    async with httpx.AsyncClient(timeout=20, follow_redirects=True) as c:
-        r = await c.get(url, headers={"Cache-Control": "no-cache"})
-        r.raise_for_status()
-        payload = json.loads(r.text)
-    days = parse_daily(payload)
+    text = await fetch_text(url)
+    days = forecasts.parse_daily_md(text) if forecasts.is_markdown(text) else parse_daily(json.loads(text))
+    if not days:
+        raise ValueError("daily file has no complete day (12 signs)")
     for d, data in days.items():
         await db.pool().execute(
             """INSERT INTO content_daily(day,data) VALUES($1,$2::jsonb)
@@ -93,18 +110,30 @@ async def fetch_daily(url: str) -> int:
 async def fetch_weekly(url: str) -> int:
     if not url:
         return 0
-    async with httpx.AsyncClient(timeout=20, follow_redirects=True) as c:
-        r = await c.get(url)
-        r.raise_for_status()
-        payload = r.json()
-    ws = payload.get("week_start") if isinstance(payload, dict) else None
-    if not ws or not isinstance(payload.get("items"), list):
-        raise ValueError("weekly file needs week_start + items[]")
+    text = await fetch_text(url)
+    if forecasts.is_markdown(text):
+        payload = forecasts.parse_weekly_md(text)
+        n = sum(len(s.get("days", [])) for s in payload["sections"]) or len(payload["sections"])
+    else:
+        payload = json.loads(text)
+        ws = payload.get("week_start") if isinstance(payload, dict) else None
+        if not ws or not isinstance(payload.get("items"), list):
+            raise ValueError("weekly file needs week_start + items[]")
+        n = len(payload["items"])
     await db.pool().execute(
         """INSERT INTO content_weekly(week_start,data) VALUES($1,$2::jsonb)
            ON CONFLICT(week_start) DO UPDATE SET data=EXCLUDED.data, fetched_at=now()""",
-        date.fromisoformat(ws[:10]), json.dumps(payload, ensure_ascii=False))
-    return len(payload["items"])
+        date.fromisoformat(payload["week_start"][:10]), json.dumps(payload, ensure_ascii=False))
+    return n
+
+
+async def weekly_current() -> dict | None:
+    rows = await db.pool().fetch("SELECT data FROM content_weekly ORDER BY week_start DESC LIMIT 2")
+    for r in rows:
+        d = json.loads(r["data"]) if isinstance(r["data"], str) else r["data"]
+        if d.get("format") == "md" and forecasts.weekly_is_current(d):
+            return d
+    return None
 
 
 async def daily_for(d: date) -> dict | None:

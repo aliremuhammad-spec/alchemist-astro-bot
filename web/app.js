@@ -35,7 +35,10 @@
       levels: { Minimal: "ضعيف", Medium: "متوسط", Important: "مهم", "Very Important": "مهم جداً", Exceptional: "استثنائي", "Rare Exceptional": "نادر" },
       sky_title: "سماء اليوم", sky_moon: "القمر في", sky_retro: "متراجعة الآن", sky_none: "ولا كوكب متراجع",
       daily_title: "برجك كل يوم بوقتك", daily_sub: "رسالة يومية من البوت بالوقت اللي بتختاره.",
-      daily_on: "ابعتلي برجي كل يوم", send_time: "وقت الإرسال", tz: "المنطقة الزمنية", sign_pick: "البرج",
+      daily_on: "ابعتلي برجي كل يوم", today_h: "توقعات اليوم", today_none: "توقعات اليوم لسا ما نزلت، جرّب بعد شوي.", tz_note: "الأوقات محوّلة لتوقيت:",
+      week_title: "الاختيارات الفلكية الأسبوعية", week_sub: "أفضل الأوقات للبدايات والعقود والسفر، بتوقيتك", week_none: "ما في اختيارات منشورة لهالأسبوع لسا.",
+      week_locked: "الاختيارات الأسبوعية للمشتركين المميزين: أفضل نوافذ الأسبوع للبدايات والعقود والسفر، وأوقات يُفضّل تجنّبها، محوّلة لتوقيتك.",
+      week_tz: "الأوقات محوّلة لتوقيت: ", go_premium: "اشترك بالمميز", send_time: "وقت الإرسال", tz: "المنطقة الزمنية", sign_pick: "البرج",
       sign_auto: "تلقائي من خارطتي", save: "احفظ", saved: "انحفظت الإعدادات",
       ch_title: "الأبراج اليومية لقناتك أو مجموعتك",
       ch_sub: "ضيف البوت، وكل يوم بينشر أبراج الـ12 برج كاملة بالوقت اللي بتختاره. مجاناً بالكامل.",
@@ -54,7 +57,8 @@
         ["التوافق بلا إعلانات", "احسب توافق ما بدك مع أي خارطة محفوظة"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
         ["تقرير PDF مفصّل", "تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا، بيوصلك عالمحادثة"],
-        ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الاختيارات الأسبوعية، التوافق الفيدي (36 نقطة)"]],
+        ["الاختيارات الفلكية الأسبوعية", "أفضل أوقات الأسبوع للبدايات والعقود والسفر، محوّلة لتوقيتك"],
+        ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، التوافق الفيدي (36 نقطة)"]],
       prem_manual: "ما عندك نجوم تلغرام؟ راسلنا على إنستغرام لطرق دفع تانية.",
       err: "صار خطأ: ", open_in_tg: "افتح التطبيق من داخل تلغرام عبر البوت.",
       months: ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"],
@@ -102,7 +106,10 @@
       levels: {},
       sky_title: "Today's sky", sky_moon: "Moon in", sky_retro: "Retrograde now", sky_none: "No planet retrograde",
       daily_title: "Your horoscope, daily, on your time", daily_sub: "A daily message from the bot at the time you choose.",
-      daily_on: "Send me my horoscope every day", send_time: "Send at", tz: "Time zone", sign_pick: "Sign",
+      daily_on: "Send me my horoscope every day", today_h: "Today's reading", today_none: "Today's reading isn't out yet; try again shortly.", tz_note: "Times shown in:",
+      week_title: "Weekly electional picks", week_sub: "Best windows for beginnings, contracts and travel, in your time", week_none: "No picks published for this week yet.",
+      week_locked: "Weekly picks are for Premium members: the week's best windows for beginnings, contracts and travel, plus times to avoid, in your time zone.",
+      week_tz: "Times shown in: ", go_premium: "Go Premium", send_time: "Send at", tz: "Time zone", sign_pick: "Sign",
       sign_auto: "From my chart", save: "Save", saved: "Settings saved",
       ch_title: "Daily horoscopes for your channel or group",
       ch_sub: "Add the bot and it posts all 12 signs every day at the time you choose. Completely free.",
@@ -121,7 +128,8 @@
         ["Ad-free compatibility", "Compare any saved charts, as often as you like"],
         ["Unlimited profiles", "Save family and friends without a limit"],
         ["Detailed PDF report", "Full Western and Vedic interpretation with yogas and dashas, sent to your chat"],
-        ["Coming for members", "Personal daily transits, transit alerts, weekly electional dates, Vedic 36-point matching"]],
+        ["Weekly electional picks", "The week's best windows for beginnings, contracts and travel, in your time zone"],
+        ["Coming for members", "Personal daily transits, transit alerts, Vedic 36-point matching"]],
       prem_manual: "No Telegram Stars? Message us on Instagram for other payment options.",
       err: "Error: ", open_in_tg: "Open the app from inside Telegram via the bot.",
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -546,7 +554,20 @@
       <div><label for="d-sign">${T("sign_pick")}</label><select id="d-sign">${hasProfile ? `<option value="">${T("sign_auto")}</option>` : ""}
         ${T("signs").map((s, i) => `<option value="${i}" ${d.sign === i ? "selected" : ""}>${GLYPHS[i]} ${s}</option>`).join("")}</select></div></div>
       <label for="d-tz">${T("tz")}</label><select id="d-tz">${tzs.map((z) => `<option ${z === tzOk ? "selected" : ""}>${z}</option>`).join("")}</select>
-      <button class="btn block" id="d-save">${T("save")}</button></div>`;
+      <button class="btn block" id="d-save">${T("save")}</button></div>
+      <button class="card week-link" id="go-week"><span class="wl-ic" aria-hidden="true">🗓</span><span><b>${T("week_title")}</b><small class="muted">${T("week_sub")}</small></span><span aria-hidden="true">‹</span></button>
+      <section class="card" id="today"><div class="row between"><h3>${T("today_h")}</h3>
+        <select id="t-sign" aria-label="${T("sign_pick")}">${T("signs").map((s, i) => `<option value="${i}" ${(d.sign ?? 0) === i ? "selected" : ""}>${GLYPHS[i]} ${s}</option>`).join("")}</select></div>
+        <div id="t-body" class="reading">${skeleton(2)}</div></section>`;
+    const loadToday = async () => {
+      try {
+        const r = await api(`/api/daily/today?tz=${encodeURIComponent($("#d-tz").value)}&sign=${$("#t-sign").value}&lang=${S.lang}`);
+        $("#t-body").innerHTML = r.available ? `${r.overview ? `<p class="muted small">${r.overview}</p>` : ""}<div>${r.html}</div><p class="muted small">${T("tz_note")} <span dir="ltr">${esc(r.tz)}</span></p>`
+          : `<p class="muted">${T("today_none")}</p>`;
+      } catch (e) { $("#t-body").innerHTML = `<p class="muted">${T("err")}${esc(e.message)}</p>`; }
+    };
+    $("#t-sign").onchange = loadToday; $("#d-tz").onchange = loadToday; loadToday();
+    $("#go-week").onclick = () => setTab("weekly");
     $("#d-save").onclick = async () => {
       const sign = $("#d-sign").value;
       try {
@@ -555,6 +576,33 @@
         toast(T("saved")); haptic("medium");
       } catch (e) { toast(T("err") + e.message); }
     };
+  };
+
+  /* ───────────── weekly electional picks (premium, protected view) ───────────── */
+  VIEWS.weekly = async function renderWeekly() {
+    const tz = (S.session.daily && S.session.daily.tz) || Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Damascus";
+    $("#view").innerHTML = skeleton(4);
+    let w;
+    try { w = await api(`/api/weekly?tz=${encodeURIComponent(tz)}&lang=${S.lang}`); } catch (e) { $("#view").innerHTML = `<p class="muted">${T("err")}${esc(e.message)}</p>`; return; }
+    if (S.tab !== "weekly") return;
+    const head = `<button class="link back" id="wk-back">› ${T("daily_title")}</button><h2>${T("week_title")}</h2>`;
+    if (!w.available) { $("#view").innerHTML = `${head}<p class="muted">${T("week_none")}</p>`; bindBack(); return; }
+    const range = `<p class="muted num">${w.week_start}${w.week_end ? " → " + w.week_end : ""}</p>`;
+    if (w.locked) {
+      $("#view").innerHTML = `${head}${range}<section class="card locked"><p>🔒 ${T("week_locked")}</p><button class="btn block" id="wk-prem">${T("go_premium")}</button></section>`;
+      $("#wk-prem").onclick = () => setTab("premium"); bindBack(); return;
+    }
+    const sec = (s) => s.days
+      ? `<h3 class="wk-h">${esc(s.title)}</h3>${s.days.map((d, i) => `<details class="card wk-day" ${i === 0 ? "open" : ""}><summary>${esc(d.title)}</summary>${d.html}</details>`).join("")}`
+      : `<section class="card"><h3>${esc(s.title)}</h3>${s.html}</section>`;
+    const order = (s) => (/أهم|Top/.test(s.title) ? 0 : /تجنب|Avoid/.test(s.title) ? 1 : /أبرز|Highlights/.test(s.title) ? 2 : /تفصيل|Day/.test(s.title) ? 3 : 4);
+    $("#view").innerHTML = `${head}${range}<p class="muted small">${T("week_tz")} <span dir="ltr">${esc(w.tz)}</span></p>
+      <div class="protected" id="wk">${[...w.sections].sort((a, b) => order(a) - order(b)).map(sec).join("")}
+      ${w.intro ? `<p class="muted small">${w.intro}</p>` : ""}</div>`;
+    const box = $("#wk");
+    ["copy", "cut", "contextmenu", "selectstart", "dragstart"].forEach((ev) => box.addEventListener(ev, (e) => e.preventDefault()));
+    bindBack();
+    function bindBack() { $("#wk-back").onclick = () => setTab("daily"); }
   };
 
   /* ───────────── channels tab ───────────── */
@@ -620,7 +668,7 @@
     $("#view").innerHTML = skeleton(4);
     const info = await api("/api/premium");
     if (S.tab !== "premium") return;
-    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 4 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
+    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 5 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
     $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p></section>
       <ul class="perks">${perks}</ul>
       ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`

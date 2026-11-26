@@ -15,8 +15,8 @@ class Settings:
     public_url: str = (os.getenv("PUBLIC_URL") or os.getenv("RENDER_EXTERNAL_URL") or "").rstrip("/")
     webhook_secret: str = os.getenv("WEBHOOK_SECRET", "")
     admin_ids: set[int] = field(default_factory=lambda: _ids(os.getenv("ADMIN_IDS", "")))
-    daily_url: str = os.getenv("DAILY_URL", "")
-    weekly_url: str = os.getenv("WEEKLY_URL", "")
+    daily_url: str = os.getenv("DAILY_URL", "https://github.com/the-alchemist-astro/astro-forecasts/blob/main/daily-forecast.md")
+    weekly_url: str = os.getenv("WEEKLY_URL", "https://github.com/the-alchemist-astro/astro-forecasts/blob/main/weekly-elections.md")
     default_tz: str = os.getenv("DEFAULT_TZ", "Asia/Damascus")
     source_url: str = os.getenv("SOURCE_URL", "https://github.com/aliremuhammad-spec/alchemist-astro-bot")
     instagram_main: str = os.getenv("INSTAGRAM_MAIN") or "the.alchemist.astro"

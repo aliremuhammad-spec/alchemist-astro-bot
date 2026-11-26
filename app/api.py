@@ -310,3 +310,27 @@ def tz_ok(tz: str) -> bool:
         return True
     except Exception:
         return False
+
+
+@router.get("/daily/today")
+async def daily_today(tz: str = "Asia/Damascus", sign: int | None = None, lang: str | None = None,
+                      user: dict = Depends(current_user)):
+    """Today's reading for one sign, with every clock time converted to the reader's zone."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from . import content, forecasts
+    from .astro.names import SIGN_KEYS
+    tz = tz if tz in _TZS else "Asia/Damascus"
+    lg = _lang(lang, user)
+    if sign is None or not 0 <= sign <= 11:
+        pref = await db.pool().fetchval("SELECT sign FROM daily_prefs WHERE user_id=$1", user["id"])
+        sign = pref if pref is not None else 0
+    day = datetime.now(ZoneInfo(tz)).date()
+    data = await content.daily_for(day)
+    if not data:
+        return {"day": day.isoformat(), "available": False, "sign": sign}
+    body = forecasts.daily_sign_html(data, SIGN_KEYS[sign], lg, tz)
+    return {"day": day.isoformat(), "available": True, "sign": sign, "tz": tz,
+            "html": body.replace("\n", "<br>"),
+            "overview": forecasts.daily_overview_html(data, lg, tz).replace("\n", "<br>")}
