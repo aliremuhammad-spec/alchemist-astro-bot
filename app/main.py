@@ -39,6 +39,45 @@ COMMANDS = {
 }
 
 
+DESCRIPTIONS = {
+    "": {   # default (Arabic)
+        "long": ("🔭 الخيميائي: فلك غربي وفيدي بحسابات دقيقة\n\n"
+                 "• خارطتك الفلكية بالنظامين، بالشكل الهندي الشمالي أو الجنوبي\n"
+                 "• برجك اليومي بيوصلك بالساعة اللي بتختارها، والأوقات بتوقيتك\n"
+                 "• توافق مفصّل بين شخصين، وتقارير فلكية PDF\n"
+                 "• اختيارات فلكية أسبوعية لأنسب الأوقات\n"
+                 "• أبراج يومية مجانية لقناتك أو مجموعتك\n\n"
+                 "اضغط «ابدأ» واطلع خارطتك بدقيقة 👇"),
+        "short": "خارطتك الفلكية الغربية والفيدية، برجك اليومي بتوقيتك، وتوافق مفصّل بين شخصين 🔭",
+    },
+    "en": {
+        "long": ("🔭 The Alchemist: Western and Vedic astrology, precisely calculated\n\n"
+                 "• Your birth chart in both systems, North or South Indian style\n"
+                 "• Your daily horoscope at the hour you pick, in your local time\n"
+                 "• Detailed compatibility between two people, and PDF reports\n"
+                 "• Weekly electional picks for the best times\n"
+                 "• Free daily horoscopes for your channel or group\n\n"
+                 "Tap Start and cast your chart in a minute 👇"),
+        "short": "Your Western & Vedic birth chart, a daily horoscope in your time, and detailed compatibility 🔭",
+    },
+}
+AVATAR_VERSION = "2026-11-27"
+
+
+async def set_avatar(bot: Bot) -> None:
+    """Upload the bot's profile photo once per AVATAR_VERSION (Telegram keeps every upload in the photo list)."""
+    from aiogram.types import BufferedInputFile, InputProfilePhotoStatic
+    try:
+        if await db.kv_get("avatar_version", "") == AVATAR_VERSION:
+            return
+        raw = (WEB_DIR / "brand" / "avatar.jpg").read_bytes()
+        await bot.set_my_profile_photo(InputProfilePhotoStatic(photo=BufferedInputFile(raw, "avatar.jpg")))
+        await db.kv_set("avatar_version", AVATAR_VERSION)
+        log.info("bot avatar set (%s)", AVATAR_VERSION)
+    except Exception as e:
+        log.warning("avatar not set: %s", e)
+
+
 async def configure_bot(bot: Bot) -> None:
     if not settings.public_url:
         log.warning("PUBLIC_URL/RENDER_EXTERNAL_URL not set: webhook not registered")
@@ -52,11 +91,13 @@ async def configure_bot(bot: Bot) -> None:
     await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["ar"]])
     await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["en"]],
                               language_code="en")
-    await bot.set_my_description(
-        "✨ بوت الخيميائي للفلك (نسخة تجريبية Beta)\n"
-        "خارطتك الفلكية بالنظامين الغربي والفيدي، أبراج يومية بالوقت اللي بيناسبك، "
-        "وأبراج يومية مجانية لقناتك أو مجموعتك.")
-    await bot.set_my_short_description("خارطتك الفلكية الغربية والفيدية + أبراج يومية · Beta من تطوير الخيميائي")
+    for code, d in DESCRIPTIONS.items():
+        try:
+            await bot.set_my_description(d["long"], language_code=code)
+            await bot.set_my_short_description(d["short"], language_code=code)
+        except Exception as e:
+            log.warning("description %s: %s", code or "default", e)
+    await set_avatar(bot)
     log.info("webhook + menu registered at %s", settings.public_url)
 
 
