@@ -101,6 +101,17 @@ async def set_lang(body: dict, user: dict = Depends(current_user)):
     return {"ok": True}
 
 
+@router.post("/me/delete")
+async def delete_me(body: dict, user: dict = Depends(current_user)):
+    """Erase the caller's data. The app asks for a typed confirmation first."""
+    if body.get("confirm") != "DELETE":
+        raise HTTPException(400, "confirm")
+    if user["id"] in settings.admin_ids:
+        raise HTTPException(400, "admins cannot erase themselves here")
+    from . import privacy
+    return {"ok": True, **await privacy.erase(user["id"])}
+
+
 # ───────────── geo ─────────────
 
 @router.get("/geo/continents")
@@ -404,7 +415,7 @@ async def daily_today(tz: str = "Asia/Damascus", sign: int | None = None, lang: 
         pref = await db.pool().fetchval("SELECT sign FROM daily_prefs WHERE user_id=$1", user["id"])
         sign = pref if pref is not None else 0
     day = datetime.now(ZoneInfo(tz)).date()
-    data = await content.daily_for(day)
+    data = await content.daily_for(day, lg)
     if not data:
         return {"day": day.isoformat(), "available": False, "sign": sign}
     body = forecasts.daily_sign_html(data, SIGN_KEYS[sign], lg, tz)

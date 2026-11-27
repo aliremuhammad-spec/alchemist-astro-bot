@@ -91,7 +91,17 @@
         ["تقرير فلكي PDF مفصّل", "10 تقارير بالشهر (3 بالشهر المجاني للمؤسسين): تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا"],
         ["الاختيارات الفلكية الأسبوعية", "أفضل أوقات الأسبوع للبدايات والعقود والسفر، محوّلة لتوقيتك"],
         ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الحسابات الفيدية المتقدمة (شادبالا وأشتاكافارغا)"]],
-      prem_manual: "ما عندك نجوم تلغرام؟ تواصل مع الإدارة لطرق دفع تانية.",
+      prem_manual: "ما عندك نجوم تلغرام أو ما فيك تشتريها؟",
+      pm_btn: "💳 طرق دفع تانية", pm_title: "طرق دفع تانية",
+      pm_sub: "تلغرام بيسمح ندفع للخدمات الرقمية بنجوم تلغرام ⭐ بس. هالأزرار بتاخدك لـ<b>وسطاء بيبيعوا النجوم</b>: بتشتري النجوم منهم بالطريقة اللي بتناسبك، بتوصل لحسابك، وبعدها بترجع تدفع فيها هون عادي.",
+      pm_sy: "🇸🇾 داخل سوريا", pm_intl: "🌍 بطاقات فيزا وماستر وغيرها", pm_official: "رسمي",
+      pm_warn: "⚠️ الوسطاء جهات مستقلة ومنن تابعين إلنا، فما منضمنن. ابدأ بكمية صغيرة، ولا تعطي حدا كلمة سرك أو كود الدخول؛ الوسيط بيحتاج اسم المستخدم (@username) بس.",
+      pm_contact: "💬 ما زبط؟ تواصل مع الإدارة",
+      priv_h: "الخصوصية وبياناتك", priv_link: "سياسة الخصوصية", priv_sub: "شو منجمع وليش وكيف تمسحه",
+      del_btn: "🗑 مسح بياناتي", del_h: "مسح كل بياناتك",
+      del_body: "رح ينمسح فوراً ونهائياً: حسابك، كل خرائطك، إعدادات الأبراج اليومية، الدعوات، رسائلك وسجل استخدامك. بيضل بس سجل الدفعات (للاسترداد) وبصمة مشفّرة بتمنع تكرار الهدايا.",
+      del_prem: "اشتراكك المميز الحالي رح ينتهي وما بيرجع.", del_type: "للتأكيد اكتب: مسح", del_word: "مسح",
+      del_go: "امسح نهائياً", del_done: "انمسحت بياناتك ✨",
       err: "صار خطأ: ", open_in_tg: "افتح التطبيق من داخل تلغرام عبر البوت.",
       months: ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"],
       signs: ["الحمل", "الثور", "الجوزاء", "السرطان", "الأسد", "العذراء", "الميزان", "العقرب", "القوس", "الجدي", "الدلو", "الحوت"],
@@ -106,7 +116,9 @@
       note: "ملاحظة (مثلاً: دفع بطريقة أخرى)", granted: "تمت الترقية", revoked: "تم إلغاء المميز", message_user: "راسله",
       msg_to: "إلى", msg_one: "مستخدم واحد (رقم)", msg_text: "نص الرسالة (يدعم <b> و <i> و <a>)", msg_send: "ارسل", msg_queued: "انضافت للإرسال: {n}",
       segs: { all: "الكل", ar: "العربية", en: "الإنجليزية", daily: "مشتركين بالأبراج", premium: "المميزين", free: "المجانيين", inactive7: "غير نشطين 7 أيام" },
-      daily_url: "رابط ملف الأبراج اليومية (raw)", weekly_url: "رابط ملف الاختيارات الأسبوعية (raw)", price: "سعر الاشتراك (نجوم)",
+      daily_url: "رابط ملف الأبراج اليومية (عربي)", weekly_url: "رابط ملف الاختيارات الأسبوعية (عربي)", daily_url_en: "رابط ملف الأبراج اليومية (إنكليزي)", weekly_url_en: "رابط ملف الاختيارات الأسبوعية (إنكليزي)", price: "سعر الاشتراك (نجوم)",
+      rs_h: "وسطاء النجوم (طرق دفع تانية)", rs_sub: "قائمة JSON: region = sy أو intl، والرابط لازم يبدأ بـ https. احفظ قائمة فاضية لترجع الافتراضية.", rs_reset: "الافتراضية",
+      bk_h: "النسخة الاحتياطية", bk_sub: "كل يوم الساعة 3:07 الفجر بتوقيت دمشق بتوصلك نسخة من بيانات المستخدمين عالبوت.", bk_now: "ابعتلي نسخة هلأ", bk_ok: "انبعتت النسخة ({n} مستخدم)",
       fetch_now: "اسحب الآن", today_ok: "أبراج اليوم موجودة", today_missing: "أبراج اليوم ناقصة", fetched_days: "آخر الأيام المسحوبة",
       reply: "رد", no_items: "لا يوجد شيء بعد", confirm_send: "رح تنبعت لـ «{n}». تأكيد؟",
     },
@@ -194,7 +206,17 @@
         ["Detailed astrological report PDF", "10 a month (3 in the founders' free month): full Western and Vedic interpretation with yogas and dashas"],
         ["Weekly electional picks", "The week's best windows for beginnings, contracts and travel, in your time zone"],
         ["Coming for members", "Personal daily transits, transit alerts, advanced Vedic strength (Shadbala, Ashtakavarga)"]],
-      prem_manual: "No Telegram Stars? Contact the team for other payment options.",
+      prem_manual: "No Telegram Stars, or can't buy them?",
+      pm_btn: "💳 Other payment methods", pm_title: "Other payment methods",
+      pm_sub: "Telegram only allows digital services to be paid with Telegram Stars ⭐. These buttons take you to <b>Stars resellers</b>: buy Stars from them with a method that suits you, they land in your account, then come back and pay here as usual.",
+      pm_sy: "🇸🇾 Inside Syria", pm_intl: "🌍 Visa, Mastercard and more", pm_official: "official",
+      pm_warn: "⚠️ Resellers are independent and not affiliated with us, so we can't guarantee them. Start small and never share your password or login code; a reseller only needs your @username.",
+      pm_contact: "💬 Didn't work? Contact the team",
+      priv_h: "Privacy & your data", priv_link: "Privacy policy", priv_sub: "What we collect, why, and how to delete it",
+      del_btn: "🗑 Delete my data", del_h: "Delete all your data",
+      del_body: "This immediately and permanently deletes your account, all your charts, daily horoscope settings, invites, messages and usage history. Only payment records (for refunds) and an encrypted fingerprint that blocks repeat gifts remain.",
+      del_prem: "Your active Premium will end and is not refunded.", del_type: "To confirm, type: DELETE", del_word: "DELETE",
+      del_go: "Delete permanently", del_done: "Your data has been deleted ✨",
       err: "Error: ", open_in_tg: "Open the app from inside Telegram via the bot.",
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       signs: ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"],
@@ -209,7 +231,9 @@
       note: "Note (e.g. paid another way)", granted: "Upgraded", revoked: "Premium revoked", message_user: "Message",
       msg_to: "To", msg_one: "One user (id)", msg_text: "Message (supports <b>, <i>, <a>)", msg_send: "Send", msg_queued: "Queued: {n}",
       segs: { all: "Everyone", ar: "Arabic", en: "English", daily: "Daily subscribers", premium: "Premium", free: "Free", inactive7: "Inactive 7 days" },
-      daily_url: "Daily horoscope file URL (raw)", weekly_url: "Weekly electional file URL (raw)", price: "Subscription price (Stars)",
+      daily_url: "Daily horoscope file (Arabic)", weekly_url: "Weekly picks file (Arabic)", daily_url_en: "Daily horoscope file (English)", weekly_url_en: "Weekly picks file (English)", price: "Subscription price (Stars)",
+      rs_h: "Stars resellers (other payment methods)", rs_sub: "JSON list: region = sy or intl; links must start with https. Save an empty list to restore the defaults.", rs_reset: "Defaults",
+      bk_h: "Backup", bk_sub: "Every day at 03:07 Damascus time you get a copy of the user data in the bot chat.", bk_now: "Send me a backup now", bk_ok: "Backup sent ({n} users)",
       fetch_now: "Fetch now", today_ok: "Today's horoscopes are in", today_missing: "Today's horoscopes are missing", fetched_days: "Latest fetched days",
       reply: "Reply", no_items: "Nothing yet", confirm_send: "Send to “{n}”? Confirm?",
     },
@@ -737,6 +761,58 @@
     });
   }
 
+  function sheet(html, onClick) {
+    const box = document.createElement("div");
+    box.className = "sheet-back";
+    box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+    const close = () => { box.remove(); document.removeEventListener("keydown", esc); };
+    function esc(e) { if (e.key === "Escape") close(); }
+    box.addEventListener("click", (e) => { if (e.target === box) return close(); onClick && onClick(e, close, box); });
+    document.addEventListener("keydown", esc);
+    document.body.appendChild(box);
+    const f = box.querySelector("button, input, a"); if (f) f.focus();
+    return { box, close };
+  }
+
+  function payMethods(list) {
+    const group = (region, title) => {
+      const items = list.filter((i) => i.region === region);
+      return items.length ? `<h4>${title}</h4>` + items.map((i) => `<a class="pm-item" href="#" data-url="${esc(i.url)}">
+        <b>${esc(i.name)}${i.official ? ` <small class="pill">${T("pm_official")}</small>` : ""}</b><small class="muted">${esc(i.note)}</small></a>`).join("") : "";
+    };
+    sheet(`<h3>${T("pm_title")}</h3><p class="small">${T("pm_sub")}</p>
+      <div class="pm-list">${group("sy", T("pm_sy"))}${group("intl", T("pm_intl"))}</div>
+      <p class="small warn">${T("pm_warn")}</p>
+      <button class="btn ghost block" data-contact>${T("pm_contact")}</button>
+      <button class="btn ghost block" data-close>${T("cancel")}</button>`, (e, close) => {
+      const a = e.target.closest("[data-url]");
+      if (a) { e.preventDefault(); haptic(); openLink(a.dataset.url); return; }
+      if (e.target.closest("[data-contact]")) { haptic(); openTg(`https://t.me/${S.session.meta.bot}?start=pay`); close(); if (tg && tg.close) setTimeout(() => tg.close(), 300); return; }
+      if (e.target.closest("[data-close]")) close();
+    });
+  }
+
+  function deleteMyData() {
+    const prem = S.session.premium && !S.session.is_admin;
+    const { box } = sheet(`<h3>${T("del_h")}</h3><p class="small">${T("del_body")}</p>
+      ${prem ? `<p class="small warn">⚠️ ${T("del_prem")}</p>` : ""}
+      <label class="small" for="del-w">${T("del_type")}</label><input id="del-w" autocomplete="off" dir="auto">
+      <button class="btn danger block" data-go disabled>${T("del_go")}</button>
+      <button class="btn ghost block" data-close>${T("cancel")}</button>`, async (e, close) => {
+      if (e.target.closest("[data-close]")) return close();
+      const go = e.target.closest("[data-go]"); if (!go || go.disabled) return;
+      go.disabled = true;
+      try {
+        await post("/api/me/delete", { confirm: "DELETE" });
+        haptic("heavy"); close(); $("#view").innerHTML = `<section class="card"><h3>${T("del_done")}</h3></section>`;
+        if (tg && tg.close) setTimeout(() => tg.close(), 1800);
+      } catch (err) { toast(T("err") + err.message); go.disabled = false; }
+    });
+    const inp = box.querySelector("#del-w"), go = box.querySelector("[data-go]");
+    inp.oninput = () => { const v = inp.value.trim(); go.disabled = !(v === T("del_word") || v.toUpperCase() === "DELETE"); };
+    inp.focus();
+  }
+
   function synLocked() {
     return `<section class="card locked"><h3>✨ ${T("syn_locked_h")}</h3><p class="muted">${T("syn_locked")}</p>
       <ul class="plain checks">${T("syn_locked_list").map((x) => `<li>${x}</li>`).join("")}</ul>
@@ -899,7 +975,7 @@
     const sec = (s) => s.days
       ? `<h3 class="wk-h">${esc(s.title)}</h3>${s.days.map((d, i) => `<details class="card wk-day" ${i === 0 ? "open" : ""}><summary>${esc(d.title)}</summary>${d.html}</details>`).join("")}`
       : `<section class="card"><h3>${esc(s.title)}</h3>${s.html}</section>`;
-    const order = (s) => (/أهم|Top/.test(s.title) ? 0 : /تجنب|Avoid/.test(s.title) ? 1 : /أبرز|Highlights/.test(s.title) ? 2 : /تفصيل|Day/.test(s.title) ? 3 : 4);
+    const order = (s) => (/أهم|top pick/i.test(s.title) ? 0 : /تجنب|avoid/i.test(s.title) ? 1 : /أبرز|main events|highlights/i.test(s.title) ? 2 : /تفصيل|day by day/i.test(s.title) ? 3 : 4);
     $("#view").innerHTML = `${head}${range}<p class="muted small">${T("week_tz")} <span dir="ltr">${esc(w.tz)}</span></p>
       <div class="protected" id="wk">${[...w.sections].sort((a, b) => order(a) - order(b)).map(sec).join("")}
       ${w.intro ? `<p class="muted small">${w.intro}</p>` : ""}</div>`;
@@ -953,9 +1029,13 @@
       <button class="btn block" id="fb-send">${T("suggest_send")}</button>
       <h3>${T("source")}</h3>
       <div class="follow"><a href="#" data-link="${esc(m.source)}">${code}<span>GitHub<small>${T("source_sub")}</small></span></a></div>
+      <h3>${T("priv_h")}</h3>
+      <div class="follow"><a href="#" data-link="${location.origin}/privacy${S.lang === "en" ? "#en" : ""}"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6z"/></svg><span>${T("priv_link")}<small>${T("priv_sub")}</small></span></a></div>
+      ${S.session.is_admin ? "" : `<button class="btn ghost block danger-text" id="del-me">${T("del_btn")}</button>`}
       <h3>${T("ui_lang")}</h3>
       <div class="seg" id="lang"><button data-v="ar" aria-pressed="${S.lang === "ar"}">العربية</button><button data-v="en" aria-pressed="${S.lang === "en"}">English</button></div>`;
     $("#view").querySelectorAll("[data-link]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openLink(a.dataset.link); });
+    if ($("#del-me")) $("#del-me").onclick = () => { haptic(); deleteMyData(); };
     $("#fb-send").onclick = async () => {
       const text = $("#fb").value.trim(); if (text.length < 3) return;
       const b = $("#fb-send"); b.disabled = true;
@@ -983,9 +1063,9 @@
       <ul class="perks">${perks}</ul>
       ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`
                     : `<button class="btn block big" id="buy">⭐ ${T("prem_buy").replace("{n}", info.stars)}</button>`}
-      <div class="card manual mt16"><p class="small">${T("prem_manual")}</p><button class="btn ghost block" id="contact-admin">${T("prem_contact")}</button></div>
+      <div class="card manual mt16"><p class="small">${T("prem_manual")}</p><button class="btn ghost block" id="other-pay">${T("pm_btn")}</button></div>
       <button class="card invite-cta" data-invite>${T("prem_or_invite")}</button>`;
-    $("#contact-admin").onclick = () => { haptic(); openTg(`https://t.me/${S.session.meta.bot}?start=pay`); if (tg && tg.close) setTimeout(() => tg.close(), 300); };
+    $("#other-pay").onclick = () => { haptic(); payMethods(info.resellers || []); };
     document.querySelector("[data-invite]").onclick = () => setTab("invite");
     bindFounders();
     const buy = $("#buy");
@@ -1098,6 +1178,7 @@
   async function adContent() {
     const c = await api("/api/admin/content");
     const ip = await api("/api/admin/interp").catch(() => ({ entries: 0 }));
+    const rs = await api("/api/admin/resellers").catch(() => ({ items: [], default: [] }));
     $("#admin").innerHTML = `<section class="card form"><h3>${T("interp_h")}</h3>
       <p class="${ip.entries ? "" : "warn"}"><b class="num">${ip.entries}</b> ${T("interp_n")}${ip.version ? ` · <span class="num">v${esc(ip.version)}</span>` : ""}</p>
       <p class="${ip.compat && ip.compat.entries ? "" : "warn"}">${T("compat_db")}: <b class="num">${(ip.compat || {}).entries || 0}</b> ${T("interp_n")}${ip.compat && ip.compat.version ? ` · <span class="num">v${esc(ip.compat.version)}</span>` : ""}</p>
@@ -1106,12 +1187,18 @@
       <p class="warn ${c.has_today ? "ok" : ""}">${c.has_today ? "✅ " + T("today_ok") : "⚠️ " + T("today_missing")}</p>
       <div class="card form"><label for="du">${T("daily_url")}</label><input id="du" dir="ltr" value="${esc(c.daily_url)}">
       <label for="wu">${T("weekly_url")}</label><input id="wu" dir="ltr" value="${esc(c.weekly_url)}">
+      <label for="due">${T("daily_url_en")}</label><input id="due" dir="ltr" value="${esc(c.daily_url_en || "")}">
+      <label for="wue">${T("weekly_url_en")}</label><input id="wue" dir="ltr" value="${esc(c.weekly_url_en || "")}">
       <label for="pr">${T("price")}</label><input id="pr" type="number" min="1" max="10000" value="${c.premium_stars}">
       <label for="spr">${T("syn_price")}</label><input id="spr" type="number" min="1" max="10000" value="${c.syn_report_stars}">
       <div class="row mt8"><button class="btn" id="cs">${T("save")}</button><button class="btn ghost" id="cf2">${T("fetch_now")}</button></div></div>
+      <section class="card form"><h3>${T("rs_h")}</h3><p class="muted small">${T("rs_sub")}</p>
+      <textarea id="rsj" dir="ltr" rows="10" spellcheck="false">${esc(JSON.stringify(rs.items, null, 1))}</textarea>
+      <div class="row mt8"><button class="btn" id="rss">${T("save")}</button><button class="btn ghost" id="rsd">${T("rs_reset")}</button></div></section>
+      <section class="card"><h3>${T("bk_h")}</h3><p class="muted small">${T("bk_sub")}</p><button class="btn ghost" id="bkn">${T("bk_now")}</button></section>
       <section class="card"><h3>${T("fetched_days")}</h3>${c.days.length ? `<ul class="plain">${c.days.map((d) => `<li class="num">${d.day} <small class="muted">· ${d.fetched_at.slice(0, 16).replace("T", " ")}</small></li>`).join("")}</ul>` : `<p class="muted small">${T("no_items")}</p>`}</section>`;
     $("#cs").onclick = async () => {
-      try { await post("/api/admin/settings", { daily_url: $("#du").value, weekly_url: $("#wu").value, premium_stars: +$("#pr").value, syn_report_stars: +$("#spr").value }); toast(T("saved")); }
+      try { await post("/api/admin/settings", { daily_url: $("#du").value, weekly_url: $("#wu").value, daily_url_en: $("#due").value, weekly_url_en: $("#wue").value, premium_stars: +$("#pr").value, syn_report_stars: +$("#spr").value }); toast(T("saved")); }
       catch (e) { toast(T("err") + e.message); }
     };
     $("#ipu").onclick = async () => {
@@ -1124,6 +1211,16 @@
         const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.status);
         toast(T("interp_ok").replace("{n}", d.imported) + (d.kind === "compat" ? " · " + T("compat_db") : "")); adContent();
       } catch (e) { toast(T("err") + e.message); b.disabled = false; b.textContent = T("save"); }
+    };
+    $("#rss").onclick = async () => {
+      try { const r = await post("/api/admin/resellers", { items: JSON.parse($("#rsj").value) }); $("#rsj").value = JSON.stringify(r.items, null, 1); toast(T("saved")); }
+      catch (e) { toast(T("err") + e.message); }
+    };
+    $("#rsd").onclick = () => { $("#rsj").value = JSON.stringify(rs.default, null, 1); };
+    $("#bkn").onclick = async () => {
+      const b = $("#bkn"); b.disabled = true;
+      try { const r = await post("/api/admin/backup"); toast(T("bk_ok").replace("{n}", r.counts.users)); } catch (e) { toast(T("err") + e.message); }
+      b.disabled = false;
     };
     $("#cf2").onclick = async () => { const r = await post("/api/admin/fetch"); toast(`daily: ${r.daily} · weekly: ${r.weekly}`); adContent(); };
   }

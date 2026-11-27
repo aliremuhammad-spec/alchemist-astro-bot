@@ -37,7 +37,8 @@ async def attach(invitee: int, param: str | None) -> bool:
                   AND NOT EXISTS (SELECT 1 FROM profiles WHERE user_id=$1)
                   AND NOT EXISTS (SELECT 1 FROM referrals WHERE invitee_id=$1)
            FROM users WHERE id=$1""", invitee)
-    if not fresh or not await p.fetchval("SELECT 1 FROM users WHERE id=$1", inviter):
+    from . import privacy
+    if not fresh or not await p.fetchval("SELECT 1 FROM users WHERE id=$1", inviter) or await privacy.was_erased(invitee):
         return False
     async with p.acquire() as c, c.transaction():
         r = await c.execute("INSERT INTO referrals(invitee_id,inviter_id) VALUES($1,$2) ON CONFLICT DO NOTHING",

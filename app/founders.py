@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
-from . import db
+from . import db, privacy
 from .config import settings
 
 log = logging.getLogger(__name__)
@@ -79,7 +79,8 @@ async def decide(uid: int, kind: str) -> str:
 
 async def status(uid: int | None = None) -> dict:
     p = db.pool()
-    taken = await p.fetchval("SELECT count(*) FROM founders")
+    taken = await p.fetchval(
+        "SELECT (SELECT count(*) FROM founders) + (SELECT count(*) FROM erased WHERE founder_no IS NOT NULL)")
     mine = await p.fetchrow("SELECT number, claimed_at FROM founders WHERE user_id=$1", uid) if uid else None
     started = now() >= FOUNDERS_START
     left = max(0, FOUNDERS_TOTAL - taken)
@@ -102,9 +103,10 @@ async def claim(uid: int, bot: Bot | None = None) -> dict:
         raise PermissionError("need_chart")
     async with p.acquire() as c, c.transaction():
         await c.execute("SELECT pg_advisory_xact_lock(150150)")
-        if await c.fetchval("SELECT number FROM founders WHERE user_id=$1", uid):
+        if await c.fetchval("SELECT number FROM founders WHERE user_id=$1", uid) or await privacy.was_erased(uid):
             raise PermissionError("already")
-        taken = await c.fetchval("SELECT count(*) FROM founders")
+        taken = await c.fetchval(
+            "SELECT (SELECT count(*) FROM founders) + (SELECT count(*) FROM erased WHERE founder_no IS NOT NULL)")
         if taken >= FOUNDERS_TOTAL:
             raise PermissionError("full")
         number = taken + 1

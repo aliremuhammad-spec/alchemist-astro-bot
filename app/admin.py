@@ -202,6 +202,10 @@ async def content_status(_: dict = Depends(admin_user)):
     return {
         "daily_url": (await db.kv_get("daily_url", settings.daily_url) or settings.daily_url),
         "weekly_url": (await db.kv_get("weekly_url", settings.weekly_url) or settings.weekly_url),
+        "daily_url_en": await content.feed_url("daily_url_en"),
+        "weekly_url_en": await content.feed_url("weekly_url_en"),
+        "days_en": [r["day"].isoformat() for r in await db.pool().fetch(
+            "SELECT day FROM content_daily_en ORDER BY day DESC LIMIT 7")],
         "premium_stars": int(await db.kv_get("premium_stars", str(settings.premium_stars))),
         "syn_report_stars": int(await db.kv_get("syn_report_stars", "50")),
         "days": [{"day": r["day"].isoformat(), "fetched_at": r["fetched_at"].isoformat()} for r in days],
@@ -213,6 +217,8 @@ async def content_status(_: dict = Depends(admin_user)):
 class SettingsIn(BaseModel):
     daily_url: str | None = None
     weekly_url: str | None = None
+    daily_url_en: str | None = None
+    weekly_url_en: str | None = None
     premium_stars: int | None = Field(None, ge=1, le=10000)
     syn_report_stars: int | None = Field(None, ge=1, le=10000)
 
@@ -221,10 +227,15 @@ class SettingsIn(BaseModel):
 async def save_settings(body: SettingsIn, _: dict = Depends(admin_user)):
     if body.daily_url is not None:
         await db.kv_set("daily_url", body.daily_url.strip())
-        scheduler.set_url("daily", body.daily_url.strip() or settings.daily_url)
+        scheduler.set_url("daily_url", body.daily_url.strip() or settings.daily_url)
     if body.weekly_url is not None:
         await db.kv_set("weekly_url", body.weekly_url.strip())
-        scheduler.set_url("weekly", body.weekly_url.strip() or settings.weekly_url)
+        scheduler.set_url("weekly_url", body.weekly_url.strip() or settings.weekly_url)
+    for key in ("daily_url_en", "weekly_url_en"):
+        val = getattr(body, key)
+        if val is not None:
+            await db.kv_set(key, val.strip())
+            scheduler.set_url(key, val.strip() or getattr(settings, key))
     if body.premium_stars is not None:
         await db.kv_set("premium_stars", str(body.premium_stars))
     if body.syn_report_stars is not None:
@@ -235,16 +246,16 @@ async def save_settings(body: SettingsIn, _: dict = Depends(admin_user)):
 @router.post("/fetch")
 async def fetch_now(_: dict = Depends(admin_user)):
     out = {}
-    for kind, fn, key, default in (("daily", content.fetch_daily, "daily_url", settings.daily_url),
-                                    ("weekly", content.fetch_weekly, "weekly_url", settings.weekly_url)):
-        url = await db.kv_get(key, default) or default
+    for kind, lang, key in content.FEEDS:
+        name = kind if lang == "ar" else f"{kind}_en"
+        url = await content.feed_url(key)
         if not url:
-            out[kind] = "no url"
+            out[name] = "no url"
             continue
         try:
-            out[kind] = f"ok: {await fn(url)}"
+            out[name] = f"ok: {await content.fetch_feed(kind, lang, url)}"
         except Exception as e:
-            out[kind] = f"error: {escape(str(e))[:200]}"
+            out[name] = f"error: {escape(str(e))[:200]}"
     return out
 
 
@@ -267,3 +278,23 @@ async def interp_upload(file: UploadFile = File(...), _: dict = Depends(admin_us
     kind = interp.kind_of(payload)
     n = await interp.import_payload(payload)
     return {"ok": True, "imported": n, "kind": kind, **interp.status(), "compat": interp.compat.status()}
+
+
+# ───────────── Stars resellers ("other payment methods") & backup ─────────────
+
+@router.get("/resellers")
+async def resellers_get(_: dict = Depends(admin_user)):
+    from . import paymethods
+    return {"items": await paymethods.load(), "default": paymethods.DEFAULT}
+
+
+@router.post("/resellers")
+async def resellers_set(body: dict, _: dict = Depends(admin_user)):
+    from . import paymethods
+    return {"items": await paymethods.save(body.get("items") or [])}
+
+
+@router.post("/backup")
+async def backup_now(request: Request, user: dict = Depends(admin_user)):
+    from . import backup
+    return {"ok": True, "counts": await backup.send(request.app.state.bot, [user["id"]])}

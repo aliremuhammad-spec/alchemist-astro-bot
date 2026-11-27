@@ -16,6 +16,7 @@ RUN python scripts/build_cities.py data/geo
 
 COPY app ./app
 COPY web ./web
+COPY docs ./docs
 COPY content ./content
 
 ENV PYTHONUNBUFFERED=1 PORT=10000

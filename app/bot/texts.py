@@ -63,12 +63,45 @@ T = {
             "افتح التطبيق، احسب خارطتك، واضغط «📄 تقرير فلكي PDF»."
         ),
         "pay_prompt": (
-            "💳 <b>طرق دفع تانية للاشتراك المميز</b>\n"
-            "اكتبلنا برسالة وحدة من وين إنت وشو طريقة الدفع اللي بتناسبك، والإدارة بترد عليك هون.\n(للإلغاء: /cancel)"
+            "💳 <b>طرق دفع تانية</b>\n"
+            "تلغرام بيسمح ندفع للخدمات الرقمية بالبوت <b>بنجوم تلغرام ⭐ بس</b>. إذا ما فيك تشتري نجوم مباشرة، "
+            "فيك تشتريها من <b>وسيط</b> بالطريقة اللي بتناسبك، وبتوصل النجوم لحسابك، وبعدها بتدفع فيها هون عادي.\n\n"
+            "{list}\n"
+            "⚠️ الوسطاء جهات مستقلة ومنن تابعين إلنا، فما منضمنن. ابدأ بكمية صغيرة، ولا تعطي حدا كلمة سرك أو كود الدخول؛ "
+            "الوسيط بيحتاج اسم المستخدم (@username) بس.\n\n"
+            "ما زبطت معك ولا طريقة؟ اضغط «تواصل مع الإدارة» واكتبلنا من وين إنت."
         ),
+        "pay_contact": "💬 تواصل مع الإدارة",
+        "pay_write": "اكتبلنا برسالة وحدة من وين إنت وشو طريقة الدفع اللي بتناسبك، والإدارة بترد عليك هون.\n(للإلغاء: /cancel)",
+        "ps_intro": (
+            "🧾 <b>دعم الدفعات</b>\n{list}\n\n"
+            "اكتب مشكلتك برسالة وحدة (مثلاً: دفعت وما تفعّل الاشتراك، أو بدك استرداد ولّيش)، وبتوصل مباشرة للإدارة "
+            "مع تفاصيل دفعاتك. منرد عليك هون خلال 48 ساعة.\n(للإلغاء: /cancel)"
+        ),
+        "ps_none": "ما لقينا أي دفعة بنجوم تلغرام على حسابك.",
+        "ps_row": "• {date} · {stars}⭐ · {what}{ref}",
+        "ps_refunded": " · ↩️ مسترَدة",
+        "ps_thanks": "✅ وصل طلبك لإدارة الدفعات، رح نرد عليك هون قريباً.",
+        "ps_refund_done": "↩️ تم استرداد {stars} نجمة لحسابك. رح تشوفها برصيد نجومك بتلغرام.",
+        "what_premium": "اشتراك مميز",
+        "what_natrep": "تقرير فلكي",
+        "what_synrep": "تقرير توافق",
+        "del_confirm": (
+            "🗑 <b>مسح بياناتي</b>\n"
+            "رح ينمسح فوراً ونهائياً: حسابك، {n} خارطة، إعدادات الأبراج اليومية، الدعوات، رسائلك وسجل استخدامك.{prem}\n"
+            "بيضل بس سجل الدفعات (للاسترداد) وبصمة مشفّرة بتمنع تكرار الهدايا. التفاصيل: {url}\n\n"
+            "متأكد؟"
+        ),
+        "del_prem": "\n⚠️ <b>اشتراكك المميز الحالي رح ينتهي وما بيرجع.</b>",
+        "del_yes": "🗑 إي، امسح كل شي",
+        "del_no": "↩️ لا، تراجع",
+        "del_done": "✅ انمسحت بياناتك. إذا رجعت استخدمت البوت بيبدأ حساب جديد فاضي. منتمنالك الخير ✨",
+        "del_admin": "حسابات الإدارة ما بتنمسح من هون.",
+        "privacy": "🔐 <b>سياسة الخصوصية</b>\nشو منجمع وليش وكيف تمسحه:\n{url}\n\nلمسح كل بياناتك: /deletemydata",
         "pay_thanks": "✅ وصلت رسالتك للإدارة، رح نرد عليك قريباً.",
         "help": (
             "🔭 /app فتح التطبيق\n🎁 /invite ادعُ أصحابك واربح أيام مميز\n📢 /channel الأبراج لقناتك أو مجموعتك\n💡 /suggest اقتراح للتطوير\n"
+            "🧾 /paysupport دعم الدفعات والاسترداد\n🔐 /privacy سياسة الخصوصية · /deletemydata مسح بياناتي\n"
             "ℹ️ /about عن البوت والكود المصدري"
         ),
         "about": (
@@ -139,11 +172,44 @@ T = {
             "Open the app, cast your chart and tap “📄 Astrological report PDF”."
         ),
         "pay_prompt": (
-            "💳 <b>Other ways to pay for Premium</b>\n"
-            "Tell us in one message where you are and which payment method suits you; the team will reply here.\n(/cancel to stop)"
+            "💳 <b>Other payment methods</b>\n"
+            "Telegram only allows digital services in bots to be paid with <b>Telegram Stars ⭐</b>. If you can't buy Stars "
+            "directly, buy them from a <b>reseller</b> with a method that suits you; the Stars land in your account and you "
+            "pay here as usual.\n\n{list}\n"
+            "⚠️ Resellers are independent and not affiliated with us, so we can't guarantee them. Start small and never "
+            "share your password or login code; a reseller only needs your @username.\n\n"
+            "None of these work for you? Tap “Contact the team” and tell us where you are."
         ),
+        "pay_contact": "💬 Contact the team",
+        "pay_write": "Tell us in one message where you are and which payment method suits you; the team will reply here.\n(/cancel to stop)",
+        "ps_intro": (
+            "🧾 <b>Payment support</b>\n{list}\n\n"
+            "Describe the problem in one message (e.g. you paid and Premium didn't activate, or you want a refund and why). "
+            "It goes straight to the team with your payment details. We reply here within 48 hours.\n(/cancel to stop)"
+        ),
+        "ps_none": "We found no Telegram Stars payments on your account.",
+        "ps_row": "• {date} · {stars}⭐ · {what}{ref}",
+        "ps_refunded": " · ↩️ refunded",
+        "ps_thanks": "✅ Your request reached the payments team; we'll reply here soon.",
+        "ps_refund_done": "↩️ {stars} Stars were refunded to your account. You'll see them in your Telegram Stars balance.",
+        "what_premium": "Premium",
+        "what_natrep": "Astrological report",
+        "what_synrep": "Compatibility report",
+        "del_confirm": (
+            "🗑 <b>Delete my data</b>\n"
+            "This immediately and permanently deletes your account, {n} chart(s), daily horoscope settings, invites, "
+            "messages and usage history.{prem}\n"
+            "Only payment records (for refunds) and an encrypted fingerprint that blocks repeat gifts remain. Details: {url}\n\n"
+            "Are you sure?"
+        ),
+        "del_prem": "\n⚠️ <b>Your active Premium will end and is not refunded.</b>",
+        "del_yes": "🗑 Yes, delete everything",
+        "del_no": "↩️ No, keep it",
+        "del_done": "✅ Your data has been deleted. If you use the bot again it starts a fresh, empty account. All the best ✨",
+        "del_admin": "Admin accounts can't be erased from here.",
+        "privacy": "🔐 <b>Privacy policy</b>\nWhat we collect, why, and how to delete it:\n{url}\n\nTo delete all your data: /deletemydata",
         "pay_thanks": "✅ Your message reached the team; we'll reply soon.",
-        "help": "🔭 /app open the app\n🎁 /invite invite friends, earn Premium days\n📢 /channel horoscopes for your channel\n💡 /suggest suggest an improvement\nℹ️ /about about & source code",
+        "help": "🔭 /app open the app\n🎁 /invite invite friends, earn Premium days\n📢 /channel horoscopes for your channel\n💡 /suggest suggest an improvement\n🧾 /paysupport payment support & refunds\n🔐 /privacy privacy policy · /deletemydata delete my data\nℹ️ /about about & source code",
         "about": (
             "🧪 <b>The Alchemist Astro</b> · beta, developed by The Alchemist.\n\n"
             "Calculations use the Swiss Ephemeris via kerykeion. Open source under AGPL-3.0:\n{source}\n\n"

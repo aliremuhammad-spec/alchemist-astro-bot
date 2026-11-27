@@ -21,6 +21,8 @@ from .astro.names import SIGN_KEYS, SIGNS
 
 SOURCE_TZ = ZoneInfo("Asia/Dubai")
 _AR_SIGN = {n: SIGN_KEYS[i] for i, n in enumerate(SIGNS["ar"])}
+_AR_SIGN.update({n: SIGN_KEYS[i] for i, n in enumerate(SIGNS["en"])})
+_AR_SIGN.update({k.title(): k for k in SIGN_KEYS})
 WEEKDAYS_AR = ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
 WEEKDAYS_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -91,23 +93,28 @@ def _strip_paren_group(s: str, start: int) -> int:
 
 
 def _drop_dubai_parens(s: str) -> str:
-    """Remove every parenthesised group that carries a Dubai copy of a time, e.g. '(دبي 28/11 15:21 ثم الأسد)'."""
-    while True:
-        k = s.find("دبي")
-        while k >= 0:
-            j = s.rfind("(", 0, k)
-            if j >= 0 and s.find(")", j, k) < 0:
+    """Remove every parenthesised group that carries a Dubai copy of a time, e.g. '(دبي 28/11 15:21 ثم الأسد)'
+    or '(Dubai 28/11 15:21, then Leo)'."""
+    for word in ("دبي", "Dubai"):
+        while True:
+            k = s.find(word)
+            while k >= 0:
+                j = s.rfind("(", 0, k)
+                if j >= 0 and s.find(")", j, k) < 0:
+                    break
+                k = s.find(word, k + 1)
+            if k < 0:
                 break
-            k = s.find("دبي", k + 1)
-        if k < 0:
-            return s
-        end = _strip_paren_group(s, j)
-        s = s[:j].rstrip(" ") + s[end:]
+            end = _strip_paren_group(s, j)
+            s = s[:j].rstrip(" ") + s[end:]
+    return s
 
 
 # ───────────────────────── daily ─────────────────────────
 
-DAILY_LABELS = {"عامة": "general", "عاطفية": "love", "مالية": "money", "مهنية": "career", "نصيحة اليوم": "advice"}
+DAILY_LABELS = {"عامة": "general", "عاطفية": "love", "مالية": "money", "مهنية": "career", "نصيحة اليوم": "advice",
+                "General": "general", "Emotional": "love", "Love": "love", "Financial": "money", "Money": "money",
+                "Career": "career", "Work": "career", "Advice of the day": "advice", "Advice": "advice"}
 
 
 def is_markdown(text: str) -> bool:
@@ -116,9 +123,9 @@ def is_markdown(text: str) -> bool:
 
 
 def parse_daily_md(md: str) -> dict[date, dict]:
-    m = re.search(r"\*\*التاريخ:\*\*[^\n]*?(\d{4}-\d{2}-\d{2})", md)
+    m = re.search(r"\*\*(?:التاريخ|Date):\*\*[^\n]*?(\d{4}-\d{2}-\d{2})", md)
     if not m:
-        raise ValueError("daily file: missing '**التاريخ:** YYYY-MM-DD'")
+        raise ValueError("daily file: missing '**التاريخ:** / **Date:** YYYY-MM-DD'")
     day = date.fromisoformat(m[1])
     secs = _sections(md, "## ")
     intro = [ln[1:].strip() for ln in secs[0][1].splitlines() if ln.startswith(">")]
@@ -133,13 +140,13 @@ def parse_daily_md(md: str) -> dict[date, dict]:
                 pm = re.match(r"\*\*(.+?):\*\*\s*(.*)", para)
                 if pm:
                     label, text = pm[1].strip(), pm[2].strip()
-                    if text.startswith(label + ":"):  # "**نصيحة اليوم:** نصيحة اليوم: ..."
+                    if text.lower().startswith(label.lower() + ":"):  # "**نصيحة اليوم:** نصيحة اليوم: ..."
                         text = text[len(label) + 1:].strip()
                     parts.append({"k": DAILY_LABELS.get(label, "other"), "label": label, "text": text})
                 elif para:
                     parts.append({"k": "other", "label": "", "text": para})
             data["signs"][key] = {"parts": parts}
-        elif "أجواء" in title:
+        elif "أجواء" in title or "atmosphere" in title.lower():
             data["overview"] = [ln[1:].strip() for ln in body.splitlines() if ln.startswith("- ")]
             notes = [ln[1:].strip() for ln in body.splitlines() if ln.startswith(">")]
             if notes:
@@ -149,15 +156,17 @@ def parse_daily_md(md: str) -> dict[date, dict]:
     return {day: data}
 
 
-_DUBAI_CLOCK = re.compile(r"(\d{1,2}):(\d{2})\s*بتوقيت\s+دبي")
+_DUBAI_CLOCK = re.compile(r"(\d{1,2}):(\d{2})\s*(?:بتوقيت\s+دبي|Dubai\s+time)")
+YOUR_TIME = {"ar": "بتوقيتك", "en": "your time"}
 
 
 def localise_daily(text: str, day: date, tz: str, lang: str = "ar") -> str:
     def rep(m):
         src = datetime(day.year, day.month, day.day, int(m[1]), int(m[2]), tzinfo=SOURCE_TZ)
-        return f"{fmt_local(src.astimezone(timezone.utc), tz, day, lang)} بتوقيتك"
+        return f"{fmt_local(src.astimezone(timezone.utc), tz, day, lang)} {YOUR_TIME.get(lang, YOUR_TIME['ar'])}"
     text = _DUBAI_CLOCK.sub(rep, text)
-    return re.sub(r"بتوقيت\s+دبي(\s*\(\+04\))?", "بتوقيتك", text)
+    text = re.sub(r"بتوقيت\s+دبي(\s*\(\+04\))?", "بتوقيتك", text)
+    return re.sub(r"Dubai\s+time(\s*\(\+04\))?", "your time", text)
 
 
 def daily_sign_html(data: dict, key: str, lang: str, tz: str) -> str:
@@ -198,18 +207,19 @@ def daily_overview_html(data: dict, lang: str, tz: str) -> str:
 
 # ───────────────────────── weekly ─────────────────────────
 
-WEEKLY_SKIP = ("كيف تُقرأ", "مصادر", "ملاحظات الدشاس", "بيانات للبوت")
+WEEKLY_SKIP = ("كيف تُقرأ", "مصادر", "ملاحظات الدشاس", "بيانات للبوت",
+               "How to read", "Sources", "Dasha notes", "Bot data")
 _ISO = re.compile(r"`(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)`(?:\s*UTC\b)?")
-_DUBAI_COPY = re.compile(r"[،,]\s*دبي\s+\d{1,2}:\d{2}(?:\s*\(\d{1,2}/\d{1,2}\))?")
+_DUBAI_COPY = re.compile(r"[،,]\s*(?:دبي|Dubai)\s+\d{1,2}:\d{2}(?:\s*\(\d{1,2}/\d{1,2}\))?")
 B0, B1 = "\x02", "\x03"  # markers for localised times, turned into <b> after escaping
 _DAY_HEAD = re.compile(r"(\d{1,2})/(\d{1,2})/(\d{4})")
-_DUBAI_HM = re.compile(r"(?<![\d:])(\d{1,2}):(\d{2})\s+دبي")
+_DUBAI_HM = re.compile(r"(?<![\d:])(\d{1,2}):(\d{2})\s+(?:دبي|Dubai)")
 
 
 def parse_weekly_md(md: str) -> dict:
     m = re.search(r"```json\s*(\{.*?\})\s*```", md, re.S)
     events = json.loads(m[1]) if m else {}
-    rng = re.search(r"\*\*الأسبوع:\*\*[^\n]*?(\d{4}-\d{2}-\d{2})[^\n]*?(\d{4}-\d{2}-\d{2})", md)
+    rng = re.search(r"\*\*(?:الأسبوع|Week):\*\*[^\n]*?(\d{4}-\d{2}-\d{2})[^\n]*?(\d{4}-\d{2}-\d{2})", md)
     if not rng and not events.get("week_start_utc"):
         raise ValueError("weekly file: missing '**الأسبوع:** من YYYY-MM-DD إلى YYYY-MM-DD'")
     week_start = date.fromisoformat(rng[1]) if rng else date.fromisoformat(events["week_start_utc"][:10])
@@ -221,7 +231,7 @@ def parse_weekly_md(md: str) -> dict:
     for title, body in secs[1:]:
         if any(title.startswith(s) for s in WEEKLY_SKIP):
             continue
-        if "تفصيل الأيام" in title:
+        if "تفصيل الأيام" in title or title.lower().startswith("day by day"):
             days = []
             for dt, db_ in _sections(body, "### ")[1:]:
                 dm = _DAY_HEAD.search(dt)

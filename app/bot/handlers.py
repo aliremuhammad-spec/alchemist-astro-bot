@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 router = Router()
 _awaiting_suggestion: set[int] = set()
 _awaiting_payment_msg: set[int] = set()
+_awaiting_paysupport: set[int] = set()
 
 
 def lang_of(code: str | None) -> str:
@@ -69,9 +70,7 @@ async def start(m: Message, command: CommandObject):
         await m.answer(t(lang, "ref_gift"), reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang)]]))
         return
     if command.args == "pay":
-        _awaiting_payment_msg.add(u.id)
-        _awaiting_suggestion.discard(u.id)
-        await m.answer(t(lang, "pay_prompt"))
+        await send_pay_methods(m, lang)
         return
     if command.args == "invite":
         await send_invite(m, lang)
@@ -151,6 +150,7 @@ async def cb_suggest(c: CallbackQuery):
 async def cmd_cancel(m: Message):
     _awaiting_suggestion.discard(m.from_user.id)
     _awaiting_payment_msg.discard(m.from_user.id)
+    _awaiting_paysupport.discard(m.from_user.id)
     await m.answer(t(lang_of(m.from_user.language_code), "cancelled"))
 
 
@@ -269,7 +269,7 @@ async def cmd_setdaily(m: Message, command: CommandObject):
     url = (command.args or "").strip()
     await db.kv_set("daily_url", url)
     from .. import scheduler as _sch
-    _sch.set_url("daily", url)
+    _sch.set_url("daily_url", url)
     try:
         n = await content.fetch_daily(url)
         await m.answer(f"✅ تم حفظ الرابط وسحب {n} يوم")
@@ -283,12 +283,10 @@ async def cmd_fetch(m: Message):
     if not is_admin(m.from_user.id):
         return
     lines = []
-    for kind, fn, key, default, label in (
-            ("daily", content.fetch_daily, "daily_url", settings.daily_url, "التوقعات اليومية"),
-            ("weekly", content.fetch_weekly, "weekly_url", settings.weekly_url, "الاختيارات الأسبوعية")):
-        url = await db.kv_get(key, default) or default
+    for kind, lang, key in content.FEEDS:
+        label = content.FEED_LABELS[(kind, lang)]
         try:
-            lines.append(f"✅ {label}: {await fn(url)}")
+            lines.append(f"✅ {label}: {await content.fetch_feed(kind, lang, await content.feed_url(key))}")
         except Exception as e:
             lines.append(f"❌ {label}: {escape(str(e))[:200]}")
     await m.answer("\n".join(lines))
@@ -376,25 +374,201 @@ async def cmd_refund(m: Message, command: CommandObject, bot: Bot):
         await m.answer("الاستخدام: /refund user_id") if is_admin(m.from_user.id) else None
         return
     uid = int(command.args.strip())
-    row = await db.pool().fetchrow(
-        "SELECT * FROM payments WHERE user_id=$1 AND NOT refunded ORDER BY created_at DESC LIMIT 1", uid)
-    if not row:
+    pid = await db.pool().fetchval(
+        "SELECT id FROM payments WHERE user_id=$1 AND NOT refunded ORDER BY created_at DESC LIMIT 1", uid)
+    if not pid:
         await m.answer("ما في دفعة قابلة للاسترداد")
         return
     try:
-        await bot.refund_star_payment(user_id=uid, telegram_payment_charge_id=row["charge_id"])
+        await m.answer(await do_refund(bot, pid))
     except Exception as e:
-        await m.answer(f"❌ {e}")
-        return
-    await db.pool().execute("UPDATE payments SET refunded=TRUE WHERE id=$1", row["id"])
-    await db.pool().execute("UPDATE subscriptions SET ends_at=now() WHERE charge_id=$1", row["charge_id"])
-    await m.answer(f"✅ استُرد {row['stars']} نجمة للمستخدم {uid}")
+        await m.answer(f"❌ {escape(str(e))[:300]}")
+
+
+# ───────────── other payment methods (Stars resellers) ─────────────
+
+async def send_pay_methods(m: Message, lang: str) -> None:
+    from .. import paymethods
+    items = paymethods.localized(await paymethods.load(), lang)
+    head = {"sy": "🇸🇾 داخل سوريا" if lang == "ar" else "🇸🇾 Inside Syria",
+            "intl": "🌍 بطاقات فيزا وماستر وغيرها" if lang == "ar" else "🌍 Visa, Mastercard and more"}
+    blocks = []
+    for region in ("sy", "intl"):
+        rows = [f"• <a href=\"{escape(i['url'])}\">{escape(i['name'])}</a>{' ✅' if i['official'] else ''}\n   {escape(i['note'])}"
+                for i in items if i["region"] == region]
+        if rows:
+            blocks.append(f"<b>{head[region]}</b>\n" + "\n".join(rows))
+    others = [i for i in items if i["region"] not in head]
+    if others:
+        blocks.append("\n".join(f"• <a href=\"{escape(i['url'])}\">{escape(i['name'])}</a>\n   {escape(i['note'])}" for i in others))
+    kb = [[InlineKeyboardButton(text=("🇸🇾 " if i["region"] == "sy" else "🌍 ") + i["name"], url=i["url"])] for i in items]
+    kb.append([InlineKeyboardButton(text=t(lang, "pay_contact"), callback_data="paywrite")])
+    kb.append([app_button(lang, "#premium")])
+    await m.answer(t(lang, "pay_prompt", list="\n\n".join(blocks)),
+                   reply_markup=InlineKeyboardMarkup(inline_keyboard=kb), disable_web_page_preview=True)
+
+
+@router.message(Command("pay"), F.chat.type == ChatType.PRIVATE)
+async def cmd_pay(m: Message):
+    await send_pay_methods(m, lang_of(m.from_user.language_code))
+
+
+@router.callback_query(F.data == "paywrite")
+async def cb_paywrite(c: CallbackQuery):
+    _awaiting_payment_msg.add(c.from_user.id)
+    _awaiting_suggestion.discard(c.from_user.id)
+    _awaiting_paysupport.discard(c.from_user.id)
+    await c.message.answer(t(lang_of(c.from_user.language_code), "pay_write"))
+    await c.answer()
+
+
+# ───────────── /paysupport (required by Telegram's Stars terms) ─────────────
+
+def _what(lang: str, payload: str | None) -> str:
+    kind = (payload or "premium:").split(":", 1)[0]
+    return t(lang, f"what_{kind}") if kind in ("premium", "natrep", "synrep") else kind
+
+
+async def _payments_list(uid: int, lang: str, limit: int = 5) -> tuple[list, str]:
+    rows = await db.pool().fetch(
+        "SELECT * FROM payments WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2", uid, limit)
+    if not rows:
+        return rows, t(lang, "ps_none")
+    return rows, "\n".join(t(lang, "ps_row", date=r["created_at"].strftime("%Y-%m-%d"), stars=r["stars"],
+                                what=_what(lang, r["payload"]),
+                                ref=t(lang, "ps_refunded") if r["refunded"] else "") for r in rows)
+
+
+@router.message(Command("paysupport"), F.chat.type == ChatType.PRIVATE)
+async def cmd_paysupport(m: Message):
+    lang = lang_of(m.from_user.language_code)
+    await db.upsert_user(m.from_user.id, m.from_user.first_name, m.from_user.username, m.from_user.language_code)
+    _, lst = await _payments_list(m.from_user.id, lang)
+    _awaiting_paysupport.add(m.from_user.id)
+    _awaiting_suggestion.discard(m.from_user.id)
+    _awaiting_payment_msg.discard(m.from_user.id)
+    await m.answer(t(lang, "ps_intro", list=lst))
+
+
+async def send_paysupport(bot: Bot, u, text: str) -> None:
+    text = text.strip()[:3500]
+    await db.pool().execute("INSERT INTO feedback(user_id,text) VALUES($1,$2)", u.id, f"🧾 [دعم دفع] {text}")
+    rows, lst = await _payments_list(u.id, "ar", 8)
+    prem = await db.pool().fetchval(
+        "SELECT max(ends_at) FROM subscriptions WHERE user_id=$1 AND ends_at > now()", u.id)
+    who = f"@{u.username}" if u.username else escape(u.first_name or "")
+    msg = (f"🧾 <b>طلب دعم دفع</b>\nمن: {who} (<code>{u.id}</code>)\n"
+           f"المميز فعّال لـ: {prem.strftime('%Y-%m-%d') if prem else 'لا'}\n\n<b>الدفعات:</b>\n{lst}\n\n"
+           f"<b>الرسالة:</b>\n{escape(text)}\n\nللرد: <code>/reply {u.id} </code>نص الرد")
+    kb = [[InlineKeyboardButton(text=f"↩️ استرداد {r['stars']}⭐ · {_what('ar', r['payload'])} · {r['created_at']:%m-%d}",
+                                callback_data=f"rf:{r['id']}")] for r in rows if not r["refunded"]][:4]
+    for admin in settings.admin_ids:
+        try:
+            await bot.send_message(admin, msg, reply_markup=InlineKeyboardMarkup(inline_keyboard=kb) if kb else None)
+        except Exception as e:
+            log.warning("paysupport notify failed: %s", e)
+
+
+async def do_refund(bot: Bot, payment_id: int) -> str:
+    row = await db.pool().fetchrow("SELECT * FROM payments WHERE id=$1", payment_id)
+    if not row:
+        return "ما لقيت الدفعة"
+    if row["refunded"]:
+        return "هالدفعة مسترَدة من قبل"
+    await bot.refund_star_payment(user_id=row["user_id"], telegram_payment_charge_id=row["charge_id"])
+    p = db.pool()
+    await p.execute("UPDATE payments SET refunded=TRUE WHERE id=$1", row["id"])
+    payload = row["payload"] or ""
+    if payload.startswith("natrep:"):
+        await p.execute("UPDATE users SET report_credits=GREATEST(report_credits-1,0) WHERE id=$1", row["user_id"])
+    elif payload.startswith("synrep:"):
+        await p.execute("UPDATE users SET syn_report_credits=GREATEST(syn_report_credits-1,0) WHERE id=$1", row["user_id"])
+    else:   # premium: end the period this payment bought
+        await p.execute("UPDATE subscriptions SET ends_at=now() WHERE charge_id=$1 AND ends_at > now()", row["charge_id"])
+    lang = await p.fetchval("SELECT lang FROM users WHERE id=$1", row["user_id"]) or "ar"
+    try:
+        await bot.send_message(row["user_id"], t(lang, "ps_refund_done", stars=row["stars"]))
+    except Exception:
+        pass
+    return f"✅ استُرد {row['stars']} نجمة للمستخدم {row['user_id']} ({_what('ar', payload)})"
+
+
+@router.callback_query(F.data.startswith("rf:"))
+async def cb_refund_ask(c: CallbackQuery):
+    if not is_admin(c.from_user.id):
+        return await c.answer()
+    pid = c.data.split(":", 1)[1]
+    await c.message.answer(f"متأكد بدك تسترد الدفعة #{pid}؟ الاسترداد نهائي، والمميز أو التقرير اللي اشتراه بينلغى.",
+                           reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+                               InlineKeyboardButton(text="↩️ إي، استرد", callback_data=f"rfok:{pid}"),
+                               InlineKeyboardButton(text="لا", callback_data="rfno")]]))
+    await c.answer()
+
+
+@router.callback_query(F.data.startswith("rfok:") | (F.data == "rfno"))
+async def cb_refund_do(c: CallbackQuery, bot: Bot):
+    if not is_admin(c.from_user.id):
+        return await c.answer()
+    if c.data == "rfno":
+        await c.message.edit_text("تم الإلغاء.")
+        return await c.answer()
+    try:
+        out = await do_refund(bot, int(c.data.split(":", 1)[1]))
+    except Exception as e:
+        out = f"❌ {escape(str(e))[:300]}"
+    await c.message.edit_text(out)
+    await c.answer()
+
+
+# ───────────── privacy & delete my data ─────────────
+
+def privacy_url() -> str:
+    return f"{settings.public_url}/privacy" if settings.public_url else "/privacy"
+
+
+@router.message(Command("privacy"), F.chat.type == ChatType.PRIVATE)
+async def cmd_privacy(m: Message):
+    await m.answer(t(lang_of(m.from_user.language_code), "privacy", url=privacy_url()))
+
+
+@router.message(Command("deletemydata"), F.chat.type == ChatType.PRIVATE)
+async def cmd_deletemydata(m: Message):
+    from .. import privacy
+    lang = lang_of(m.from_user.language_code)
+    if is_admin(m.from_user.id):
+        return await m.answer(t(lang, "del_admin"))
+    s = await privacy.summary(m.from_user.id)
+    await m.answer(t(lang, "del_confirm", n=s["profiles"], prem=t(lang, "del_prem") if s["premium"] else "",
+                     url=privacy_url()),
+                   reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                       [InlineKeyboardButton(text=t(lang, "del_yes"), callback_data="erase:yes")],
+                       [InlineKeyboardButton(text=t(lang, "del_no"), callback_data="erase:no")]]),
+                   disable_web_page_preview=True)
+
+
+@router.callback_query(F.data.startswith("erase:"))
+async def cb_erase(c: CallbackQuery):
+    from .. import privacy
+    lang = lang_of(c.from_user.language_code)
+    if c.data == "erase:no" or is_admin(c.from_user.id):
+        await c.message.edit_text(t(lang, "cancelled"))
+        return await c.answer()
+    await privacy.erase(c.from_user.id)
+    for s in (_awaiting_suggestion, _awaiting_payment_msg, _awaiting_paysupport):
+        s.discard(c.from_user.id)
+    await c.message.edit_text(t(lang, "del_done"))
+    await c.answer()
 
 
 # ───────────── suggestion text capture (must stay after commands) ─────────────
 
 @router.message(F.chat.type == ChatType.PRIVATE, F.text, ~F.text.startswith("/"))
 async def any_text(m: Message, bot: Bot):
+    if m.from_user.id in _awaiting_paysupport:
+        _awaiting_paysupport.discard(m.from_user.id)
+        await send_paysupport(bot, m.from_user, m.text)
+        await m.answer(t(lang_of(m.from_user.language_code), "ps_thanks"))
+        return
     if m.from_user.id in _awaiting_payment_msg:
         _awaiting_payment_msg.discard(m.from_user.id)
         await save_feedback(bot, m.from_user.id, m.from_user.first_name, m.from_user.username, m.text, kind="payment")

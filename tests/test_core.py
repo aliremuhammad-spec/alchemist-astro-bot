@@ -250,3 +250,30 @@ def test_init_data_rejects_tampering():
     forged = good.replace("%22id%22%3A+42", "%22id%22%3A+8449364055")
     with pytest.raises(ValueError):
         validate_init_data(forged, token)
+
+
+def test_resellers_validation():
+    from app import paymethods
+    got = paymethods._valid([{"url": "javascript:alert(1)", "name_ar": "x"},
+                             {"url": "https://ok.example", "region": "sy", "name_ar": "a" * 999, "official": 1}, "junk"])
+    assert len(got) == 1 and got[0]["url"] == "https://ok.example" and len(got[0]["name_ar"]) == 300
+    assert got[0]["official"] is True
+    loc = paymethods.localized(paymethods.DEFAULT, "en")
+    assert {i["region"] for i in loc} == {"sy", "intl"} and all(i["url"].startswith("https://") for i in loc)
+
+
+def test_backup_tables_exist_in_schema():
+    from pathlib import Path
+
+    from app import backup
+    schema = (Path(__file__).resolve().parents[1] / "app" / "schema.sql").read_text()
+    for t in backup.TABLES:
+        assert f"CREATE TABLE IF NOT EXISTS {t} " in schema or f"CREATE TABLE IF NOT EXISTS {t}(" in schema, t
+    assert not {"interp_entries", "compat_entries", "content_daily"} & set(backup.TABLES)
+
+
+def test_privacy_policy_has_both_languages():
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "docs" / "PRIVACY.md").read_text()
+    ar, en = src.split("\n---\n", 1)
+    assert "/deletemydata" in ar and "/deletemydata" in en and "30" in ar and "30" in en

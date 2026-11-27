@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from . import db
+from . import db, paymethods
 from .api import _lang, _load_profile, _profile_birth, current_user
 from .astro.engine import compute
 from .astro.render import indian_svg, synastry_wheel_svg
@@ -213,7 +213,8 @@ async def premium_info(user: dict = Depends(current_user)):
         "SELECT source, ends_at FROM subscriptions WHERE user_id=$1 AND ends_at > now() ORDER BY ends_at DESC LIMIT 1",
         user["id"])
     return {"active": bool(row), "until": row["ends_at"].isoformat() if row else None,
-            "source": row["source"] if row else None, "stars": await premium_price()}
+            "source": row["source"] if row else None, "stars": await premium_price(),
+            "resellers": paymethods.localized(await paymethods.load(), user["lang"])}
 
 
 @router.post("/premium/invoice")
@@ -328,7 +329,8 @@ async def weekly(tz: str = "Asia/Damascus", lang: str | None = None, user: dict 
     from zoneinfo import available_timezones
 
     from . import content, forecasts
-    data = await content.weekly_current()
+    lg = _lang(lang, user)
+    data = await content.weekly_current(lg)
     if not data:
         return {"available": False}
     head = {"available": True, "week_start": data["week_start"], "week_end": data.get("week_end")}
@@ -336,7 +338,7 @@ async def weekly(tz: str = "Asia/Damascus", lang: str | None = None, user: dict 
         return {**head, "locked": True}
     tz = tz if tz in available_timezones() else "Asia/Damascus"
     await db.event(user["id"], "weekly_view")
-    return {**head, "locked": False, **forecasts.weekly_view(data, tz, _lang(lang, user))}
+    return {**head, "locked": False, **forecasts.weekly_view(data, tz, lg)}
 
 
 

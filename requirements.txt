@@ -9,3 +9,4 @@ geonamescache==3.0.2
 pydantic==2.13.5
 python-multipart==0.0.32
 weasyprint==70.0
+markdown==3.11

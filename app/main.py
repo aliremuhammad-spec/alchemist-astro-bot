@@ -31,9 +31,11 @@ WEBHOOK_SECRET = settings.webhook_secret or hashlib.sha256(f"wh:{settings.bot_to
 
 COMMANDS = {
     "ar": [("start", "البداية"), ("app", "فتح التطبيق"), ("invite", "ادعُ أصحابك واربح أيام مميز"), ("channel", "الأبراج لقناتك أو مجموعتك"),
-           ("suggest", "اقتراح للتطوير"), ("about", "عن البوت والكود المصدري")],
+           ("suggest", "اقتراح للتطوير"), ("paysupport", "دعم الدفعات والاسترداد"),
+           ("privacy", "سياسة الخصوصية"), ("deletemydata", "مسح بياناتي"), ("about", "عن البوت والكود المصدري")],
     "en": [("start", "Start"), ("app", "Open the app"), ("invite", "Invite friends, earn Premium days"), ("channel", "Horoscopes for your channel"),
-           ("suggest", "Suggest an improvement"), ("about", "About & source code")],
+           ("suggest", "Suggest an improvement"), ("paysupport", "Payment support & refunds"),
+           ("privacy", "Privacy policy"), ("deletemydata", "Delete my data"), ("about", "About & source code")],
 }
 
 
@@ -115,6 +117,35 @@ async def webhook(request: Request, x_telegram_bot_api_secret_token: str = Heade
     update = Update.model_validate(await request.json(), context={"bot": request.app.state.bot})
     await request.app.state.dp.feed_update(request.app.state.bot, update)
     return {"ok": True}
+
+
+_PRIVACY: str | None = None
+
+
+def _privacy_html() -> str:
+    global _PRIVACY
+    if _PRIVACY is None:
+        import markdown
+        src = (Path(__file__).resolve().parents[1] / "docs" / "PRIVACY.md").read_text(encoding="utf-8")
+        ar, en = src.split("\n---\n", 1)
+        body = (f'<article lang="ar" dir="rtl" id="ar">{markdown.markdown(ar)}</article><hr>'
+                f'<article lang="en" dir="ltr" id="en">{markdown.markdown(en)}</article>')
+        _PRIVACY = ("<!DOCTYPE html><html><head><meta charset='utf-8'>"
+                    "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                    "<title>سياسة الخصوصية · Privacy Policy — The Alchemist Astro</title><style>"
+                    "body{margin:0;background:#12142a;color:#e9e6f5;font:16px/1.75 system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif}"
+                    "article{max-width:44rem;margin:0 auto;padding:28px 20px}h1{font-size:1.5rem;line-height:1.35;color:#e8c77a}"
+                    "h2{font-size:1.1rem;margin-top:1.8em;color:#e8c77a}a{color:#9fb7ff}li{margin:.3em 0}"
+                    "hr{border:0;border-top:1px solid #2e3160;max-width:44rem;margin:0 auto}"
+                    "nav{text-align:center;padding:14px}nav a{margin:0 10px}</style></head><body>"
+                    "<nav><a href='#ar'>العربية</a><a href='#en'>English</a></nav>" + body + "</body></html>")
+    return _PRIVACY
+
+
+@app.get("/privacy")
+async def privacy_page():
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(_privacy_html(), headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.get("/")

@@ -103,7 +103,29 @@ def _unchanged(url: str, text: str) -> bool:
     return False
 
 
-async def fetch_daily(url: str, only_if_changed: bool = False) -> int:
+def _t(kind: str, lang: str) -> str:
+    return f"content_{kind}" + ("_en" if lang == "en" else "")
+
+
+# (kind, lang, settings key) for every forecast file the bot follows
+FEEDS = [("daily", "ar", "daily_url"), ("weekly", "ar", "weekly_url"),
+         ("daily", "en", "daily_url_en"), ("weekly", "en", "weekly_url_en")]
+FEED_LABELS = {("daily", "ar"): "التوقعات اليومية (عربي)", ("weekly", "ar"): "الاختيارات الأسبوعية (عربي)",
+               ("daily", "en"): "التوقعات اليومية (إنكليزي)", ("weekly", "en"): "الاختيارات الأسبوعية (إنكليزي)"}
+
+
+async def feed_url(key: str) -> str:
+    from .config import settings
+    default = getattr(settings, key)
+    return await db.kv_get(key, default) or default
+
+
+async def fetch_feed(kind: str, lang: str, url: str, only_if_changed: bool = False) -> int:
+    fn = fetch_daily if kind == "daily" else fetch_weekly
+    return await fn(url, only_if_changed=only_if_changed, lang=lang)
+
+
+async def fetch_daily(url: str, only_if_changed: bool = False, lang: str = "ar") -> int:
     if not url:
         return 0
     text = await fetch_text(url)
@@ -114,7 +136,7 @@ async def fetch_daily(url: str, only_if_changed: bool = False) -> int:
         raise ValueError("daily file has no complete day (12 signs)")
     for d, data in days.items():
         await db.pool().execute(
-            """INSERT INTO content_daily(day,data) VALUES($1,$2::jsonb)
+            f"""INSERT INTO {_t("daily", lang)}(day,data) VALUES($1,$2::jsonb)
                ON CONFLICT(day) DO UPDATE SET data=EXCLUDED.data, fetched_at=now()""",
             d, json.dumps(data, ensure_ascii=False))
     from . import scheduler
@@ -123,7 +145,7 @@ async def fetch_daily(url: str, only_if_changed: bool = False) -> int:
     return len(days)
 
 
-async def fetch_weekly(url: str, only_if_changed: bool = False) -> int:
+async def fetch_weekly(url: str, only_if_changed: bool = False, lang: str = "ar") -> int:
     if not url:
         return 0
     text = await fetch_text(url)
@@ -139,14 +161,14 @@ async def fetch_weekly(url: str, only_if_changed: bool = False) -> int:
             raise ValueError("weekly file needs week_start + items[]")
         n = len(payload["items"])
     await db.pool().execute(
-        """INSERT INTO content_weekly(week_start,data) VALUES($1,$2::jsonb)
+        f"""INSERT INTO {_t("weekly", lang)}(week_start,data) VALUES($1,$2::jsonb)
            ON CONFLICT(week_start) DO UPDATE SET data=EXCLUDED.data, fetched_at=now()""",
         date.fromisoformat(payload["week_start"][:10]), json.dumps(payload, ensure_ascii=False))
     return n
 
 
-async def weekly_current() -> dict | None:
-    rows = await db.pool().fetch("SELECT data FROM content_weekly ORDER BY week_start DESC LIMIT 2")
+async def weekly_current(lang: str = "ar") -> dict | None:
+    rows = await db.pool().fetch(f"SELECT data FROM {_t('weekly', lang)} ORDER BY week_start DESC LIMIT 2")
     for r in rows:
         d = json.loads(r["data"]) if isinstance(r["data"], str) else r["data"]
         if d.get("format") == "md" and forecasts.weekly_is_current(d):
@@ -154,6 +176,6 @@ async def weekly_current() -> dict | None:
     return None
 
 
-async def daily_for(d: date) -> dict | None:
-    row = await db.pool().fetchval("SELECT data FROM content_daily WHERE day=$1", d)
+async def daily_for(d: date, lang: str = "ar") -> dict | None:
+    row = await db.pool().fetchval(f"SELECT data FROM {_t('daily', lang)} WHERE day=$1", d)
     return json.loads(row) if isinstance(row, str) else row

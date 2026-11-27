@@ -165,3 +165,14 @@ ALTER TABLE daily_prefs ADD COLUMN IF NOT EXISTS follow_main BOOLEAN NOT NULL DE
 CREATE UNIQUE INDEX IF NOT EXISTS profiles_one_main ON profiles(user_id) WHERE is_main;
 UPDATE profiles SET is_main=TRUE WHERE id IN (
   SELECT min(id) FROM profiles GROUP BY user_id HAVING NOT bool_or(is_main));
+
+-- English forecast files live in their own tables (same shape as the Arabic ones)
+CREATE TABLE IF NOT EXISTS content_daily_en (LIKE content_daily INCLUDING ALL);
+CREATE TABLE IF NOT EXISTS content_weekly_en (LIKE content_weekly INCLUDING ALL);
+
+-- "delete my data": salted hash of erased ids (blocks re-claiming one-time gifts), founder slot kept used
+CREATE TABLE IF NOT EXISTS erased (
+  id_hash    TEXT PRIMARY KEY,
+  founder_no INT,
+  erased_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);

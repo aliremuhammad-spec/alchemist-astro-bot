@@ -93,8 +93,8 @@ async def _send(bot: Bot, chat_id: int, text: str, kb=None) -> bool | None:
         return None
 
 
-async def _alert_missing(bot: Bot, day) -> None:
-    key = f"alert_missing:{day.isoformat()}"
+async def _alert_missing(bot: Bot, day, lang: str = "ar") -> None:
+    key = f"alert_missing:{day.isoformat()}" + ("" if lang == "ar" else f":{lang}")
     if key in _alerted:
         return
     _alerted.add(key)
@@ -103,7 +103,7 @@ async def _alert_missing(bot: Bot, day) -> None:
     await db.kv_set(key, "1")
     for a in settings.admin_ids:
         try:
-            await bot.send_message(a, f"⚠️ ما في أبراج ليوم {day.isoformat()} بالملف. ما بعتت شي لهلأ. "
+            await bot.send_message(a, f"⚠️ ما في أبراج ليوم {day.isoformat()} بالملف {'الإنكليزي' if lang == 'en' else 'العربي'}. ما بعتت شي لهلأ. "
                                       f"تأكد من ملف GitHub أو استخدم /fetch بعد التحديث.")
         except Exception:
             pass
@@ -143,10 +143,15 @@ async def _reload() -> None:
     _sched["dirty"] = False
 
 
-async def _content(day):
-    if day not in _content_cache:
-        _content_cache[day] = await content.daily_for(day)
-    return _content_cache[day]
+def _lang(lang: str | None) -> str:
+    return "en" if lang == "en" else "ar"
+
+
+async def _content(day, lang: str = "ar"):
+    key = (day, _lang(lang))
+    if key not in _content_cache:
+        _content_cache[key] = await content.daily_for(day, key[1])
+    return _content_cache[key]
 
 
 async def dispatch_users(bot: Bot) -> None:
@@ -156,9 +161,9 @@ async def dispatch_users(bot: Bot) -> None:
         if not due:
             continue
         day = now.date()
-        data = await _content(day)
+        data = await _content(day, r["lang"])
         if not data:
-            await _alert_missing(bot, day)
+            await _alert_missing(bot, day, _lang(r["lang"]))
             continue
         msgs = user_messages(r["lang"], r["sign"], day, data, r["tz"])
         ok = True
@@ -185,9 +190,9 @@ async def dispatch_chats(bot: Bot) -> None:
         if not due:
             continue
         day = now.date()
-        data = await _content(day)
+        data = await _content(day, r["lang"])
         if not data:
-            await _alert_missing(bot, day)
+            await _alert_missing(bot, day, _lang(r["lang"]))
             continue
         okall = True
         for msg in digest_messages(r["lang"], day, data, r["tz"], ref_link=r.get("ref_link")):
@@ -219,24 +224,20 @@ async def tick(bot: Bot) -> None:
 _urls: dict = {}
 
 
-def set_url(kind: str, url: str) -> None:
-    _urls[kind] = url
+def set_url(key: str, url: str) -> None:
+    """key = settings key: daily_url, weekly_url, daily_url_en, weekly_url_en."""
+    _urls[key] = url
 
 
 async def pull_content() -> None:
     """Fetch the GitHub files; the database is touched only when a file actually changed."""
-    if "daily" not in _urls:
-        _urls["daily"] = await db.kv_get("daily_url", settings.daily_url) or settings.daily_url
-        _urls["weekly"] = await db.kv_get("weekly_url", settings.weekly_url) or settings.weekly_url
-    try:
-        if await content.fetch_daily(_urls["daily"], only_if_changed=True):
-            forget_content()
-    except Exception as e:
-        log.warning("daily fetch failed: %s", e)
-    try:
-        await content.fetch_weekly(_urls["weekly"], only_if_changed=True)
-    except Exception as e:
-        log.warning("weekly fetch failed: %s", e)
+    for kind, lang, key in content.FEEDS:
+        if key not in _urls:
+            _urls[key] = await content.feed_url(key)
+        try:
+            await content.fetch_feed(kind, lang, _urls[key], only_if_changed=True)
+        except Exception as e:
+            log.warning("%s/%s fetch failed: %s", kind, lang, e)
 
 
 async def run_referrals(bot: Bot) -> None:
@@ -273,6 +274,9 @@ def start(bot: Bot) -> AsyncIOScheduler:
     s.add_job(run_referrals, "interval", hours=6, args=[bot], id="referrals")
     s.add_job(run_reminders, "interval", hours=6, args=[bot], id="reminders",
               next_run_time=datetime.now(ZoneInfo("UTC")) + timedelta(minutes=10))
+    from . import backup
+    s.add_job(backup.nightly, "cron", hour=3, minute=7, timezone=ZoneInfo("Asia/Damascus"), args=[bot],
+              id="backup", misfire_grace_time=3 * 3600, coalesce=True)
     s.add_job(keepalive, "interval", minutes=settings.keepalive_minutes, id="keepalive")
     s.start()
     return s
