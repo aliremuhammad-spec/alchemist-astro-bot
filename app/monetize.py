@@ -334,8 +334,7 @@ async def weekly(tz: str = "Asia/Damascus", lang: str | None = None, user: dict 
     if not data:
         return {"available": False}
     head = {"available": True, "week_start": data["week_start"], "week_end": data.get("week_end")}
-    if user["id"] not in settings.admin_ids and not await db.is_premium(user["id"]):
-        return {**head, "locked": True}
+    # the general weekly picks are free for everyone; a personal, chart-based version will be the paid one
     tz = tz if tz in available_timezones() else "Asia/Damascus"
     await db.event(user["id"], "weekly_view")
     return {**head, "locked": False, **forecasts.weekly_view(data, tz, lg)}

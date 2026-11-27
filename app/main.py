@@ -84,7 +84,7 @@ async def configure_bot(bot: Bot) -> None:
         return
     await bot.set_webhook(f"{settings.public_url}/tg/webhook", secret_token=WEBHOOK_SECRET,
                           allowed_updates=["message", "callback_query", "my_chat_member",
-                                           "pre_checkout_query"],
+                                           "pre_checkout_query", "inline_query", "chosen_inline_result"],
                           drop_pending_updates=False)
     await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
         text="🔭 الخيميائي", web_app=WebAppInfo(url=settings.public_url)))
@@ -110,6 +110,8 @@ async def lifespan(app: FastAPI):
         log.exception("interpretations not loaded")
     bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
+    from .bot.inline import router as inline_router
+    dp.include_router(inline_router)
     dp.include_router(bot_router)
     app.state.bot, app.state.dp = bot, dp
     try:

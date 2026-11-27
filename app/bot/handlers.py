@@ -78,6 +78,11 @@ async def start(m: Message, command: CommandObject):
     if command.args == "channel":
         await m.answer(t(lang, "channel_info"), reply_markup=channel_keyboard(lang))
         return
+    if command.args in ("inline_daily", "inline_weekly", "inline_place"):
+        page = {"inline_daily": "#daily", "inline_weekly": "#weekly", "inline_place": ""}[command.args]
+        await m.answer(t(lang, command.args, name=escape(u.first_name or "")),
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, page)]]))
+        return
     if command.args in ("daily", "weekly"):
         await m.answer(t(lang, f"start_{command.args}"),
                        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, f"#{command.args}")]]))

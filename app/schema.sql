@@ -176,3 +176,6 @@ CREATE TABLE IF NOT EXISTS erased (
   founder_no INT,
   erased_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- inline mode: which result was picked (result_id only, never the query text)
+ALTER TABLE events ADD COLUMN IF NOT EXISTS meta TEXT;

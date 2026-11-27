@@ -50,8 +50,8 @@ async def kv_set(key: str, value: str) -> None:
                          key, value)
 
 
-async def event(uid: int | None, name: str) -> None:
-    await pool().execute("INSERT INTO events(user_id,name) VALUES($1,$2)", uid, name)
+async def event(uid: int | None, name: str, meta: str | None = None) -> None:
+    await pool().execute("INSERT INTO events(user_id,name,meta) VALUES($1,$2,$3)", uid, name, meta)
 
 
 async def is_premium(uid: int) -> bool:

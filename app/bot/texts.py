@@ -11,7 +11,8 @@ T = {
             "🌅 تشترك بالأبراج اليومية بالوقت اللي بيناسبك\n"
             "📢 تضيف البوت لقناتك أو مجموعتك لينشر الأبراج كل يوم تلقائياً\n"
             "🎁 تدعي أصحابك: كل صديق بيوصله تقرير فلكي مجاني، وإنت بتاخد 3 أيام مميز عن كل صديق نشط (/invite)\n"
-            "💡 تبعتلنا اقتراحاتك لتطوير البوت\n\n"
+            "💡 تبعتلنا اقتراحاتك لتطوير البوت\n"
+            "✍️ تكتب @{bot} بأي محادثة: برجك، أو «القمر في الأسد»، أو «الاختيارات الأسبوعية»\n\n"
             "📸 وتابعنا على إنستغرام حتى توصلك كل الأخبار الفلكية أول بأول 👇"
         ),
         "open_app": "🔭 افتح التطبيق",
@@ -44,6 +45,9 @@ T = {
         "chat_need_admin": "⚠️ لازم تخلّي البوت مشرف بالقناة مع صلاحية «نشر الرسائل» حتى يقدر ينشر الأبراج.",
         "daily_title": "🌅 <b>برجك اليوم · {sign} {glyph}</b>\n<i>{date}</i>",
         "digest_title": "🔮 <b>أبراج اليوم</b> · {date}",
+        "inline_daily": "أهلاً {name} 👋 وصلت من رسالة برج اليوم.\nبالتطبيق بتطلع خارطتك الكاملة مجاناً، وبتشترك ببرجك اليومي ليوصلك كل يوم بالساعة اللي بتناسبك وبتوقيتك 👇",
+        "inline_weekly": "أهلاً {name} 👋 الاختيارات الفلكية الأسبوعية مجانية بالتطبيق: أفضل الأوقات للبدايات والعقود والسفر، والأوقات اللي يُفضّل تتجنبها، كلها بتوقيتك 👇",
+        "inline_place": "أهلاً {name} 👋 هالتفسير جزء صغير من خارطتك. احسب خارطتك الكاملة مجاناً بالتطبيق وشوف وين كواكبك كلها وشو بتعني 👇",
         "start_daily": "🌅 فعّل برجك اليومي من التطبيق: اختار برجك والساعة اللي بتناسبك، والأوقات بتوصلك بتوقيتك المحلي.",
         "start_weekly": "🗓 الاختيارات الفلكية الأسبوعية: أفضل الأوقات للبدايات والعقود والسفر، محوّلة لتوقيتك.",
         "digest_more": "📖 التوقعات الكاملة لبرجك (عاطفية، مالية، مهنية) بتوصلك كل يوم عالخاص: {link}",
@@ -100,6 +104,7 @@ T = {
         "privacy": "🔐 <b>سياسة الخصوصية</b>\nشو منجمع وليش وكيف تمسحه:\n{url}\n\nلمسح كل بياناتك: /deletemydata",
         "pay_thanks": "✅ وصلت رسالتك للإدارة، رح نرد عليك قريباً.",
         "help": (
+            "✍️ اكتب @{bot} بأي محادثة: برجك، أو «القمر في الأسد»، أو «الاختيارات الأسبوعية»\n"
             "🔭 /app فتح التطبيق\n🎁 /invite ادعُ أصحابك واربح أيام مميز\n📢 /channel الأبراج لقناتك أو مجموعتك\n💡 /suggest اقتراح للتطوير\n"
             "🧾 /paysupport دعم الدفعات والاسترداد\n🔐 /privacy سياسة الخصوصية · /deletemydata مسح بياناتي\n"
             "ℹ️ /about عن البوت والكود المصدري"
@@ -120,7 +125,8 @@ T = {
             "🌅 Get your daily horoscope at a time you choose\n"
             "📢 Add the bot to your channel or group to post daily horoscopes automatically\n"
             "🎁 Invite friends: each friend gets a free astrological report, you get 3 Premium days per active friend (/invite)\n"
-            "💡 Send us your ideas to improve the bot\n\n"
+            "💡 Send us your ideas to improve the bot\n"
+            "✍️ Type @{bot} in any chat: your sign, “Moon in Leo”, or “weekly picks”\n\n"
             "📸 Follow us on Instagram for astro news 👇"
         ),
         "open_app": "🔭 Open the app",
@@ -153,6 +159,9 @@ T = {
         "chat_need_admin": "⚠️ Make the bot an admin with “Post messages” permission so it can post horoscopes.",
         "daily_title": "🌅 <b>Your day · {sign} {glyph}</b>\n<i>{date}</i>",
         "digest_title": "🔮 <b>Today's horoscopes</b> · {date}",
+        "inline_daily": "Hi {name} 👋 you came from a daily horoscope message.\nIn the app you get your full chart for free, and can subscribe to your daily horoscope at the hour you like, in your time zone 👇",
+        "inline_weekly": "Hi {name} 👋 the weekly electional picks are free in the app: the best windows for beginnings, contracts and travel, plus times to avoid, all in your time zone 👇",
+        "inline_place": "Hi {name} 👋 that reading is one small piece of a chart. Cast your full chart for free in the app and see where all your planets are and what they mean 👇",
         "start_daily": "🌅 Turn on your daily horoscope in the app: pick your sign and time; times arrive in your local zone.",
         "start_weekly": "🗓 Weekly electional picks: the best windows for beginnings, contracts and travel, in your time zone.",
         "digest_more": "📖 Your sign's full reading (love, money, career) in private, every day: {link}",
@@ -209,7 +218,7 @@ T = {
         "del_admin": "Admin accounts can't be erased from here.",
         "privacy": "🔐 <b>Privacy policy</b>\nWhat we collect, why, and how to delete it:\n{url}\n\nTo delete all your data: /deletemydata",
         "pay_thanks": "✅ Your message reached the team; we'll reply soon.",
-        "help": "🔭 /app open the app\n🎁 /invite invite friends, earn Premium days\n📢 /channel horoscopes for your channel\n💡 /suggest suggest an improvement\n🧾 /paysupport payment support & refunds\n🔐 /privacy privacy policy · /deletemydata delete my data\nℹ️ /about about & source code",
+        "help": "✍️ Type @{bot} in any chat: your sign, “Moon in Leo”, or “weekly picks”\n🔭 /app open the app\n🎁 /invite invite friends, earn Premium days\n📢 /channel horoscopes for your channel\n💡 /suggest suggest an improvement\n🧾 /paysupport payment support & refunds\n🔐 /privacy privacy policy · /deletemydata delete my data\nℹ️ /about about & source code",
         "about": (
             "🧪 <b>The Alchemist Astro</b> · beta, developed by The Alchemist.\n\n"
             "Calculations use the Swiss Ephemeris via kerykeion. Open source under AGPL-3.0:\n{source}\n\n"

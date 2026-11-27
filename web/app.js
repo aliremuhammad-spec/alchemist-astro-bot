@@ -50,7 +50,8 @@
       ch_aff_h: "كيف تاخد عمولة 20%؟", ch_aff_steps: ["افتح بروفايل البوت بتلغرام ← «برنامج الإحالة» (أو الإعدادات ← نجومي ← اربح نجوم)", "انضم بقناتك وانسخ رابط الإحالة", "الصقه هون بإعدادات القناة، وكل منشور يومي بيحمل رابطك"],
       ch_ref: "رابط الإحالة تبعك (t.me/…?start=_tgr_…)", ch_ref_bad: "الرابط لازم يكون رابط إحالة البوت من تلغرام",
       prem_contact: "💬 تواصل مع الإدارة", prem_or_invite: "أو اربح أيام مميز مجاناً: كل صديق نشط = 3 أيام", interp_h: "قاعدة التفسيرات", interp_n: "مدخلات محمّلة", interp_up: "رفع ملف قاعدة (تفسيرات أو توافق: .sqlite أو .json أو .json.gz)، البوت بيتعرّف عليها لحاله", compat_db: "قاعدة التوافق", interp_ok: "تم الاستيراد: {n} مدخل", send: "ابعتها عالمحادثة", sent: "بعتنا الخارطة عالمحادثة مع البوت",
-      share: "شارك", del: "حذف", deleted: "انحذفت الخارطة", saved_charts: "خرائطك",
+      share: "شارك", del: "حذف", deleted: "انحذفت الخارطة",
+      delc_h: "حذف الخارطة", delc_body: "رح تنحذف خارطة «{n}» نهائياً من خرائطك.", delc_main: "هي «خارطتي»، فبعد الحذف بتصير أقدم خارطة باقية هي خارطتك، وبرجك اليومي بيتبعها.", saved_charts: "خرائطك",
       limit: "الخطة المجانية بتحفظ {n} خرائط. الخارطة انحسبت بس ما انحفظت.",
       need_city: "اختار المدينة من القائمة", need_date: "التاريخ غير صحيح",
       big_sun: "الشمس", big_moon: "القمر", big_asc: "الطالع",
@@ -89,8 +90,7 @@
         ["توافق مفصّل بلا إعلانات", "غربي وفيدي (الأشتاكوتا 36 نقطة) مع 30 تقرير توافق PDF بالشهر (5 بالشهر المجاني للمؤسسين)"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
         ["تقرير فلكي PDF مفصّل", "10 تقارير بالشهر (3 بالشهر المجاني للمؤسسين): تفسير كامل للخارطة الغربية والفيدية مع اليوغات والدشا"],
-        ["الاختيارات الفلكية الأسبوعية", "أفضل أوقات الأسبوع للبدايات والعقود والسفر، محوّلة لتوقيتك"],
-        ["قريباً للمشتركين", "العبور اليومي الشخصي، تنبيهات العبور، الحسابات الفيدية المتقدمة (شادبالا وأشتاكافارغا)"]],
+        ["قريباً للمشتركين", "اختيارات فلكية أسبوعية مخصصة لخارطتك، العبور اليومي الشخصي، تنبيهات العبور، الحسابات الفيدية المتقدمة (شادبالا وأشتاكافارغا)"]],
       prem_manual: "ما عندك نجوم تلغرام أو ما فيك تشتريها؟",
       pm_btn: "💳 طرق دفع تانية", pm_title: "طرق دفع تانية",
       pm_sub: "تلغرام بيسمح ندفع للخدمات الرقمية بنجوم تلغرام ⭐ بس. هالأزرار بتاخدك لـ<b>وسطاء بيبيعوا النجوم</b>: بتشتري النجوم منهم بالطريقة اللي بتناسبك، بتوصل لحسابك، وبعدها بترجع تدفع فيها هون عادي.",
@@ -165,7 +165,8 @@
       ch_aff_h: "How to earn the 20%", ch_aff_steps: ["Open the bot's profile in Telegram → Affiliate program (or Settings → My Stars → Earn Stars)", "Join with your channel and copy the referral link", "Paste it here in the channel settings so every daily post carries it"],
       ch_ref: "Your referral link (t.me/…?start=_tgr_…)", ch_ref_bad: "Use the bot's Telegram referral link",
       prem_contact: "💬 Contact the team", prem_or_invite: "Or earn Premium days for free: each active friend = 3 days", interp_h: "Interpretation database", interp_n: "entries loaded", interp_up: "Upload a database (interpretations or compatibility: .sqlite, .json or .json.gz); detected automatically", compat_db: "Compatibility database", interp_ok: "Imported: {n} entries", send: "Send to chat", sent: "Chart sent to your chat with the bot",
-      share: "Share", del: "Delete", deleted: "Chart deleted", saved_charts: "Your charts",
+      share: "Share", del: "Delete", deleted: "Chart deleted",
+      delc_h: "Delete chart", delc_body: "The chart “{n}” will be permanently removed from your charts.", delc_main: "This is “My chart”; after deleting, your oldest remaining chart becomes your chart and your daily horoscope follows it.", saved_charts: "Your charts",
       limit: "Free plan keeps {n} charts. This one was calculated but not saved.",
       need_city: "Choose a city from the list", need_date: "Invalid date",
       big_sun: "Sun", big_moon: "Moon", big_asc: "Rising",
@@ -204,8 +205,7 @@
         ["Detailed compatibility, no ads", "Western and Vedic (36-point Ashtakoota) with 30 compatibility PDF reports a month (5 in the founders' free month)"],
         ["Unlimited profiles", "Save family and friends without a limit"],
         ["Detailed astrological report PDF", "10 a month (3 in the founders' free month): full Western and Vedic interpretation with yogas and dashas"],
-        ["Weekly electional picks", "The week's best windows for beginnings, contracts and travel, in your time zone"],
-        ["Coming for members", "Personal daily transits, transit alerts, advanced Vedic strength (Shadbala, Ashtakavarga)"]],
+        ["Coming for members", "Weekly electional picks tailored to your chart, personal daily transits, transit alerts, advanced Vedic strength (Shadbala, Ashtakavarga)"]],
       prem_manual: "No Telegram Stars, or can't buy them?",
       pm_btn: "💳 Other payment methods", pm_title: "Other payment methods",
       pm_sub: "Telegram only allows digital services to be paid with Telegram Stars ⭐. These buttons take you to <b>Stars resellers</b>: buy Stars from them with a method that suits you, they land in your account, then come back and pay here as usual.",
@@ -642,11 +642,27 @@
       openTg(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
     };
     const del = $("#del");
-    if (del) del.onclick = async () => {
-      if (del.dataset.armed !== "1") { del.dataset.armed = "1"; del.textContent = T("del") + " ؟"; setTimeout(() => { del.dataset.armed = ""; del.textContent = T("del"); }, 3000); return; }
-      await api(`/api/profiles/${S.profileId}`, { method: "DELETE" });
-      S.chart = null; S.profileId = null; await refreshSession(); toast(T("deleted")); VIEWS.chart();
-    };
+    if (del) del.onclick = () => { haptic(); deleteChart(S.profileId); };
+  }
+
+  function deleteChart(pid) {
+    const p = S.session.profiles.find((x) => x.id === pid) || {};
+    sheet(`<h3>${T("delc_h")}</h3><p class="small">${T("delc_body").replace("{n}", esc(p.name || ""))}</p>
+      ${p.is_main ? `<p class="small warn">${T("delc_main")}</p>` : ""}
+      <button class="btn solid-danger block" data-go>${T("del")}</button>
+      <button class="btn ghost block" data-close>${T("cancel")}</button>`, async (e, close) => {
+      if (e.target.closest("[data-close]")) return close();
+      const go = e.target.closest("[data-go]"); if (!go || go.disabled) return;
+      go.disabled = true; go.innerHTML = `<span class="spinner"></span>`;
+      try {
+        await api(`/api/profiles/${pid}`, { method: "DELETE" });
+        close(); haptic("medium"); toast(T("deleted"));
+        S.chart = null; S.profileId = null; S.editing = false;
+        await refreshSession();
+        const next = S.session.profiles.find((x) => x.is_main) || S.session.profiles[0];
+        if (next) loadProfile(next.id); else VIEWS.chart();
+      } catch (err) { toast(T("err") + err.message); go.disabled = false; go.textContent = T("del"); }
+    });
   }
 
   async function loadProfile(pid, keepSystem) {
@@ -797,7 +813,7 @@
     const { box } = sheet(`<h3>${T("del_h")}</h3><p class="small">${T("del_body")}</p>
       ${prem ? `<p class="small warn">⚠️ ${T("del_prem")}</p>` : ""}
       <label class="small" for="del-w">${T("del_type")}</label><input id="del-w" autocomplete="off" dir="auto">
-      <button class="btn danger block" data-go disabled>${T("del_go")}</button>
+      <button class="btn solid-danger block" data-go disabled>${T("del_go")}</button>
       <button class="btn ghost block" data-close>${T("cancel")}</button>`, async (e, close) => {
       if (e.target.closest("[data-close]")) return close();
       const go = e.target.closest("[data-go]"); if (!go || go.disabled) return;
@@ -958,7 +974,7 @@
     $("#inv-copy").onclick = async () => { try { await navigator.clipboard.writeText(st.link); } catch (e) { $("#inv-link").select(); document.execCommand("copy"); } toast(T("inv_copied")); };
   };
 
-  /* ───────────── weekly electional picks (premium, protected view) ───────────── */
+  /* ───────────── weekly electional picks (general picks: free for everyone) ───────────── */
   VIEWS.weekly = async function renderWeekly() {
     const tz = (S.session.daily && S.session.daily.tz) || Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Damascus";
     $("#view").innerHTML = skeleton(4);
@@ -1056,7 +1072,7 @@
     $("#view").innerHTML = skeleton(4);
     const info = await api("/api/premium");
     if (S.tab !== "premium") return;
-    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 5 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
+    const perks = T("prem_perks").map(([b, s], i) => `<li class="${i === 4 ? "soon" : ""}"><b>${b}</b><span>${s}</span></li>`).join("");
     const fd = S.session.founders || {};
     $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p>
       ${fd.claimed ? `<p class="pill gold">🌟 ${T("fd_badge").replace("{n}", fd.number)}</p>` : ""}</section>${foundersBanner()}
