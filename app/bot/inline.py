@@ -352,7 +352,14 @@ CITY_AR = {"Damascus": "دمشق", "Beirut": "بيروت", "Amman": "عمّان"
            "London": "لندن", "Paris": "باريس", "Kuwait": "الكويت", "Qatar": "قطر", "Muscat": "مسقط",
            "Jerusalem": "القدس", "Gaza": "غزة", "Hebron": "الخليل", "Tunis": "تونس", "Algiers": "الجزائر",
            "Casablanca": "الدار البيضاء", "Stockholm": "ستوكهولم", "Amsterdam": "أمستردام", "Vienna": "فيينا",
-           "New_York": "نيويورك", "Toronto": "تورونتو", "Erbil": "أربيل", "Bahrain": "البحرين"}
+           "New_York": "نيويورك", "Toronto": "تورونتو", "Erbil": "أربيل", "Bahrain": "البحرين",
+           "Yekaterinburg": "يكاترينبورغ", "Samara": "سامارا", "Novosibirsk": "نوفوسيبيرسك", "Kazan": "قازان",
+           "Volgograd": "فولغوغراد", "Omsk": "أومسك", "Krasnoyarsk": "كراسنويارسك", "Kaliningrad": "كالينينغراد",
+           "Tashkent": "طشقند", "Baku": "باكو", "Tbilisi": "تبليسي", "Yerevan": "يريفان", "Kiev": "كييف", "Kyiv": "كييف",
+           "Athens": "أثينا", "Rome": "روما", "Madrid": "مدريد", "Brussels": "بروكسل", "Copenhagen": "كوبنهاغن",
+           "Oslo": "أوسلو", "Helsinki": "هلسنكي", "Zurich": "زيورخ", "Tripoli": "طرابلس", "Khartoum": "الخرطوم",
+           "Aden": "عدن", "Tehran": "طهران", "Nicosia": "نيقوسيا", "Chicago": "شيكاغو", "Los_Angeles": "لوس أنجلوس",
+           "Sydney": "سيدني"}
 
 
 def _esc(s: str) -> str:
@@ -431,6 +438,20 @@ async def daily_data(lang: str, tz: str) -> tuple[dict | None, date]:
     return await scheduler._content(day, lang), day
 
 
+def distinct_sentence(data: dict, key: str, lang: str, tz: str) -> str:
+    """The first sentence of this sign's general text that the other signs don't share.
+    Daily files often open every sign with the same sky summary, which made all 12 descriptions identical."""
+    from .. import forecasts
+    mine = forecasts.daily_sign_short(data, key, lang, tz, 8)
+    other_key = SIGN_KEYS[(SIGN_KEYS.index(key) + 6) % 12]
+    other = forecasts.daily_sign_short(data, other_key, lang, tz, 8)
+    sents = [x for x in re.split(r"(?<=[.!؟?])\s+", mine) if x.strip()]
+    for x in sents:
+        if x not in other:
+            return x
+    return sents[0] if sents else ""
+
+
 def daily_result(data: dict, day: date, key: str, lang: str, tz: str, personal: bool = False) -> InlineQueryResultArticle:
     from .. import forecasts
     i = SIGN_KEYS.index(key)
@@ -438,7 +459,7 @@ def daily_result(data: dict, day: date, key: str, lang: str, tz: str, personal: 
     body = _relabel(forecasts.daily_sign_html(data, key, lang, tz), tz, lang)
     head = tx(lang, "daily_head", g=SIGN_GLYPH[i], s=name, d=day.strftime("%d/%m"))
     text = fit(f"{head}\n\n{body}", lang, "daily")
-    short = _plain(_relabel(forecasts.daily_sign_short(data, key, lang, tz, 1), tz, lang))
+    short = _plain(_relabel(distinct_sentence(data, key, lang, tz), tz, lang))
     if personal:
         return article(f"daily:me:{key}:{day}:{lang}", tx(lang, "my_title", s=name), tx(lang, "my_desc") + " · " + short,
                        text, kb(lang, "daily"))
