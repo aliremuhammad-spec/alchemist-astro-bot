@@ -85,7 +85,11 @@
       suggest_ph: "شو الميزة اللي بتحب تشوفها؟ أو شو الشي اللي ما زبط معك؟", suggest_send: "ابعت الاقتراح",
       suggest_ok: "وصل اقتراحك للمطوّر، شكراً", source: "الكود المصدري", source_sub: "مفتوح المصدر بترخيص AGPL-3.0", ui_lang: "لغة الواجهة",
       prem_title: "الخيميائي المميز", prem_sub: "اشتراك شهري بالنجوم يفتح كل المزايا المتقدمة.",
-      prem_active: "اشتراكك فعّال حتى ", prem_buy: "اشترك بـ {n} نجمة شهرياً", prem_paid: "تم الاشتراك، أهلاً بك بالمميز ✨",
+      prem_active: "اشتراكك فعّال حتى ", prem_buy: "اشترك بـ {n} نجمة شهرياً",
+      pl_m1: "شهري", pl_per_m: "بالشهر", pl_m1_note: "بيتجدد تلقائياً كل شهر، وفيك توقفه وقت ما بدك",
+      pl_m6: "6 أشهر", pl_y1: "سنة كاملة", pl_best: "الأوفر", pl_save: "وفّر {n}%", pl_eq: "يعني {n} نجمة بالشهر",
+      pl_once: "دفعة وحدة بدون تجديد تلقائي", pl_extend: "بتنضاف لآخر اشتراكك الحالي",
+      pl_stop_note: "إذا اشتريت باقة 6 أشهر أو سنة، منوقّف التجديد الشهري التلقائي حتى ما تندفع مرتين.", prem_paid: "تم الاشتراك، أهلاً بك بالمميز ✨",
       prem_perks: [["الخرائط الفرعية D2 لـ D60", "الهورا، الدريكانا، النافامشا، الداشامشا وكل الشودشافارغا"],
         ["توافق مفصّل بلا إعلانات", "غربي وفيدي (الأشتاكوتا 36 نقطة) مع 30 تقرير توافق PDF بالشهر (5 بالشهر المجاني للمؤسسين)"],
         ["ملفات غير محدودة", "احفظ خرائط العائلة والأصدقاء بدون حد"],
@@ -200,7 +204,11 @@
       suggest_ph: "What would you like to see? What didn't work?", suggest_send: "Send suggestion",
       suggest_ok: "Your suggestion reached the developer. Thanks", source: "Source code", source_sub: "Open source under AGPL-3.0", ui_lang: "Interface language",
       prem_title: "Alchemist Premium", prem_sub: "A monthly Stars subscription that unlocks every advanced feature.",
-      prem_active: "Your subscription is active until ", prem_buy: "Subscribe for {n} Stars a month", prem_paid: "You're Premium now ✨",
+      prem_active: "Your subscription is active until ", prem_buy: "Subscribe for {n} Stars a month",
+      pl_m1: "Monthly", pl_per_m: "a month", pl_m1_note: "Renews automatically every month; cancel any time",
+      pl_m6: "6 months", pl_y1: "1 year", pl_best: "Best value", pl_save: "Save {n}%", pl_eq: "{n} Stars a month",
+      pl_once: "one payment, no auto-renewal", pl_extend: "added after your current subscription ends",
+      pl_stop_note: "If you buy 6 months or a year, we stop your monthly auto-renewal so you aren't charged twice.", prem_paid: "You're Premium now ✨",
       prem_perks: [["Divisional charts D2–D60", "Hora, Drekkana, Navamsha, Dashamsha and the full Shodashavarga"],
         ["Detailed compatibility, no ads", "Western and Vedic (36-point Ashtakoota) with 30 compatibility PDF reports a month (5 in the founders' free month)"],
         ["Unlimited profiles", "Save family and friends without a limit"],
@@ -1077,25 +1085,34 @@
     $("#view").innerHTML = `<section class="prem-hero"><div class="star" aria-hidden="true">✦</div><h2>${T("prem_title")}</h2><p class="muted">${T("prem_sub")}</p>
       ${fd.claimed ? `<p class="pill gold">🌟 ${T("fd_badge").replace("{n}", fd.number)}</p>` : ""}</section>${foundersBanner()}
       <ul class="perks">${perks}</ul>
-      ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>`
-                    : `<button class="btn block big" id="buy">⭐ ${T("prem_buy").replace("{n}", info.stars)}</button>`}
+      ${info.active ? `<p class="warn ok">${T("prem_active")}<span class="num">${info.until.slice(0, 10)}</span></p>` : ""}
+      <div class="plans" role="list">
+        ${info.active ? "" : `<button class="plan" role="listitem" data-plan="m1"><span class="plan-name">${T("pl_m1")}</span>
+          <span class="plan-price">⭐ <b class="num">${info.stars}</b> <small>${T("pl_per_m")}</small></span><small class="muted">${T("pl_m1_note")}</small></button>`}
+        ${(info.plans || []).map((p) => `<button class="plan${p.id === "y1" ? " best" : ""}" role="listitem" data-plan="${p.id}">
+          ${p.id === "y1" ? `<span class="pill gold">${T("pl_best")}</span>` : ""}
+          <span class="plan-name">${T("pl_" + p.id)}</span>
+          <span class="plan-price">⭐ <b class="num">${p.stars}</b>${p.save > 0 ? ` <small class="save">${T("pl_save").replace("{n}", p.save)}</small>` : ""}</span>
+          <small class="muted">${T("pl_eq").replace("{n}", p.per_month)} · ${T(info.active ? "pl_extend" : "pl_once")}</small></button>`).join("")}
+      </div>
+      ${info.recurring ? `<p class="small muted">${T("pl_stop_note")}</p>` : ""}
       <div class="card manual mt16"><p class="small">${T("prem_manual")}</p><button class="btn ghost block" id="other-pay">${T("pm_btn")}</button></div>
       <button class="card invite-cta" data-invite>${T("prem_or_invite")}</button>`;
     $("#other-pay").onclick = () => { haptic(); payMethods(info.resellers || []); };
     document.querySelector("[data-invite]").onclick = () => setTab("invite");
     bindFounders();
-    const buy = $("#buy");
-    if (buy) buy.onclick = async () => {
+    document.querySelectorAll("[data-plan]").forEach((buy) => buy.onclick = async () => {
+      haptic();
       buy.disabled = true;
       try {
-        const { link } = await post("/api/premium/invoice");
+        const { link } = await post("/api/premium/invoice", { plan: buy.dataset.plan });
         const done = (status) => {
           buy.disabled = false;
           if (status === "paid") { toast(T("prem_paid")); haptic("heavy"); setTimeout(async () => { await refreshSession(); VIEWS.premium(); }, 1500); }
         };
         if (tg && tg.openInvoice) tg.openInvoice(link, done); else { openTg(link); buy.disabled = false; }
       } catch (e) { toast(T("err") + e.message); buy.disabled = false; }
-    };
+    });
   };
 
   /* ───────────── admin dashboard ───────────── */

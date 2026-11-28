@@ -322,7 +322,11 @@ async def cmd_grant(m: Message, command: CommandObject):
 @router.pre_checkout_query()
 async def pre_checkout(q: PreCheckoutQuery):
     ok = q.currency == "XTR" and q.invoice_payload in (f"premium:{q.from_user.id}", f"synrep:{q.from_user.id}",
-                                                      f"natrep:{q.from_user.id}")
+                                                      f"natrep:{q.from_user.id}", f"plan:m6:{q.from_user.id}",
+                                                      f"plan:y1:{q.from_user.id}")
+    if ok and q.invoice_payload.startswith("plan:"):     # an old invoice must not be paid after a price change
+        from ..monetize import plan_price
+        ok = q.total_amount == await plan_price(q.invoice_payload.split(":")[1])
     await q.answer(ok=ok, error_message=None if ok else "Invalid invoice")
 
 
@@ -341,6 +345,27 @@ async def paid(m: Message):
         for a in settings.admin_ids:
             try:
                 await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة ({'تقرير توافق' if syn else 'تقرير فلكي'}) من "
+                                            f"{escape(m.from_user.full_name)} (<code>{m.from_user.id}</code>)")
+            except Exception:
+                pass
+        return
+    if m.successful_payment.invoice_payload.startswith("plan:"):
+        from ..monetize import record_plan_payment
+        r = await record_plan_payment(m.bot, m.from_user.id, m.successful_payment)
+        months = 6 if r["plan"] == "m6" else 12
+        until = r["until"].strftime("%Y-%m-%d") if r["until"] else ""
+        if lang == "ar":
+            txt = (f"✨ <b>تم تفعيل المميز لـ{'6 أشهر' if months == 6 else 'سنة كاملة'}!</b> شكراً لدعمك."
+                   + (f"\nاشتراكك فعّال لحد <b>{until}</b>." if until else "")
+                   + ("\nووقّفنا التجديد الشهري التلقائي حتى ما تندفع مرتين." if r["stopped_renewal"] else ""))
+        else:
+            txt = (f"✨ <b>Premium is active for {'6 months' if months == 6 else 'a full year'}!</b> Thanks for your support."
+                   + (f"\nActive until <b>{until}</b>." if until else "")
+                   + ("\nWe stopped your monthly auto-renewal so you aren't charged twice." if r["stopped_renewal"] else ""))
+        await m.answer(txt, reply_markup=InlineKeyboardMarkup(inline_keyboard=[[app_button(lang, "#premium")]]))
+        for a in settings.admin_ids:
+            try:
+                await m.bot.send_message(a, f"⭐ دفعة {m.successful_payment.total_amount} نجمة (باقة {months} شهر) من "
                                             f"{escape(m.from_user.full_name)} (<code>{m.from_user.id}</code>)")
             except Exception:
                 pass
@@ -364,9 +389,15 @@ async def paid(m: Message):
 async def cmd_setprice(m: Message, command: CommandObject):
     if not is_admin(m.from_user.id):
         return
-    v = (command.args or "").strip()
-    if not v.isdigit() or not 1 <= int(v) <= 10000:
-        await m.answer("الاستخدام: /setprice 300")
+    args = (command.args or "").split()
+    plan = args[1] if len(args) > 1 else ""
+    v = args[0] if args else ""
+    if plan in ("m6", "y1") and v.isdigit() and 1 <= int(v) <= 100000:
+        await db.kv_set(f"plan_{plan}_stars", v)
+        await m.answer(f"✅ سعر باقة {'الست أشهر' if plan == 'm6' else 'السنة'} الجديد {v} نجمة")
+        return
+    if not v.isdigit() or not 1 <= int(v) <= 10000 or plan:
+        await m.answer("الاستخدام:\n/setprice 300 ← الاشتراك الشهري\n/setprice 1600 m6 ← باقة 6 أشهر\n/setprice 2400 y1 ← باقة سنة")
         return
     await db.kv_set("premium_stars", v)
     await m.answer(f"✅ سعر الاشتراك الجديد {v} نجمة (للاشتراكات الجديدة فقط)")
@@ -431,6 +462,9 @@ async def cb_paywrite(c: CallbackQuery):
 
 def _what(lang: str, payload: str | None) -> str:
     kind = (payload or "premium:").split(":", 1)[0]
+    if kind == "plan":
+        six = (payload or "").startswith("plan:m6")
+        return ("مميز 6 أشهر" if six else "مميز سنة") if lang == "ar" else ("Premium 6 months" if six else "Premium 1 year")
     return t(lang, f"what_{kind}") if kind in ("premium", "natrep", "synrep") else kind
 
 

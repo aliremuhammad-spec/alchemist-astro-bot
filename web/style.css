@@ -365,3 +365,16 @@ details.ent .adv { background: var(--verd-soft); border-radius: var(--r-s); padd
 .btn.solid-danger:disabled { opacity: .45; }
 .btn.ghost.danger-text { color: var(--danger); border-color: rgba(224, 122, 106, .45); margin-top: 12px; }
 html.light .btn.ghost.danger-text { color: var(--danger); }
+
+/* premium plans */
+.plans { display: grid; gap: 10px; margin: 14px 0 4px; }
+.plan { position: relative; display: grid; gap: 4px; text-align: start; width: 100%; padding: 14px 16px; cursor: pointer;
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-s); color: inherit; font: inherit; }
+.plan:hover, .plan:focus-visible { border-color: var(--brass); }
+.plan:disabled { opacity: .6; }
+.plan.best { border-color: var(--brass); box-shadow: 0 0 0 3px var(--brass-soft); }
+.plan .plan-name { font-weight: 700; font-size: 16px; }
+.plan .plan-price { font-size: 15px; color: var(--brass); }
+.plan .plan-price b { font-size: 20px; }
+.plan .save { margin-inline-start: 6px; color: var(--verdigris, #4fb796); font-weight: 600; }
+.plan .pill { position: absolute; inset-inline-end: 12px; top: 12px; font-size: 11px; }

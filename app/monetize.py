@@ -20,6 +20,7 @@ from .astro.vargas import VARGAS, varga_chart
 from .config import settings
 
 router = APIRouter(prefix="/api")
+log = __import__("logging").getLogger("monetize")
 SUB_PERIOD = 30 * 24 * 3600  # Telegram allows exactly 30 days for Star subscriptions
 PLACEMENTS = {"synastry", "chart"}
 
@@ -27,6 +28,27 @@ PLACEMENTS = {"synastry", "chart"}
 async def premium_price() -> int:
     v = await db.kv_get("premium_stars", str(settings.premium_stars))
     return int(v) if v.isdigit() else settings.premium_stars
+
+
+# prepaid plans: one payment, no auto-renewal (Telegram Star subscriptions can only be 30 days)
+PLANS = {"m6": {"days": 180, "months": 6, "stars": 1600}, "y1": {"days": 365, "months": 12, "stars": 2400}}
+
+
+async def plan_price(plan: str) -> int:
+    v = await db.kv_get(f"plan_{plan}_stars", "")
+    return int(v) if v.isdigit() else PLANS[plan]["stars"]
+
+
+async def plans_info() -> list[dict]:
+    monthly = await premium_price()
+    out = []
+    for k, p in PLANS.items():
+        stars = await plan_price(k)
+        full = monthly * p["months"]
+        out.append({"id": k, "days": p["days"], "months": p["months"], "stars": stars,
+                    "per_month": round(stars / p["months"]),
+                    "save": max(0, round(100 * (full - stars) / full)) if full else 0})
+    return out
 
 
 # ───────────── rewarded ads ─────────────
@@ -214,13 +236,36 @@ async def premium_info(user: dict = Depends(current_user)):
         user["id"])
     return {"active": bool(row), "until": row["ends_at"].isoformat() if row else None,
             "source": row["source"] if row else None, "stars": await premium_price(),
+            "plans": await plans_info(),
+            "recurring": bool(await db.pool().fetchval(
+                """SELECT 1 FROM payments p JOIN subscriptions s ON s.charge_id=p.charge_id
+                   WHERE p.user_id=$1 AND p.recurring AND NOT p.refunded AND s.ends_at > now() LIMIT 1""", user["id"])),
             "resellers": paymethods.localized(await paymethods.load(), user["lang"])}
 
 
 @router.post("/premium/invoice")
-async def premium_invoice(request: Request, user: dict = Depends(current_user)):
+async def premium_invoice(request: Request, body: dict | None = None, user: dict = Depends(current_user)):
     bot: Bot = request.app.state.bot
     lang = user["lang"]
+    plan = (body or {}).get("plan") or "m1"
+    if plan in PLANS:
+        p = PLANS[plan]
+        ar_len = "6 أشهر" if p["months"] == 6 else "سنة كاملة"
+        en_len = "6 months" if p["months"] == 6 else "1 year"
+        link = await bot.create_invoice_link(
+            title=f"الخيميائي المميز · {ar_len}" if lang == "ar" else f"Alchemist Premium · {en_len}",
+            description=(f"المميز لمدة {ar_len} بدفعة وحدة وبدون تجديد تلقائي: الخرائط الفرعية D2–D60، التوافق بلا إعلانات، "
+                         "تقارير شهرية، وكل المزايا المميزة القادمة. بتنضاف لاشتراكك الحالي إذا عندك."
+                         if lang == "ar" else
+                         f"Premium for {en_len}, one payment, no auto-renewal: divisional charts D2–D60, ad-free synastry, "
+                         "monthly reports and all upcoming premium features. Added on top of any current subscription."),
+            payload=f"plan:{plan}:{user['id']}",
+            currency="XTR",
+            prices=[LabeledPrice(label=f"Premium {en_len}", amount=await plan_price(plan))],
+        )
+        return {"link": link}
+    if plan != "m1":
+        raise HTTPException(400, "plan")
     link = await bot.create_invoice_link(
         title="الخيميائي المميز" if lang == "ar" else "Alchemist Premium",
         description=("اشتراك شهري: الخرائط الفرعية D2–D60، التوافق بلا إعلانات، ملفات غير محدودة، والمزايا المميزة القادمة."
@@ -250,6 +295,39 @@ async def record_payment(uid: int, sp) -> None:
     await db.pool().execute(
         "INSERT INTO subscriptions(user_id,source,ends_at,charge_id) VALUES($1,'stars',$2,$3)",
         uid, expires, sp.telegram_payment_charge_id)
+
+
+async def record_plan_payment(bot: Bot, uid: int, sp) -> dict:
+    """Prepaid plan: add its days after the current premium end, and stop a monthly auto-renewal so
+    the user is not charged twice."""
+    from datetime import timedelta
+    plan = sp.invoice_payload.split(":")[1]
+    days = PLANS[plan]["days"]
+    p = db.pool()
+    await p.execute(
+        """INSERT INTO payments(user_id,stars,charge_id,payload,recurring,first_recurring,expires_at)
+           VALUES($1,$2,$3,$4,FALSE,FALSE,NULL) ON CONFLICT(charge_id) DO NOTHING""",
+        uid, sp.total_amount, sp.telegram_payment_charge_id, sp.invoice_payload)
+    if await p.fetchval("SELECT 1 FROM subscriptions WHERE charge_id=$1", sp.telegram_payment_charge_id):
+        return {"plan": plan, "until": None, "stopped_renewal": False}     # duplicate update
+    now = datetime.now(timezone.utc)
+    current = await p.fetchval("SELECT max(ends_at) FROM subscriptions WHERE user_id=$1 AND ends_at > now()", uid)
+    start = max(now, current) if current else now
+    until = start + timedelta(days=days)
+    await p.execute("INSERT INTO subscriptions(user_id,source,starts_at,ends_at,charge_id,note) VALUES($1,'stars',$2,$3,$4,$5)",
+                    uid, start, until, sp.telegram_payment_charge_id, f"plan {plan}")
+    stopped = False
+    rows = await p.fetch(
+        """SELECT p.charge_id FROM payments p JOIN subscriptions s ON s.charge_id=p.charge_id
+           WHERE p.user_id=$1 AND p.recurring AND NOT p.refunded AND s.ends_at > now() ORDER BY p.created_at DESC""", uid)
+    for r in rows:
+        try:
+            await bot.edit_user_star_subscription(user_id=uid, telegram_payment_charge_id=r["charge_id"], is_canceled=True)
+            stopped = True
+            break
+        except Exception as e:  # already cancelled, or not the subscription's charge id
+            log.info("cancel renewal %s: %s", r["charge_id"], e)
+    return {"plan": plan, "until": until, "stopped_renewal": stopped}
 
 
 # ───────────── PDF report (premium) ─────────────
